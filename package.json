@@ -1,0 +1,24 @@
+{
+  "name": "dock-nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start":"node dist/index.js",
+    "build":"rimraf dist && swc ./src -d dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "@swc/cli": "^0.1.62",
+    "@swc/core": "^1.3.83",
+    "@tsconfig/node20": "^20.1.2",
+    "@types/node": "^20.6.0",
+    "rimraf": "^5.0.1"
+  }
+}
