@@ -26,9 +26,6 @@ dependencies:
   morgan:
     specifier: ^1.10.0
     version: 1.10.0
-  tsc:
-    specifier: ^2.0.4
-    version: 2.0.4
   typescript:
     specifier: ^5.2.2
     version: 5.2.2
@@ -2869,11 +2866,6 @@ packages:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
     dev: true
-
-  /tsc@2.0.4:
-    resolution: {integrity: sha512-fzoSieZI5KKJVBYGvwbVZs/J5za84f2lSTLPYf6AGiIf43tZ3GNrI1QzTLcjtyDDP4aLxd46RTZq1nQxe7+k5Q==}
-    hasBin: true
-    dev: false
 
   /type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
