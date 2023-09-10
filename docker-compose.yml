@@ -10,7 +10,7 @@ services:
   api:
     build: .
     ports:
-      - 4000:3000
+      - 5000:5000
       - 9229:9229
     volumes:
       - .:/usr/src/app
