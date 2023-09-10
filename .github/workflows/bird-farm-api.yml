@@ -1,4 +1,4 @@
-name: My App CI/CD
+name: Bird Farm API CI/CD
 
 on:
   push:
@@ -20,6 +20,6 @@ jobs:
 
       - run: pnpm run test
 
-      - run: docker build -t my-app .
+      - run: docker build -t bird-farm-api .
 
-      - run: docker push my-app
+      - run: docker push bird-farm-api
