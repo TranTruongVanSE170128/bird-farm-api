@@ -18,10 +18,8 @@ jobs:
 
       - run: npm install -g pnpm
 
-      - run: pnpm install
+      - run: pnpm install --frozen-lockfile
 
-      - run: pnpm run test
+      - run: docker build -t trantruongvan/bird-farm-api .
 
-      - run: docker build -t bird-farm-api .
-
-      - run: docker push bird-farm-api
+      - run: docker push trantruongvan/bird-farm-api
