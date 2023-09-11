@@ -7,12 +7,14 @@ import {
   forgetPassword,
   resetPassword,
 } from '../controllers/auth';
+import { validateRequestData } from '../middleware/validate-request-data';
+import { signInSchema } from '../validations/auth';
 
 const router = express.Router();
 
 router.post('/login-google', loginByGoogle);
 
-router.post('/sign-in', signIn);
+router.post('/sign-in', validateRequestData(signInSchema), signIn);
 
 router.post('/sign-up', signUp);
 
