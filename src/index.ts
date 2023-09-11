@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoute);
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, async () => {
   console.log(`Server running at http://localhost:${PORT}`);
