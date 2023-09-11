@@ -23,7 +23,8 @@
     "mailgen": "^2.0.27",
     "mongoose": "^7.5.0",
     "morgan": "^1.10.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "zod": "^3.22.2"
   },
   "devDependencies": {
     "@swc/cli": "^0.1.62",
