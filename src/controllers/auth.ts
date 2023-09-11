@@ -184,4 +184,91 @@ const verifyUser = async (req: Request, res: Response) => {
   }
 };
 
-export { loginByGoogle, signIn, signUp, verifyUser };
+const forgetPassword = async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Not found user' });
+    }
+
+    if (!user.verified) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Email not verified' });
+    }
+
+    user.resetPasswordCode = crypto.randomBytes(4).toString('hex');
+    await user.save();
+
+    const mailContent = {
+      body: {
+        name: user.username,
+        intro:
+          'Chào mừng đến với Bird Farm. Dưới đây là mã khôi phục mật khẩu của bạn:',
+        outro: `Mã khôi phục mật khẩu của bạn là: ${user.resetPasswordCode}`,
+      },
+    };
+
+    await sendEmail({
+      userEmail: user.email!,
+      mailContent,
+      subject: 'Verify Email',
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'User should receive an email with verify code',
+      email: user.email,
+      userId: user.id,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+const resetPassword = async (req: Request, res: Response) => {
+  const { id, resetPasswordCode } = req.params;
+  const { password } = req.body;
+
+  try {
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Not found user' });
+    }
+
+    if (user.resetPasswordCode !== resetPasswordCode) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Wrong reset password code' });
+    }
+
+    user.resetPasswordCode = undefined;
+    const hashedPassword = await argon2.hash(password);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Reset password successfully!',
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+export {
+  loginByGoogle,
+  signIn,
+  signUp,
+  verifyUser,
+  forgetPassword,
+  resetPassword,
+};
