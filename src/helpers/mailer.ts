@@ -1,6 +1,9 @@
 import nodemailer from 'nodemailer';
 import { Content } from 'mailgen';
 import MailGen from 'mailgen';
+import {config} from 'dotenv';
+
+config()
 
 const mailGenerator = new MailGen({
   theme: 'default',
@@ -35,8 +38,6 @@ const sendEmail = async ({ userEmail, mailContent, subject }: TSendEmail) => {
     subject,
     html: mail,
   };
-
   transporter.sendMail(message);
 };
-
 export { sendEmail };

@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import mongoose from 'mongoose';
 
 config();
+console.log(process.env.MONGODB_URI);
 
 const connectDB = async () => {
   try {
@@ -20,7 +21,6 @@ const connectDB = async () => {
 connectDB();
 
 const app = express();
-
 app.use(morgan('dev'));
 app.use(cors({ credentials: true }));
 app.use(express.json());

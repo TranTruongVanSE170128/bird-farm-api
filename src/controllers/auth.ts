@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import User from '../models/user';
-import Token from '../models/token';
 import { convertUserIdToJwt } from '../helpers/convert-user-id-to-jwt';
 import dotenv from 'dotenv';
 import argon2 from 'argon2';
@@ -115,19 +114,20 @@ const signUp = async (req: Request, res: Response) => {
         .json({ success: false, message: 'Username or Email already exists' });
 
     const hashedPassword = await argon2.hash(password);
-    const newUser = new User({ username, email, password: hashedPassword });
+    const verifyCode = crypto.randomBytes(4).toString('hex');
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword,
+      verifyCode,
+    });
+
     await newUser.save();
-
-    const token = await new Token({
-      user: newUser.id,
-      token: crypto.randomBytes(4).toString('hex'),
-    }).save();
-
     const mailContent = {
       body: {
         name: newUser.username,
         intro: 'Chào mừng đến với Bird Farm. Dưới đây là mã xác thực của bạn:',
-        outro: `Mã xác thực của bạn là: ${token.token}`,
+        outro: `Mã xác thực của bạn là: ${newUser.verifyCode}`,
       },
     };
 
@@ -159,11 +159,7 @@ const verifyUser = async (req: Request, res: Response) => {
         .status(400)
         .json({ success: false, message: 'Not found user' });
     }
-
-    const token = await Token.findOne({
-      user: user._id,
-      token: tokenParam,
-    });
+    const token = user.verifyCode;
     if (!token) {
       return res
         .status(400)
@@ -171,9 +167,8 @@ const verifyUser = async (req: Request, res: Response) => {
     }
 
     user.verified = true;
+    user.verifyCode = '';
     await user.save();
-    await token.deleteOne();
-
     res.status(200).json({
       success: true,
       message: 'Email verified successfully',
