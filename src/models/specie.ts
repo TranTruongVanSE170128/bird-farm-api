@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
 const SpecieSchema = new mongoose.Schema({
-  name: String,
-});
+  name: String
+})
 
-module.exports = mongoose.model('Specie', SpecieSchema);
+module.exports = mongoose.model('Specie', SpecieSchema)

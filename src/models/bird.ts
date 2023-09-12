@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
 const BirdSchema = new mongoose.Schema({
   name: String,
@@ -13,19 +13,19 @@ const BirdSchema = new mongoose.Schema({
   achievements: [
     {
       competition: String,
-      rank: Number,
-    },
+      rank: Number
+    }
   ],
   breeds: [
     {
       children: { type: [mongoose.Schema.Types.ObjectId], ref: 'Bird' }, //ref
-      date: Date,
-    },
+      date: Date
+    }
   ],
   parents: {
     dad: { type: mongoose.Schema.Types.ObjectId, ref: 'Bird' },
-    mom: { type: mongoose.Schema.Types.ObjectId, ref: 'Bird' },
-  },
-});
+    mom: { type: mongoose.Schema.Types.ObjectId, ref: 'Bird' }
+  }
+})
 
-module.exports = mongoose.model('Bird', BirdSchema);
+module.exports = mongoose.model('Bird', BirdSchema)

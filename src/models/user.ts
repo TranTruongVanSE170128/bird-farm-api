@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
 const UserSchema = new mongoose.Schema({
   username: String,
@@ -6,7 +6,7 @@ const UserSchema = new mongoose.Schema({
   password: String,
   imageUrl: String,
   resetPasswordCode: String,
-  verifyCode:String,
+  verifyCode: String,
   verified: { type: Boolean, default: false },
   role: { type: String, enum: ['customer', 'admin', 'staff', 'manager'] },
   deliveryInfos: [
@@ -14,9 +14,9 @@ const UserSchema = new mongoose.Schema({
       receiver: String,
       phone: String,
       address: String,
-      default: Boolean,
-    },
-  ],
-});
+      default: Boolean
+    }
+  ]
+})
 
-export default mongoose.model('User', UserSchema);
+export default mongoose.model('User', UserSchema)

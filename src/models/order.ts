@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
 const OrderSchema = new mongoose.Schema(
   {
@@ -6,9 +6,9 @@ const OrderSchema = new mongoose.Schema(
     phone: String,
     address: String,
     customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
-    birds: { type: [mongoose.Schema.Types.ObjectId], ref: 'Bird' },
+    birds: { type: [mongoose.Schema.Types.ObjectId], ref: 'Bird' }
   },
   { timestamps: true }
-);
+)
 
-module.exports = mongoose.model('Order', OrderSchema);
+module.exports = mongoose.model('Order', OrderSchema)

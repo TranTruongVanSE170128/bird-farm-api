@@ -1,38 +1,38 @@
-import express from 'express';
-import cors from 'cors';
-import authRoute from './routes/auth';
-import { config } from 'dotenv';
-import morgan from 'morgan';
-import mongoose from 'mongoose';
+import express from 'express'
+import cors from 'cors'
+import authRoute from './routes/auth'
+import { config } from 'dotenv'
+import morgan from 'morgan'
+import mongoose from 'mongoose'
 
-config();
-console.log(process.env.MONGODB_URI);
+config()
+console.log(process.env.MONGODB_URI)
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI as string);
-    console.log('Mongoose connected successfully');
+    await mongoose.connect(process.env.MONGODB_URI as string)
+    console.log('Mongoose connected successfully')
   } catch (err) {
-    console.log(err);
-    process.exit(1);
+    console.log(err)
+    process.exit(1)
   }
-};
+}
 
-connectDB();
+connectDB()
 
-const app = express();
-app.use(morgan('dev'));
-app.use(cors({ credentials: true }));
-app.use(express.json());
+const app = express()
+app.use(morgan('dev'))
+app.use(cors({ credentials: true }))
+app.use(express.json())
 
 app.get('/', (req, res) => {
-  res.json({ hello: 'hello world!' });
-});
+  res.json({ hello: 'hello world!' })
+})
 
-app.use('/api/auth', authRoute);
+app.use('/api/auth', authRoute)
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000
 
 app.listen(PORT, async () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+  console.log(`Server running at http://localhost:${PORT}`)
+})
