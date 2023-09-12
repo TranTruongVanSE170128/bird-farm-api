@@ -18,7 +18,7 @@ router.post('/sign-in', validateRequestData(signInSchema), signIn);
 
 router.post('/sign-up', signUp);
 
-router.get('/:id/verify/:token', verifyUser);
+router.get('/:id/verify/:verifyCode', verifyUser);
 
 router.post('/forget-password', forgetPassword);
 

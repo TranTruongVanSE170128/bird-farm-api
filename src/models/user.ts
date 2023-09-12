@@ -6,6 +6,7 @@ const UserSchema = new mongoose.Schema({
   password: String,
   imageUrl: String,
   resetPasswordCode: String,
+  verifyCode:String,
   verified: { type: Boolean, default: false },
   role: { type: String, enum: ['customer', 'admin', 'staff', 'manager'] },
   deliveryInfos: [
