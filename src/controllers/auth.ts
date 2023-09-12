@@ -167,7 +167,7 @@ const verifyUser = async (req: Request, res: Response) => {
     }
 
     user.verified = true;
-    user.verifyCode = '';
+    user.verifyCode = undefined;
     await user.save();
     res.status(200).json({
       success: true,
