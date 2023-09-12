@@ -32,7 +32,7 @@ const loginByGoogle = async (req: Request, res: Response) => {
   if (!userGoogle.email_verified) {
     return res
       .status(403)
-      .json({ success: false, message: 'The emails are not verified' });
+      .json({ success: false, message: 'Email này chưa được xác thực!' });
   }
 
   const user = await User.findOne({ email: userGoogle.email });
@@ -48,7 +48,7 @@ const loginByGoogle = async (req: Request, res: Response) => {
     const accessToken = convertUserIdToJwt(newUser.id);
     return res.json({
       success: true,
-      message: 'User logged in successfully',
+      message: 'Bạn đăng nhập thành công!',
       accessToken,
     });
   }
@@ -56,7 +56,7 @@ const loginByGoogle = async (req: Request, res: Response) => {
   const accessToken = convertUserIdToJwt(user.id);
   res.json({
     success: true,
-    message: 'User logged in successfully',
+    message: 'Bạn đăng nhập thành công!',
     accessToken,
   });
 };
@@ -69,20 +69,20 @@ const signIn = async (req: Request, res: Response) => {
     if (!user)
       return res.status(400).json({
         success: false,
-        message: 'Incorrect username and/or password ',
+        message: 'Tên người dùng hoặc mật khẩu không hợp lệ.',
       });
 
     const passwordValid = await argon2.verify(user.password!, password);
     if (!passwordValid)
       return res.status(400).json({
         success: false,
-        message: 'Incorrect username and/or password',
+        message: 'Tên người dùng hoặc mật khẩu không hợp lệ.',
       });
 
     if (!user.verified) {
       return res.status(400).json({
         success: false,
-        message: 'Email is not verified',
+        message: 'Email này chưa được xác thực.',
         userId: user.id,
         email: user.email,
       });
@@ -92,12 +92,12 @@ const signIn = async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      message: 'User logged in successfully',
+      message: 'Bạn đăng nhập thành công!',
       accessToken,
     });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ success: false, message: 'Internal Server Error' });
+    res.status(500).json({ success: false, message: 'Phát hiện lỗi trong hệ thống!' });
   }
 };
 
@@ -111,7 +111,7 @@ const signUp = async (req: Request, res: Response) => {
     if (userByName || userByEmail)
       return res
         .status(400)
-        .json({ success: false, message: 'Username or Email already exists' });
+        .json({ success: false, message: 'Tên người dùng hoặc email đã được sử dụng.' });
 
     const hashedPassword = await argon2.hash(password);
     const verifyCode = crypto.randomBytes(4).toString('hex');
@@ -120,7 +120,7 @@ const signUp = async (req: Request, res: Response) => {
       email,
       password: hashedPassword,
       verifyCode,
-    });
+      });
 
     await newUser.save();
     const mailContent = {
@@ -134,36 +134,37 @@ const signUp = async (req: Request, res: Response) => {
     await sendEmail({
       userEmail: newUser.email!,
       mailContent,
-      subject: 'Verify Email',
+      subject: 'Xác thực tài khoản.',
     });
 
     res.status(200).json({
       success: true,
-      message: 'User should receive an email with verify code',
+      message: 'Hệ thống đã gửi mã xác thực đến email của bạn.',
       email: newUser.email,
       userId: newUser.id,
     });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ success: false, message: 'Internal Server Error' });
+    res.status(500).json({ success: false, message: 'Phát hiện lỗi trong hệ thống!' });
   }
 };
 
 const verifyUser = async (req: Request, res: Response) => {
-  const { id, token: tokenParam } = req.params;
+  const { id, verifyCode :code } = req.params;
 
   try {
     const user = await User.findById(id);
     if (!user) {
       return res
         .status(400)
-        .json({ success: false, message: 'Not found user' });
+        .json({ success: false, message: 'Hệ thống không tìm thấy người dùng.' });
     }
-    const token = user.verifyCode;
-    if (!token) {
+
+    const verifyCode=user.verifyCode;
+    if (code!==verifyCode) {
       return res
         .status(400)
-        .json({ success: false, message: 'Not found token' });
+        .json({ success: false, message: 'Mã xác thực không chính xác.' });
     }
 
     user.verified = true;
@@ -171,11 +172,11 @@ const verifyUser = async (req: Request, res: Response) => {
     await user.save();
     res.status(200).json({
       success: true,
-      message: 'Email verified successfully',
+      message: 'Hệ thống xác thực email thành công.',
     });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ success: false, message: 'Internal Server Error' });
+    res.status(500).json({ success: false, message: 'Phát hiện lỗi trong hệ thống!' });
   }
 };
 
@@ -188,13 +189,13 @@ const forgetPassword = async (req: Request, res: Response) => {
     if (!user) {
       return res
         .status(400)
-        .json({ success: false, message: 'Not found user' });
+        .json({ success: false, message: 'Hệ thống không tìm thấy người dùng.' });
     }
 
     if (!user.verified) {
       return res
         .status(400)
-        .json({ success: false, message: 'Email not verified' });
+        .json({ success: false, message: 'Email chưa được xác thực.' });
     }
 
     user.resetPasswordCode = crypto.randomBytes(4).toString('hex');
@@ -212,17 +213,17 @@ const forgetPassword = async (req: Request, res: Response) => {
     await sendEmail({
       userEmail: user.email!,
       mailContent,
-      subject: 'Verify Email',
+      subject: 'Xác thực tài khoản',
     });
 
     res.status(200).json({
       success: true,
-      message: 'User should receive an email with verify code',
+      message: 'Hệ thống đã gửi mã xác thực đến email của bạn.',
       email: user.email,
       userId: user.id,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Internal Server Error' });
+    res.status(500).json({ success: false, message: 'Phát hiện lỗi trong hệ thống!' });
   }
 };
 
@@ -236,13 +237,13 @@ const resetPassword = async (req: Request, res: Response) => {
     if (!user) {
       return res
         .status(400)
-        .json({ success: false, message: 'Not found user' });
+        .json({ success: false, message: 'Hệ thống không tìm thấy người dùng.' });
     }
 
     if (user.resetPasswordCode !== resetPasswordCode) {
       return res
         .status(400)
-        .json({ success: false, message: 'Wrong reset password code' });
+        .json({ success: false, message: 'Mã xác thực không chính xác.' });
     }
 
     user.resetPasswordCode = undefined;
@@ -252,10 +253,10 @@ const resetPassword = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'Reset password successfully!',
+      message: 'Hệ thống đặt lại mật khẩu thành công!',
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Internal Server Error' });
+    res.status(500).json({ success: false, message: 'Phát hiện lỗi trong hệ thống!' });
   }
 };
 
