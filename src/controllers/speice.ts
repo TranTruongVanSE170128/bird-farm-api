@@ -18,8 +18,8 @@ const getAllSpeice = async (req: Request, res: Response) => {
 const addSpeice = async (req: Request, res: Response) => {
   const { name, imageUrl, description, code } = req.body
   try {
-    const existingCodeSpeice = await Speice.findOne({ code })
-    if (existingCodeSpeice) {
+    const speiceByCode = await Speice.findOne({ code })
+    if (speiceByCode) {
       res.status(400).json({ success: false, message: 'Mã loài đã tồn tại.' })
       return
     }
@@ -38,25 +38,25 @@ const updateSpeice = async (req: Request, res: Response) => {
   const { name, imageUrl, description, code } = req.body
 
   try {
-    const speice = await Speice.findById(id)
-    if (!speice) {
+    const speiceById = await Speice.findById(id)
+    if (!speiceById) {
       res.status(404).json({ message: 'Không tìm thấy loài.' })
       return
     }
 
     const speiceByCode = await Speice.findOne({ code })
-    if (speiceByCode && speiceByCode._id.toString() !== speice._id.toString()) {
+    if (speiceByCode && speiceByCode._id.toString() !== speiceById._id.toString()) {
       res.status(400).json({ success: false, message: 'Mã loài đã tồn tại.' })
       return
     }
 
-    speice.name = name
-    speice.imageUrl = imageUrl
-    speice.description = description
-    speice.code = code
-    await speice.save()
+    speiceById.name = name
+    speiceById.imageUrl = imageUrl
+    speiceById.description = description
+    speiceById.code = code
+    await speiceById.save()
 
-    res.status(200).json({ message: 'Loài đã được cập nhật thành công.', speice })
+    res.status(200).json({ message: 'Loài đã được cập nhật thành công.', speiceById })
   } catch (err) {
     res.status(500).json({ message: 'Lỗi hệ thống!' })
   }
