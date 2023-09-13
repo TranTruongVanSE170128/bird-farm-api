@@ -1,7 +1,10 @@
 import mongoose from 'mongoose'
 
 const SpecieSchema = new mongoose.Schema({
-  name: String
+  name: String,
+  imageUrl: String,
+  description: String,
+  code: String
 })
 
-module.exports = mongoose.model('Specie', SpecieSchema)
+export default mongoose.model('Specie', SpecieSchema)
