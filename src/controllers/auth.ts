@@ -102,13 +102,14 @@ const signUp = async (req: Request, res: Response) => {
   const { name, password, email } = req.body
 
   try {
-    const userByEmail = await User.findOne({ email })
+    const user = await User.findOne({ email })
 
-    if (userByEmail)
+    if (user) {
       return res.status(400).json({
         success: false,
         message: 'Email đã được sử dụng.'
       })
+    }
 
     const hashedPassword = await argon2.hash(password)
     const verifyCode = crypto.randomBytes(4).toString('hex')
@@ -207,12 +208,12 @@ const forgetPassword = async (req: Request, res: Response) => {
     await sendEmail({
       userEmail: user.email!,
       mailContent,
-      subject: 'Xác thực tài khoản'
+      subject: 'Khôi phục mật khẩu'
     })
 
     res.status(200).json({
       success: true,
-      message: 'Đã gửi mã xác thực đến email người dùng.',
+      message: 'Đã gửi mã khôi phục mật khẩu đến email người dùng.',
       email: user.email,
       userId: user.id
     })

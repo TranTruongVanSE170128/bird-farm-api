@@ -2,16 +2,14 @@ import { z } from 'zod'
 
 const emailValidation = z.string().nonempty('email is required').trim().toLowerCase().email()
 const passwordValidation = z.string().nonempty('password is required').trim().toLowerCase()
-const idValidation = z.string().nonempty('id is required')
-const verifyCodeValidation = z.string().nonempty('verifycode is required').trim().toLowerCase()
-const accessTokenValidation = z.string().nonempty('Access token is required').trim()
+const idValidation = z.string().nonempty('id is required').trim().toLowerCase()
+const verifyCodeValidation = z.string().nonempty('verify code is required').trim().toLowerCase()
+const accessTokenValidation = z.string().nonempty('access token is required').trim()
 
-// auths
-
-export const loginGGSchema=z.object({
-   body: z.object({
-    accessTokenGoogle:accessTokenValidation
-   })
+export const loginGoogleSchema = z.object({
+  body: z.object({
+    accessTokenGoogle: accessTokenValidation
+  })
 })
 export const signInSchema = z.object({
   body: z.object({

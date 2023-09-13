@@ -3,7 +3,7 @@ import { loginByGoogle, signIn, signUp, forgetPassword, resetPassword, verifyEma
 import { validateRequestData } from '../middleware/validate-request-data'
 import {
   forgetPasswordSchema,
-  loginGGSchema,
+  loginGoogleSchema,
   resetPasswordSchema,
   signInSchema,
   signUpSchema,
@@ -12,7 +12,7 @@ import {
 
 const router = express.Router()
 
-router.post('/login-google',validateRequestData(loginGGSchema), loginByGoogle)
+router.post('/login-google', validateRequestData(loginGoogleSchema), loginByGoogle)
 
 router.post('/sign-in', validateRequestData(signInSchema), signIn)
 
