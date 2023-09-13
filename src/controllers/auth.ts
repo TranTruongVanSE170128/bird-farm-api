@@ -28,7 +28,7 @@ const loginByGoogle = async (req: Request, res: Response) => {
   const userGoogle: UserGoogle = googleResponse.data
 
   if (!userGoogle.email_verified) {
-    return res.status(403).json({ success: false, message: 'Email này chưa được xác thực!' })
+    return res.status(403).json({ success: false, message: 'Email chưa được xác thực!' })
   }
 
   const user = await User.findOne({ email: userGoogle.email })
@@ -73,13 +73,13 @@ const signIn = async (req: Request, res: Response) => {
     if (!passwordValid)
       return res.status(400).json({
         success: false,
-        message: 'Tên người dùng hoặc mật khẩu không hợp lệ.'
+        message: 'Email hoặc mật khẩu không hợp lệ.'
       })
 
     if (!user.verified) {
       return res.status(400).json({
         success: false,
-        message: 'Email này chưa được xác thực.',
+        message: 'Email chưa được xác thực.',
         userId: user.id,
         email: user.email
       })
@@ -94,7 +94,7 @@ const signIn = async (req: Request, res: Response) => {
     })
   } catch (err) {
     console.log(err)
-    res.status(500).json({ success: false, message: 'Phát hiện lỗi trong hệ thống!' })
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
 
@@ -142,11 +142,11 @@ const signUp = async (req: Request, res: Response) => {
     })
   } catch (err) {
     console.log(err)
-    res.status(500).json({ success: false, message: 'Phát hiện lỗi trong hệ thống!' })
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
 
-const verifyUser = async (req: Request, res: Response) => {
+const verifyEmail = async (req: Request, res: Response) => {
   const { id, verifyCode: code } = req.params
 
   try {
@@ -172,7 +172,7 @@ const verifyUser = async (req: Request, res: Response) => {
     })
   } catch (err) {
     console.log(err)
-    res.status(500).json({ success: false, message: 'Phát hiện lỗi trong hệ thống!' })
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
 
@@ -217,7 +217,7 @@ const forgetPassword = async (req: Request, res: Response) => {
       userId: user.id
     })
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Phát hiện lỗi trong hệ thống!' })
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
 
@@ -249,8 +249,8 @@ const resetPassword = async (req: Request, res: Response) => {
       message: 'Đặt lại mật khẩu thành công!'
     })
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Phát hiện lỗi trong hệ thống!' })
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
 
-export { loginByGoogle, signIn, signUp, verifyUser, forgetPassword, resetPassword }
+export { loginByGoogle, signIn, signUp, verifyEmail, forgetPassword, resetPassword }

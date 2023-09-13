@@ -1,23 +1,24 @@
 import express from 'express'
-import { loginByGoogle, signIn, signUp, verifyUser, forgetPassword, resetPassword } from '../controllers/auth'
+import { loginByGoogle, signIn, signUp, forgetPassword, resetPassword, verifyEmail } from '../controllers/auth'
 import { validateRequestData } from '../middleware/validate-request-data'
 import {
   forgetPasswordSchema,
+  loginGGSchema,
   resetPasswordSchema,
   signInSchema,
   signUpSchema,
-  verifySchema
+  verifyEmailSchema
 } from '../validations/auth'
 
 const router = express.Router()
 
-router.post('/login-google', loginByGoogle)
+router.post('/login-google',validateRequestData(loginGGSchema), loginByGoogle)
 
 router.post('/sign-in', validateRequestData(signInSchema), signIn)
 
 router.post('/sign-up', validateRequestData(signUpSchema), signUp)
 
-router.get('/:id/verify/:verifyCode', validateRequestData(verifySchema), verifyUser)
+router.get('/:id/verify/:verifyCode', validateRequestData(verifyEmailSchema), verifyEmail)
 
 router.post('/forget-password', validateRequestData(forgetPasswordSchema), forgetPassword)
 

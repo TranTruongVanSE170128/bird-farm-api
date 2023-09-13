@@ -22,7 +22,7 @@ const BirdSchema = new mongoose.Schema({
       date: Date
     }
   ],
-  parents: {
+  parent: {
     dad: { type: mongoose.Schema.Types.ObjectId, ref: 'Bird' },
     mom: { type: mongoose.Schema.Types.ObjectId, ref: 'Bird' }
   }
