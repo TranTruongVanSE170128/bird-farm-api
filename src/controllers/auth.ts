@@ -13,6 +13,7 @@ type UserGoogle = {
   picture: string
   email: string
   email_verified: true
+  name: string
 }
 
 const loginByGoogle = async (req: Request, res: Response) => {
@@ -33,17 +34,18 @@ const loginByGoogle = async (req: Request, res: Response) => {
   const user = await User.findOne({ email: userGoogle.email })
 
   if (!user) {
-    const { email, picture: imageUrl } = userGoogle
+    const { name, email, picture: imageUrl } = userGoogle
     const newUser = new User({
       email,
-      imageUrl
+      imageUrl,
+      name
     })
 
     await newUser.save()
     const accessToken = convertUserIdToJwt(newUser.id)
     return res.json({
       success: true,
-      message: 'Bạn đăng nhập thành công!',
+      message: 'Đăng nhập thành công!',
       accessToken
     })
   }
@@ -51,20 +53,20 @@ const loginByGoogle = async (req: Request, res: Response) => {
   const accessToken = convertUserIdToJwt(user.id)
   res.json({
     success: true,
-    message: 'Bạn đăng nhập thành công!',
+    message: 'Đăng nhập thành công!',
     accessToken
   })
 }
 
 const signIn = async (req: Request, res: Response) => {
-  const { username, password } = req.body
+  const { email, password } = req.body
 
   try {
-    const user = await User.findOne({ username })
+    const user = await User.findOne({ email })
     if (!user)
       return res.status(400).json({
         success: false,
-        message: 'Tên người dùng hoặc mật khẩu không hợp lệ.'
+        message: 'Email hoặc mật khẩu không hợp lệ.'
       })
 
     const passwordValid = await argon2.verify(user.password!, password)
@@ -87,7 +89,7 @@ const signIn = async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      message: 'Bạn đăng nhập thành công!',
+      message: 'Đăng nhập thành công!',
       accessToken
     })
   } catch (err) {
@@ -97,22 +99,21 @@ const signIn = async (req: Request, res: Response) => {
 }
 
 const signUp = async (req: Request, res: Response) => {
-  const { username, password, email } = req.body
+  const { name, password, email } = req.body
 
   try {
-    const userByName = await User.findOne({ username })
     const userByEmail = await User.findOne({ email })
 
-    if (userByName || userByEmail)
+    if (userByEmail)
       return res.status(400).json({
         success: false,
-        message: 'Tên người dùng hoặc email đã được sử dụng.'
+        message: 'Email đã được sử dụng.'
       })
 
     const hashedPassword = await argon2.hash(password)
     const verifyCode = crypto.randomBytes(4).toString('hex')
     const newUser = new User({
-      username,
+      name,
       email,
       password: hashedPassword,
       verifyCode
@@ -121,7 +122,7 @@ const signUp = async (req: Request, res: Response) => {
     await newUser.save()
     const mailContent = {
       body: {
-        name: newUser.username,
+        name: newUser.name,
         intro: 'Chào mừng đến với Bird Farm. Dưới đây là mã xác thực của bạn:',
         outro: `Mã xác thực của bạn là: ${newUser.verifyCode}`
       }
@@ -135,7 +136,7 @@ const signUp = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'Hệ thống đã gửi mã xác thực đến email của bạn.',
+      message: 'Đã gửi mã xác thực đến email người dùng.',
       email: newUser.email,
       userId: newUser.id
     })
@@ -153,7 +154,7 @@ const verifyUser = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Hệ thống không tìm thấy người dùng.'
+        message: 'Không tìm thấy người dùng.'
       })
     }
 
@@ -167,7 +168,7 @@ const verifyUser = async (req: Request, res: Response) => {
     await user.save()
     res.status(200).json({
       success: true,
-      message: 'Hệ thống xác thực email thành công.'
+      message: 'Xác thực email thành công.'
     })
   } catch (err) {
     console.log(err)
@@ -184,7 +185,7 @@ const forgetPassword = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Hệ thống không tìm thấy người dùng.'
+        message: 'không tìm thấy người dùng.'
       })
     }
 
@@ -197,7 +198,7 @@ const forgetPassword = async (req: Request, res: Response) => {
 
     const mailContent = {
       body: {
-        name: user.username,
+        name: user.name,
         intro: 'Chào mừng đến với Bird Farm. Dưới đây là mã khôi phục mật khẩu của bạn:',
         outro: `Mã khôi phục mật khẩu của bạn là: ${user.resetPasswordCode}`
       }
@@ -211,7 +212,7 @@ const forgetPassword = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'Hệ thống đã gửi mã xác thực đến email của bạn.',
+      message: 'Đã gửi mã xác thực đến email người dùng.',
       email: user.email,
       userId: user.id
     })
@@ -230,7 +231,7 @@ const resetPassword = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Hệ thống không tìm thấy người dùng.'
+        message: 'Không tìm thấy người dùng.'
       })
     }
 
@@ -245,7 +246,7 @@ const resetPassword = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'Hệ thống đặt lại mật khẩu thành công!'
+      message: 'Đặt lại mật khẩu thành công!'
     })
   } catch (error) {
     res.status(500).json({ success: false, message: 'Phát hiện lỗi trong hệ thống!' })
