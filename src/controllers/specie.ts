@@ -19,7 +19,7 @@ const addSpecie = async (req: Request, res: Response) => {
   try {
     const specieByCode = await Specie.findOne({ code })
     if (specieByCode) {
-      return res.status(400).json({ success: false, message: 'Mã loài đã tồn tại.' })
+      return res.status(400).json({ success: false, message: 'Mã loài đã tồn tại.',specie: specieByCode })
     }
 
     const newSpecie = new Specie({ name, imageUrl, description, code })
