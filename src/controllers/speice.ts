@@ -1,65 +1,65 @@
 import { Request, Response } from 'express'
-import Speice from '../models/specie'
+import Specie from '../models/specie'
 
-const getAllSpeice = async (req: Request, res: Response) => {
+const getAllSpecie = async (req: Request, res: Response) => {
   try {
-    const spieces = await Speice.find({}, { name: 1, imageUrl: 1 })
-    if (!spieces) {
+    const species = await await Specie.find().select('name imageUrl')
+    if (!species) {
       res.status(404).json({ success: false, message: 'Không có dữ liệu.' })
       return
     }
 
-    res.status(200).json(spieces)
+    res.status(200).json(species)
   } catch (err) {
     res.status(500).json({ message: 'Lỗi hệ thống!' })
   }
 }
 
-const addSpeice = async (req: Request, res: Response) => {
+const addSpecie = async (req: Request, res: Response) => {
   const { name, imageUrl, description, code } = req.body
   try {
-    const speiceByCode = await Speice.findOne({ code })
-    if (speiceByCode) {
+    const specieByCode = await Specie.findOne({ code })
+    if (specieByCode) {
       res.status(400).json({ success: false, message: 'Mã loài đã tồn tại.' })
       return
     }
 
-    const newSpeice = new Speice({ name, imageUrl, description, code })
-    await newSpeice.save()
+    const newSpecie = new Specie({ name, imageUrl, description, code })
+    await newSpecie.save()
 
-    res.status(201).json({ message: 'Loài đã được tạo thành công.', speice: newSpeice })
+    res.status(201).json({ message: 'Loài đã được tạo thành công.', specie: newSpecie })
   } catch (err) {
     res.status(500).json({ message: 'Lỗi hệ thống!' })
   }
 }
 
-const updateSpeice = async (req: Request, res: Response) => {
+const updateSpecie = async (req: Request, res: Response) => {
   const id = req.params.id
   const { name, imageUrl, description, code } = req.body
 
   try {
-    const speiceById = await Speice.findById(id)
-    if (!speiceById) {
+    const specieById = await Specie.findById(id)
+    if (!specieById) {
       res.status(404).json({ message: 'Không tìm thấy loài.' })
       return
     }
 
-    const speiceByCode = await Speice.findOne({ code })
-    if (speiceByCode && speiceByCode._id.toString() !== speiceById._id.toString()) {
+    const specieByCode = await Specie.findOne({ code })
+    if (specieByCode && specieByCode._id.toString() !== specieById._id.toString()) {
       res.status(400).json({ success: false, message: 'Mã loài đã tồn tại.' })
       return
     }
+    
+    specieById.name = name
+    specieById.imageUrl = imageUrl
+    specieById.description = description
+    specieById.code = code
+    await specieById.save()
 
-    speiceById.name = name
-    speiceById.imageUrl = imageUrl
-    speiceById.description = description
-    speiceById.code = code
-    await speiceById.save()
-
-    res.status(200).json({ message: 'Loài đã được cập nhật thành công.', speiceById })
+    res.status(200).json({ message: 'Loài đã được cập nhật thành công.', specieById })
   } catch (err) {
     res.status(500).json({ message: 'Lỗi hệ thống!' })
   }
 }
 
-export { getAllSpeice, addSpeice, updateSpeice }
+export { getAllSpecie, addSpecie, updateSpecie }
