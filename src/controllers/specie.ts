@@ -4,11 +4,8 @@ import Specie from '../models/specie'
 const getAllSpecie = async (req: Request, res: Response) => {
   try {
     const species = await Specie.find().select('name imageUrl')
-    if (!species) {
-      return res.status(404).json({ success: false, message: 'Không có dữ liệu.', species: [] })
-    }
 
-    res.status(200).json({success:true, message:'Danh sách loài',species})
+    res.status(200).json({ success: true, message: 'Lấy danh sách loài thành công!', species: species ? species : [] })
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
@@ -19,7 +16,7 @@ const addSpecie = async (req: Request, res: Response) => {
   try {
     const specieByCode = await Specie.findOne({ code })
     if (specieByCode) {
-      return res.status(400).json({ success: false, message: 'Mã loài đã tồn tại.',specie: specieByCode })
+      return res.status(400).json({ success: false, message: 'Mã loài đã tồn tại.', specie: specieByCode })
     }
 
     const newSpecie = new Specie({ name, imageUrl, description, code })
@@ -33,26 +30,11 @@ const addSpecie = async (req: Request, res: Response) => {
 
 const updateSpecie = async (req: Request, res: Response) => {
   const id = req.params.id
-  const { name, imageUrl, description, code } = req.body
+  const newSpecie = req.body
 
   try {
-    const specieById = await Specie.findById(id)
-    if (!specieById) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy loài.', species: [] })
-    }
-
-    const specieByCode = await Specie.findOne({ code })
-    if (specieByCode && specieByCode._id.toString() !== specieById._id.toString()) {
-      return res.status(400).json({ success: false, message: 'Mã loài đã tồn tại.', specieByCode })
-    }
-
-    specieById.name = name
-    specieById.imageUrl = imageUrl
-    specieById.description = description
-    specieById.code = code
-    await specieById.save()
-
-    res.status(200).json({ success: false, message: 'Loài đã được cập nhật thành công.', specieById })
+    const specie = await Specie.findByIdAndUpdate(id, newSpecie, { new: true })
+    res.status(200).json({ success: true, message: 'Loài đã được cập nhật thành công.', specie })
   } catch (err) {
     res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
   }

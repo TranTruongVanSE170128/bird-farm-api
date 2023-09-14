@@ -5,8 +5,8 @@ import { config } from 'dotenv'
 import morgan from 'morgan'
 import mongoose from 'mongoose'
 import specieRoute from './routes/specie'
+import userRoute from './routes/user'
 config()
-console.log(process.env.MONGODB_URI)
 
 const connectDB = async () => {
   try {
@@ -30,7 +30,8 @@ app.get('/', (req, res) => {
 })
 
 app.use('/api/auth', authRoute)
-app.use('/api/specie', specieRoute)
+app.use('/api/users', userRoute)
+app.use('/api/species', specieRoute)
 
 const PORT = process.env.PORT || 5000
 

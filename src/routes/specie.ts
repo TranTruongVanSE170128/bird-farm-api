@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express'
+import express from 'express'
 import { getAllSpecie, addSpecie, updateSpecie } from '../controllers/specie'
 import { validateRequestData } from '../middleware/validate-request-data'
 import { addSpecieSchema, updateSpecieSchema } from '../validations/specie'

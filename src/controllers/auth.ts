@@ -63,11 +63,12 @@ const signIn = async (req: Request, res: Response) => {
 
   try {
     const user = await User.findOne({ email })
-    if (!user)
+    if (!user) {
       return res.status(400).json({
         success: false,
         message: 'Email hoặc mật khẩu không hợp lệ.'
       })
+    }
 
     const passwordValid = await argon2.verify(user.password!, password)
     if (!passwordValid)
