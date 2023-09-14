@@ -4,7 +4,7 @@ import authRoute from './routes/auth'
 import { config } from 'dotenv'
 import morgan from 'morgan'
 import mongoose from 'mongoose'
-import speiceRoute from './routes/speice'
+import specieRoute from './routes/specie'
 config()
 console.log(process.env.MONGODB_URI)
 
@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 })
 
 app.use('/api/auth', authRoute)
-app.use('/api/specie', speiceRoute)
+app.use('/api/specie', specieRoute)
 
 const PORT = process.env.PORT || 5000
 
