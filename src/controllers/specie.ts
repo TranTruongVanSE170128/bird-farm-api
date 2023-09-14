@@ -3,15 +3,14 @@ import Specie from '../models/specie'
 
 const getAllSpecie = async (req: Request, res: Response) => {
   try {
-    const species = await await Specie.find().select('name imageUrl')
+    const species = await Specie.find().select('name imageUrl')
     if (!species) {
-      res.status(404).json({ success: false, message: 'Không có dữ liệu.' })
-      return
+      return res.status(404).json({ success: false, message: 'Không có dữ liệu.', species: [] })
     }
 
-    res.status(200).json(species)
+    res.status(200).json({success:true, message:'Danh sách loài',species})
   } catch (err) {
-    res.status(500).json({ message: 'Lỗi hệ thống!' })
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
 
@@ -20,16 +19,15 @@ const addSpecie = async (req: Request, res: Response) => {
   try {
     const specieByCode = await Specie.findOne({ code })
     if (specieByCode) {
-      res.status(400).json({ success: false, message: 'Mã loài đã tồn tại.' })
-      return
+      return res.status(400).json({ success: false, message: 'Mã loài đã tồn tại.' })
     }
 
     const newSpecie = new Specie({ name, imageUrl, description, code })
     await newSpecie.save()
 
-    res.status(201).json({ message: 'Loài đã được tạo thành công.', specie: newSpecie })
+    res.status(201).json({ success: true, message: 'Loài đã được tạo thành công.', specie: newSpecie })
   } catch (err) {
-    res.status(500).json({ message: 'Lỗi hệ thống!' })
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
 
@@ -40,25 +38,23 @@ const updateSpecie = async (req: Request, res: Response) => {
   try {
     const specieById = await Specie.findById(id)
     if (!specieById) {
-      res.status(404).json({ message: 'Không tìm thấy loài.' })
-      return
+      return res.status(404).json({ success: false, message: 'Không tìm thấy loài.', species: [] })
     }
 
     const specieByCode = await Specie.findOne({ code })
     if (specieByCode && specieByCode._id.toString() !== specieById._id.toString()) {
-      res.status(400).json({ success: false, message: 'Mã loài đã tồn tại.' })
-      return
+      return res.status(400).json({ success: false, message: 'Mã loài đã tồn tại.', specieByCode })
     }
-    
+
     specieById.name = name
     specieById.imageUrl = imageUrl
     specieById.description = description
     specieById.code = code
     await specieById.save()
 
-    res.status(200).json({ message: 'Loài đã được cập nhật thành công.', specieById })
+    res.status(200).json({ success: false, message: 'Loài đã được cập nhật thành công.', specieById })
   } catch (err) {
-    res.status(500).json({ message: 'Lỗi hệ thống!' })
+    res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
   }
 }
 
