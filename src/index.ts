@@ -5,6 +5,7 @@ import { config } from 'dotenv'
 import morgan from 'morgan'
 import mongoose from 'mongoose'
 import specieRoute from './routes/specie'
+import birdRoute from './routes/bird'
 import userRoute from './routes/user'
 config()
 
@@ -32,6 +33,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoute)
 app.use('/api/users', userRoute)
 app.use('/api/species', specieRoute)
+app.use('/api/birds', birdRoute)
 
 const PORT = process.env.PORT || 5000
 

@@ -11,7 +11,6 @@ const BirdSchema = new mongoose.Schema({
   specie: { type: mongoose.Schema.Types.ObjectId, ref: 'Specie' },
   gender: { type: String, enum: ['male', 'female'] },
   imageUrls: [String],
-  growingImageUrls: [String],
   achievements: [
     {
       competition: String,
@@ -30,4 +29,4 @@ const BirdSchema = new mongoose.Schema({
   }
 })
 
-module.exports = mongoose.model('Bird', BirdSchema)
+export default mongoose.model('Bird', BirdSchema)
