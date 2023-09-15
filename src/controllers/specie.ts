@@ -2,9 +2,13 @@ import { Request, Response } from 'express'
 import Specie from '../models/specie'
 
 const getAllSpecie = async (req: Request, res: Response) => {
-  try {
-    const species = await Specie.find().select('name imageUrl')
+  const { pagination, pageSize, pageNumber, fieldNames } = req.body
+  const skipSpecies = pageSize * (pageNumber - 1)
 
+  try {
+    const species = pagination
+      ? await Specie.find().limit(pageSize).skip(skipSpecies).select(fieldNames)
+      : await Specie.find().select(fieldNames)
     res.status(200).json({ success: true, message: 'Lấy danh sách loài thành công!', species: species ? species : [] })
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
