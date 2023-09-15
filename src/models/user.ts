@@ -16,6 +16,14 @@ const UserSchema = new mongoose.Schema({
       address: String,
       default: Boolean
     }
+  ],
+  notifications: [
+    {
+      content: String,
+      imageUrl: String,
+      date: Date,
+      link: String
+    }
   ]
 })
 

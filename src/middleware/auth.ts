@@ -11,7 +11,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   }
   try {
     const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as JwtPayload
-    req.userId = decode.userId
+    res.locals.userId = decode.userId
     next()
   } catch (err) {
     console.log(err)

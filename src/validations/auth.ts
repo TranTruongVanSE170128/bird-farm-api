@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const emailValidation = z.string().nonempty('email is required').trim().toLowerCase().email()
+const emailValidation = z.string().nonempty('email is required').email().trim().toLowerCase()
 const passwordValidation = z.string().nonempty('password is required').trim().toLowerCase()
 const idValidation = z.string().nonempty('id is required').trim().toLowerCase()
 const verifyCodeValidation = z.string().nonempty('verify code is required').trim().toLowerCase()

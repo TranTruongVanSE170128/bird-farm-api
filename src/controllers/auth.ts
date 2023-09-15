@@ -60,14 +60,15 @@ const loginByGoogle = async (req: Request, res: Response) => {
 
 const signIn = async (req: Request, res: Response) => {
   const { email, password } = req.body
-
+  const signInEmail = email.toLowerCase()
   try {
-    const user = await User.findOne({ email })
-    if (!user)
+    const user = await User.findOne({ email: signInEmail })
+    if (!user) {
       return res.status(400).json({
         success: false,
         message: 'Email hoặc mật khẩu không hợp lệ.'
       })
+    }
 
     const passwordValid = await argon2.verify(user.password!, password)
     if (!passwordValid)
@@ -100,9 +101,10 @@ const signIn = async (req: Request, res: Response) => {
 
 const signUp = async (req: Request, res: Response) => {
   const { name, password, email } = req.body
+  const signUpEmail = email.toLowerCase()
 
   try {
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email: signUpEmail })
 
     if (user) {
       return res.status(400).json({
@@ -115,7 +117,7 @@ const signUp = async (req: Request, res: Response) => {
     const verifyCode = crypto.randomBytes(4).toString('hex')
     const newUser = new User({
       name,
-      email,
+      email: signUpEmail,
       password: hashedPassword,
       verifyCode
     })
@@ -181,7 +183,7 @@ const forgetPassword = async (req: Request, res: Response) => {
   const { email } = req.body
 
   try {
-    const user = await User.findOne({ email: email })
+    const user = await User.findOne({ email: email.toLowerCase() })
 
     if (!user) {
       return res.status(400).json({

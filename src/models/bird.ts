@@ -2,14 +2,16 @@ import mongoose from 'mongoose'
 
 const BirdSchema = new mongoose.Schema({
   name: String,
+  nickname: String,
   birth: Date,
   price: Number,
   sold: Boolean,
+  onState: Boolean,
   description: String,
   specie: { type: mongoose.Schema.Types.ObjectId, ref: 'Specie' },
   gender: { type: String, enum: ['male', 'female'] },
-  images: [String],
-  growingImages: [String],
+  imageUrls: [String],
+  growingImageUrls: [String],
   achievements: [
     {
       competition: String,
