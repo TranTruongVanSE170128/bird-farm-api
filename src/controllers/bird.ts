@@ -1,35 +1,34 @@
 import { Request, Response } from "express"
 import Bird from '../models/bird'
 
-const getAllSpecie = async (req: Request, res: Response) => {
+export const getAllBird = async (req: Request, res: Response) => {
     // lấy dữ liệu từ query
     const pageSize = parseInt(req.query.pageSize as string) || 5 // mặc định pageSize=2 nếu k có pageSize trên query
     const pageNumber = parseInt(req.query.pageNumber as string) || 1 // tương tự với pageNumber
     const name = req.query.name as string
     const pagination = req.query.pagination === 'true'
-    const age=parseInt(req.query.age as string) ||1
+    const age=parseInt(req.query.age as string) 
     const gender=req.query.gender as string
     const discount =parseInt(req.query.discount as string)
     const imageUrls=req.query.gender as string
 
     const query = name ?{
         $or: [
-          { name: { $regex: name, $options: 'i' } }, // Case-insensitive search on 'name' field
-          { age: { $eq: age } },                     // Exact match on 'age' field
-          { gender: { $eq: gender } },               // Exact match on 'gender' field
-          { discount: { $eq: discount } },        // Exact match on 'discount' field
-          { image: { $regex: new RegExp(`^${imageUrls}$`, 'i'), $options: 'i' } } // Case-insensitive search on 'image' field
+          { name: { $regex: name, $options: 'i' } }, 
+          { age: { $eq: age } },                     
+          { gender: { $eq: gender } },               
+          { discount: { $eq: discount } },        
+          { imageUrls: { $regex: new RegExp(`^${imageUrls}$`, 'i'), $options: 'i' } } 
         ]
-      }:{} // query này sẽ dùng nếu name lấy trong request query là
-    //undefined sẽ lấy tất cả , ngược lại sẽ lấy theo name
+      }:{} 
     try {
       const birds = pagination
         ? await Bird.find(query)
             .limit(pageSize)
             .skip(pageSize * (pageNumber - 1))
-            .select('name imageUrl')
+            .select('name age gender discount imageUrls')
             .exec()
-        : await Bird.find(query).select('name imageUrl').exec()
+        : await Bird.find(query).select('name age gender discount imageUrls').exec()
   
       const totalBird = await Bird.countDocuments(query)
   
