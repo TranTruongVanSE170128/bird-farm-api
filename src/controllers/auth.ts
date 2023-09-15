@@ -60,9 +60,9 @@ const loginByGoogle = async (req: Request, res: Response) => {
 
 const signIn = async (req: Request, res: Response) => {
   const { email, password } = req.body
-
+  const signInEmail = email.toLowerCase()
   try {
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email: signInEmail })
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -101,9 +101,10 @@ const signIn = async (req: Request, res: Response) => {
 
 const signUp = async (req: Request, res: Response) => {
   const { name, password, email } = req.body
+  const newEmail = email.toLowerCase()
 
   try {
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ newEmail })
 
     if (user) {
       return res.status(400).json({
@@ -116,7 +117,7 @@ const signUp = async (req: Request, res: Response) => {
     const verifyCode = crypto.randomBytes(4).toString('hex')
     const newUser = new User({
       name,
-      email,
+      email: newEmail,
       password: hashedPassword,
       verifyCode
     })
