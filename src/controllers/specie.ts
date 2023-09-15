@@ -4,8 +4,8 @@ import Specie from '../models/specie'
 const getAllSpecie = async (req: Request, res: Response) => {
   const { pagination, pageSize, pageNumber, fieldNames } = req.body
   const skipSpecies = pageSize * (pageNumber - 1)
-
-  try {
+  
+    try {
     const species = pagination
       ? await Specie.find().limit(pageSize).skip(skipSpecies).select(fieldNames)
       : await Specie.find().select(fieldNames)
