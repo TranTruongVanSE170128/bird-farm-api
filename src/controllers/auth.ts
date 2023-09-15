@@ -101,10 +101,10 @@ const signIn = async (req: Request, res: Response) => {
 
 const signUp = async (req: Request, res: Response) => {
   const { name, password, email } = req.body
-  const newEmail = email.toLowerCase()
+  const signUpEmail = email.toLowerCase()
 
   try {
-    const user = await User.findOne({ newEmail })
+    const user = await User.findOne({ email: signUpEmail })
 
     if (user) {
       return res.status(400).json({
@@ -117,7 +117,7 @@ const signUp = async (req: Request, res: Response) => {
     const verifyCode = crypto.randomBytes(4).toString('hex')
     const newUser = new User({
       name,
-      email: newEmail,
+      email: signUpEmail,
       password: hashedPassword,
       verifyCode
     })
@@ -183,7 +183,7 @@ const forgetPassword = async (req: Request, res: Response) => {
   const { email } = req.body
 
   try {
-    const user = await User.findOne({ email: email })
+    const user = await User.findOne({ email: email.toLowerCase() })
 
     if (!user) {
       return res.status(400).json({
