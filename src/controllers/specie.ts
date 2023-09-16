@@ -20,7 +20,7 @@ const getAllSpecie = async (req: Request, res: Response) => {
       success: true,
       message: 'Lấy danh sách loài thành công!',
       currentPage: species ? pageNumber : 0,
-      totalPage: Math.ceil(totalSpecies / pageSize),
+      totalPages: Math.ceil(totalSpecies / pageSize),
       species: species ? species : []
     })
   } catch (err) {
@@ -31,7 +31,6 @@ const getAllSpecie = async (req: Request, res: Response) => {
 const addSpecie = async (req: Request, res: Response) => {
   const { name, imageUrl, description } = req.body
   try {
-    const nameSearch = name.toString()
     const query = { name: { $regex: new RegExp(`^${name}$`, 'i') } }
 
     const specie = await Specie.findOne(query)
