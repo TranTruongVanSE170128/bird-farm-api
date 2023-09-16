@@ -4,7 +4,7 @@ import { validateRequestData } from '../middleware/validate-request-data'
 import { addSpecieSchema, getAllSpecieSchema, updateSpecieSchema } from '../validations/specie'
 const router = express.Router()
 
-router.get('/' ,getAllSpecie)
+router.get('/', getAllSpecie)
 router.post('/', validateRequestData(addSpecieSchema), addSpecie)
 router.put('/:id', validateRequestData(updateSpecieSchema), updateSpecie)
 
