@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { date } from 'zod'
 
 const BirdSchema = new mongoose.Schema({
   name: String,
@@ -10,6 +11,11 @@ const BirdSchema = new mongoose.Schema({
   specie: { type: mongoose.Schema.Types.ObjectId, ref: 'Specie' },
   gender: { type: String, enum: ['male', 'female'] },
   imageUrls: [String],
+  discount : {
+       discountPercent : Number, 
+       startDate : Date, 
+       endDate :Date
+  },  
   achievements: [
     {
       competition: String,
