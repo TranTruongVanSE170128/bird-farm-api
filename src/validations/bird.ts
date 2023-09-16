@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
-export const getBirdSchema = z.object({
+export const getSearchBirdsSchema = z.object({
   query: z.object({
-    pageSize: z.number().optional(),
-    pageNumber: z.number().optional(),
-    searchQuery:z.string().optional()
+    pageSize: z.string().trim().optional(),
+    pageNumber: z.string().trim().optional(),
+    searchQuery:z.string().trim().optional()
   })
 })
