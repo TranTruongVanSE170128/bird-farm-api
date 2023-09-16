@@ -9,7 +9,7 @@ const OrderSchema = new mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
     birds: { type: [mongoose.Schema.Types.ObjectId], ref: 'Bird' },
     status: String,
-    totalMoney: number,
+    totalMoney: Number,
     date: Date
   },
   { timestamps: true }

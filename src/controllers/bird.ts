@@ -5,16 +5,24 @@ import mongoose from 'mongoose'
 export const getSearchBirds = async (req: Request, res: Response) => {
   const pageSize = parseInt(req.query.pageSize as string) || 5
   const pageNumber = parseInt(req.query.pageNumber as string) || 1
-  const specieId = (req.query.searchQuery as string)||''
+  const searchQuery = req.query.searchQuery as string || ''
+  const specieId = req.query.specieId as string
 
-  const query = specieId ? { $and: [{ specie: new mongoose.Types.ObjectId(specieId) },{ onSale: true }]} : { onSale: true }
+  const query = specieId
+    ? {
+        specie: new mongoose.Types.ObjectId(specieId),
+        name: { $regex: searchQuery, $options: 'i' },
+        onSale: true
+      }
+    : { onSale: true}
 
   try {
     const birds = await Bird.find(query)
-    .limit(pageSize)
-    .skip(pageSize * (pageNumber - 1))
-    .select('name imageUrls price gender discount specie').exec()
-    
+      .limit(pageSize)
+      .skip(pageSize * (pageNumber - 1))
+      .select('name imageUrls price gender discount specie')
+      .exec()
+
     const totalBirds = await Bird.countDocuments(query)
 
     res.status(200).json({
@@ -23,8 +31,7 @@ export const getSearchBirds = async (req: Request, res: Response) => {
       currentPage: pageNumber,
       totalPages: Math.ceil(totalBirds / pageSize),
       birds: birds
-      })
-
+    })
   } catch (err) {
     console.error(err)
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
