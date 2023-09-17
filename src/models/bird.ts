@@ -1,15 +1,15 @@
 import mongoose from 'mongoose'
 
 const BirdSchema = new mongoose.Schema({
-  name: String,
   birth: Date,
-  price: Number,
-  sold: Boolean,
-  onSale: Boolean,
   description: String,
-  specie: { type: mongoose.Schema.Types.ObjectId, ref: 'Specie' },
-  gender: { type: String, enum: ['male', 'female'] },
   imageUrls: [String],
+  name: { type: String, unique: true, required: true },
+  price: { type: Number, require: true },
+  sold: { type: Boolean, default: false },
+  onSale: { type: Boolean, default: true },
+  specie: { type: mongoose.Schema.Types.ObjectId, ref: 'Specie', require: true },
+  gender: { type: String, enum: ['male', 'female'], require: true },
   discount: {
     discountPercent: Number,
     startDate: Date,
@@ -19,12 +19,6 @@ const BirdSchema = new mongoose.Schema({
     {
       competition: String,
       rank: Number
-    }
-  ],
-  breeds: [
-    {
-      children: { type: [mongoose.Schema.Types.ObjectId], ref: 'Bird' }, //ref
-      date: Date
     }
   ],
   parent: {

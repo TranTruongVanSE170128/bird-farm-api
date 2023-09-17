@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
-const emailValidation = z.string().nonempty('email is required').email().trim()
-const passwordValidation = z.string().nonempty('password is required')
-const idValidation = z.string().nonempty('id is required').trim()
-const verifyCodeValidation = z.string().nonempty('verify code is required').trim()
-const accessTokenValidation = z.string().nonempty('access token is required').trim()
+const emailValidation = z.coerce.string().nonempty('email bắt buộc').email().trim()
+const passwordValidation = z.coerce.string().nonempty('mật khẩu bắt buộc')
+const idValidation = z.coerce.string().nonempty('id bắt buộc').trim()
+const verifyCodeValidation = z.coerce.string().nonempty('mã xác thực bắt buộc').trim()
+const accessTokenValidation = z.coerce.string().nonempty('access token bắt buộc').trim()
 
 export const loginGoogleSchema = z.object({
   body: z.object({
@@ -20,7 +20,7 @@ export const signInSchema = z.object({
 
 export const signUpSchema = z.object({
   body: z.object({
-    name: z.string().nonempty('name is required').trim(),
+    name: z.coerce.string().nonempty('tên bắt buộc').trim(),
     email: emailValidation,
     password: passwordValidation
   })

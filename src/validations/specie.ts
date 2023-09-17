@@ -1,27 +1,27 @@
 import { z } from 'zod'
-const idValidation = z.string().nonempty('id is required').trim()
-const nameValidation = z.string().nonempty('name is required').trim()
+const idValidation = z.coerce.string().nonempty('id bắt buộc').trim()
+const nameValidation = z.coerce.string().nonempty('tên bắt buộc').trim()
 
 export const getAllSpecieSchema = z.object({
   query: z.object({
-    pageSize: z.number(),
-    pageNumber: z.number(),
-    pagination: z.string()
+    pageSize: z.coerce.number(),
+    pageNumber: z.coerce.number(),
+    pagination: z.coerce.string()
   })
 })
 export const addSpecieSchema = z.object({
   body: z.object({
     name: nameValidation,
-    imageUrl: z.string().url().optional(),
-    description: z.string().optional()
+    imageUrl: z.coerce.string().url().optional(),
+    description: z.coerce.string().optional()
   })
 })
 
 export const updateSpecieSchema = z.object({
   params: z.object({ id: idValidation }),
   body: z.object({
-    name: z.string().optional(),
-    imageUrl: z.string().url().optional(),
-    description: z.string().optional()
+    name: z.coerce.string().optional(),
+    imageUrl: z.coerce.string().url().optional(),
+    description: z.coerce.string().optional()
   })
 })
