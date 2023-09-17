@@ -6,7 +6,7 @@ export const getSearchBirds = async (req: Request, res: Response) => {
   const pageSize = parseInt(req.query.pageSize as string) || 5
   const pageNumber = parseInt(req.query.pageNumber as string) || 1
   const searchQuery = (req.query.searchQuery as string) || ''
-  const specieId = req.query.specieId as string
+  const specieId = req.query.specie as string
 
   const query = specieId
     ? {
@@ -27,7 +27,7 @@ export const getSearchBirds = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'Lấy danh sách loài thành công!',
+      message: 'Lấy danh sách chim thành công!',
       currentPage: pageNumber,
       totalPages: Math.ceil(totalBirds / pageSize),
       birds: birds

@@ -5,7 +5,7 @@ export const getSearchBirdsSchema = z.object({
     pageSize: z.coerce.string().trim().optional(),
     pageNumber: z.coerce.string().trim().optional(),
     searchQuery: z.coerce.string().trim().optional(),
-    specieId: z.coerce.string().trim().optional()
+    specie: z.coerce.string().trim().optional()
   })
 })
 
