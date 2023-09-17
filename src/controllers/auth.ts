@@ -70,7 +70,14 @@ const signIn = async (req: Request, res: Response) => {
       })
     }
 
-    const passwordValid = await argon2.verify(user.password!, password)
+    if (!user.password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Bạn đã đăng ký email này bằng xác thực google!'
+      })
+    }
+
+    const passwordValid = await argon2.verify(user.password, password)
     if (!passwordValid)
       return res.status(400).json({
         success: false,
