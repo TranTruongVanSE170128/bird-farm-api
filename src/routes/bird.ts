@@ -11,6 +11,6 @@ router.get('/', validateRequestData(getSearchBirdsSchema), getSearchBirds)
 
 router.post('/', verifyToken, checkRole(['admin' as Role]), validateRequestData(createBirdSchema), createBird)
 
-router.get('/get-by-ids',validateRequestData(getBirdsByIdsSchema), getBirdsByIds)
+router.get('/get-by-ids', validateRequestData(getBirdsByIdsSchema), getBirdsByIds)
 
 export default router

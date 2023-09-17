@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import Bird from '../models/bird'
-import mongoose, { ObjectId } from 'mongoose'
+import mongoose, { ObjectId, isValidObjectId } from 'mongoose'
 
 export const getSearchBirds = async (req: Request, res: Response) => {
   const pageSize = parseInt(req.query.pageSize as string) || 5
@@ -51,21 +51,11 @@ export const createBird = async (req: Request, res: Response) => {
 }
 
 export const getBirdsByIds = async (req: Request, res: Response) => {
-  const birdIds = req.body.birdIds
+  const ids = req.body.birdIds
+  const validIds = ids.filter((id: string) => isValidObjectId(id))
 
   try {
-    if (!birdIds || !Array.isArray(birdIds)) {
-      return res.status(400).json({ success: false, message: 'Thiếu dữ liệu hoặc dữ liệu không hợp lệ.' })
-    }
-
-    const ids = birdIds.map((id) => {
-      try {
-        const idAdd = new mongoose.Types.ObjectId(id)
-        return idAdd
-      } catch (err) {}
-    })
-
-    const query = ids.length > 0 ? { _id: { $in: ids }, onSale: true } : {}
+    const query = { _id: { $in: validIds }, onSale: true }
 
     const birds = await Bird.find(query).select('-sold -onSale -description').populate('specie')
 
