@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 const SpecieSchema = new mongoose.Schema({
-  name: String,
+  name: { type: String, require: true },
   imageUrl: String,
   description: String
 })
