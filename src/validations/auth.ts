@@ -20,7 +20,7 @@ export const signInSchema = z.object({
 
 export const signUpSchema = z.object({
   body: z.object({
-    name: z.string().nonempty('name is required').trim().toLowerCase(),
+    name: z.string().nonempty('name is required').trim(),
     email: emailValidation,
     password: passwordValidation
   })

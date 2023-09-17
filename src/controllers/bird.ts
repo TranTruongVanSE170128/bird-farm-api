@@ -5,7 +5,7 @@ import mongoose from 'mongoose'
 export const getSearchBirds = async (req: Request, res: Response) => {
   const pageSize = parseInt(req.query.pageSize as string) || 5
   const pageNumber = parseInt(req.query.pageNumber as string) || 1
-  const searchQuery = req.query.searchQuery as string || ''
+  const searchQuery = (req.query.searchQuery as string) || ''
   const specieId = req.query.specieId as string
 
   const query = specieId
@@ -14,7 +14,7 @@ export const getSearchBirds = async (req: Request, res: Response) => {
         name: { $regex: searchQuery, $options: 'i' },
         onSale: true
       }
-    : { onSale: true}
+    : { name: { $regex: searchQuery, $options: 'i' }, onSale: true }
 
   try {
     const birds = await Bird.find(query)
