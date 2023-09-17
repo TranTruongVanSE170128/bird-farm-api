@@ -65,7 +65,7 @@ export const getBirdsByIds = async (req: Request, res: Response) => {
       } catch (err) {}
     })
 
-    const query = ids.length > 0 ? { _id: { $in: ids }, onSale: true } : { onSale: true }
+    const query = ids.length > 0 ? { _id: { $in: ids }, onSale: true } : {}
 
     const birds = await Bird.find(query).select('-sold -onSale -description').populate('specie')
 
