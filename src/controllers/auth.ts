@@ -104,7 +104,7 @@ const signUp = async (req: Request, res: Response) => {
   const newEmail = email.toLowerCase()
 
   try {
-    const user = await User.findOne({ newEmail })
+    const user = await User.findOne({ email: newEmail })
 
     if (user) {
       return res.status(400).json({
