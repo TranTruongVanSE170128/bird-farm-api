@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import Bird from '../models/bird'
-import mongoose from 'mongoose'
+import mongoose, { ObjectId } from 'mongoose'
 
 export const getSearchBirds = async (req: Request, res: Response) => {
   const pageSize = parseInt(req.query.pageSize as string) || 5
@@ -49,3 +49,30 @@ export const createBird = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
+
+export const getBirdsByIds = async (req: Request, res: Response) => {
+  const birdIds = req.body.birdIds;
+
+  try {
+    if (!birdIds || !Array.isArray(birdIds)) {
+      return res.status(400).json({ success: false, message: 'Thiếu dữ liệu hoặc dữ liệu không hợp lệ.' });
+    }
+    
+    const ids = birdIds.map((id) => new mongoose.Types.ObjectId(id));
+
+    const query = ids.length > 0
+  ? { _id: { $in: ids }, onSale: true }
+  : { onSale: true };
+    
+    const birds= await Bird.find(query).select("-sold -onSale -description").populate("specie")
+
+    res.status(200).json({
+      success: true,
+      message: 'Lấy danh sách thành công!',
+      birds: birds,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' });
+  }
+};
