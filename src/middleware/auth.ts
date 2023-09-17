@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import dotenv from 'dotenv'
+import User from '../models/user'
 dotenv.config()
 
-const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.header('Authorization')
   const token = authHeader && authHeader.split(' ')[1]
   if (!token) {
@@ -11,7 +12,9 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   }
   try {
     const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as JwtPayload
-    res.locals.userId = decode.userId
+    const userId = decode.userId
+    const user = await User.findById(userId)
+    res.locals.user = user
     next()
   } catch (err) {
     console.log(err)

@@ -37,3 +37,16 @@ export const getSearchBirds = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
+
+export const createBird = async (req: Request, res: Response) => {
+  // try {
+  //   const newBird = new Bird(req.body)
+  //   await newBird.save()
+
+  //   res.status(201).json({ success: true, message: 'Chim mới đã được tạo thành công.', bird: newBird })
+  // } catch (err) {
+  //   console.log(err)
+  //   res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  // }
+  res.json(req.body)
+}

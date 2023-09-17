@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import User from '../models/user'
-import { convertUserToJwt } from '../helpers/convert-user-id-to-jwt'
+import { convertUserIdToJwt } from '../helpers/convert-user-id-to-jwt'
 import dotenv from 'dotenv'
 import argon2 from 'argon2'
 import axios from 'axios'
@@ -42,7 +42,7 @@ const loginByGoogle = async (req: Request, res: Response) => {
     })
 
     await newUser.save()
-    const accessToken = convertUserToJwt(newUser)
+    const accessToken = convertUserIdToJwt(newUser.id)
     return res.json({
       success: true,
       message: 'Đăng nhập thành công!',
@@ -50,7 +50,7 @@ const loginByGoogle = async (req: Request, res: Response) => {
     })
   }
 
-  const accessToken = convertUserToJwt(user)
+  const accessToken = convertUserIdToJwt(user.id)
   res.json({
     success: true,
     message: 'Đăng nhập thành công!',
@@ -86,7 +86,7 @@ const signIn = async (req: Request, res: Response) => {
       })
     }
 
-    const accessToken = convertUserToJwt(user)
+    const accessToken = convertUserIdToJwt(user.id)
 
     res.json({
       success: true,
@@ -101,10 +101,10 @@ const signIn = async (req: Request, res: Response) => {
 
 const signUp = async (req: Request, res: Response) => {
   const { name, password, email } = req.body
-  const signUpEmail = email.toLowerCase()
+  const newEmail = email.toLowerCase()
 
   try {
-    const user = await User.findOne({ email: signUpEmail })
+    const user = await User.findOne({ newEmail })
 
     if (user) {
       return res.status(400).json({
@@ -117,7 +117,7 @@ const signUp = async (req: Request, res: Response) => {
     const verifyCode = crypto.randomBytes(4).toString('hex')
     const newUser = new User({
       name,
-      email: signUpEmail,
+      email: newEmail,
       password: hashedPassword,
       verifyCode
     })
@@ -183,7 +183,7 @@ const forgetPassword = async (req: Request, res: Response) => {
   const { email } = req.body
 
   try {
-    const user = await User.findOne({ email: email.toLowerCase() })
+    const user = await User.findOne({ email: email })
 
     if (!user) {
       return res.status(400).json({
