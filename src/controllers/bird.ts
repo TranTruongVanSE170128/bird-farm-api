@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import Bird from '../models/bird'
-import mongoose from 'mongoose'
+import mongoose, { ObjectId, isValidObjectId } from 'mongoose'
 
 export const getSearchBirds = async (req: Request, res: Response) => {
   const pageSize = parseInt(req.query.pageSize as string) || 5
@@ -46,6 +46,26 @@ export const createBird = async (req: Request, res: Response) => {
     res.status(201).json({ success: true, message: 'Chim mới đã được tạo thành công.', bird: newBird })
   } catch (err) {
     console.log(err)
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const getBirdsByIds = async (req: Request, res: Response) => {
+  const ids = req.body.birdIds
+  const validIds = ids.filter((id: string) => isValidObjectId(id))
+
+  try {
+    const query = { _id: { $in: validIds }, onSale: true }
+
+    const birds = await Bird.find(query).select('-sold -onSale -description').populate('specie')
+
+    res.status(200).json({
+      success: true,
+      message: 'Lấy danh sách chim thành công.',
+      birds: birds
+    })
+  } catch (err) {
+    console.error(err)
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
