@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import User from '../models/user'
 
 export const whoAmI = async (req: Request, res: Response) => {
-  const id = res.locals.userId
+  const id = res.locals.user._id
 
   const user = await User.findById(id)
   if (!user) {
