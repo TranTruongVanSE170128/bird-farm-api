@@ -45,6 +45,6 @@ export const createBirdSchema = z.object({
 })
 export const getBirdsByIdsSchema = z.object({
   body: z.object({
-    birdIds: z.array(z.coerce.string()).optional()
+    birdIds: z.array(z.coerce.string())
   })
 });
