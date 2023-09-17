@@ -2,16 +2,19 @@ import mongoose from 'mongoose'
 
 const BirdSchema = new mongoose.Schema({
   name: String,
-  nickname: String,
   birth: Date,
   price: Number,
   sold: Boolean,
-  onState: Boolean,
+  onSale: Boolean,
   description: String,
   specie: { type: mongoose.Schema.Types.ObjectId, ref: 'Specie' },
   gender: { type: String, enum: ['male', 'female'] },
   imageUrls: [String],
-  growingImageUrls: [String],
+  discount: {
+    discountPercent: Number,
+    startDate: Date,
+    endDate: Date
+  },
   achievements: [
     {
       competition: String,
@@ -30,4 +33,4 @@ const BirdSchema = new mongoose.Schema({
   }
 })
 
-module.exports = mongoose.model('Bird', BirdSchema)
+export default mongoose.model('Bird', BirdSchema)
