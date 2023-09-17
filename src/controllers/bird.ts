@@ -71,7 +71,7 @@ export const getBirdsByIds = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'Lấy danh sách thành công!',
+      message: 'Lấy danh sách chim thành công.',
       birds: birds
     })
   } catch (err) {
