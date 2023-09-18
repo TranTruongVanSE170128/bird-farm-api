@@ -38,6 +38,22 @@ export const getSearchBirds = async (req: Request, res: Response) => {
   }
 }
 
+export const getBirdDetail = async (req: Request, res: Response) => {
+  const { id } = req.params
+
+  try {
+    const bird = await Bird.findById(id).populate('specie', { name: 1 })
+
+    if (!bird) {
+      res.status(404).json({ success: false, message: 'Không tìm thấy chim' })
+    }
+
+    res.status(201).json({ success: true, bird })
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
 export const createBird = async (req: Request, res: Response) => {
   try {
     const newBird = new Bird(req.body)

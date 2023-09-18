@@ -5,14 +5,9 @@ import { getSearchBirdsSchema, createBirdSchema, getBirdsByIdsSchema, getBirdDet
 import verifyToken from '../middleware/auth'
 import checkRole from '../middleware/checkRole'
 import { Role } from '../typings/types'
+import { getAdminBirds } from '../controllers/admin-bird'
 const router = express.Router()
 
-router.get('/', validateRequestData(getSearchBirdsSchema), getSearchBirds)
-
-router.get('/:id', validateRequestData(getBirdDetailSchema), getBirdDetail)
-
-router.post('/', verifyToken, checkRole(['admin' as Role]), validateRequestData(createBirdSchema), createBird)
-
-router.get('/get-by-ids', validateRequestData(getBirdsByIdsSchema), getBirdsByIds)
+router.get('/', getAdminBirds)
 
 export default router

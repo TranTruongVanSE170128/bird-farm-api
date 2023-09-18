@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node dist/index.js",
+    "start": "node ./dist/index.js",
     "dev": "nodemon src/index.ts",
-    "build": "rimraf dist && swc ./src -d dist",
+    "build": "tsc",
     "start:docker": "pnpm build && pnpm start",
     "watch": "watchy --no-init-spawn --debounce 1 -w src -- docker compose restart backend",
     "lint": "eslint .",
@@ -28,6 +28,7 @@
     "mailgen": "^2.0.27",
     "mongoose": "^7.5.0",
     "morgan": "^1.10.0",
+    "stripe": "^13.6.0",
     "zod": "^3.22.2"
   },
   "devDependencies": {
