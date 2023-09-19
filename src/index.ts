@@ -7,6 +7,7 @@ import mongoose from 'mongoose'
 import specieRoute from './routes/specie'
 import birdRoute from './routes/bird'
 import userRoute from './routes/user'
+import nestRoute from './routes/nest'
 config()
 
 const connectDB = async () => {
@@ -34,6 +35,7 @@ app.use('/api/auth', authRoute)
 app.use('/api/users', userRoute)
 app.use('/api/species', specieRoute)
 app.use('/api/birds', birdRoute)
+app.use('/api/nests',nestRoute)
 
 const PORT = process.env.PORT || 5000
 
