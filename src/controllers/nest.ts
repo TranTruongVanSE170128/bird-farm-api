@@ -7,6 +7,7 @@ const getAllNest = async (req: Request, res: Response) => {
     const pageSize = parseInt(req.query.pageSize as string) || 5
     const pageNumber = parseInt(req.query.pageNumber as string) || 1
     const pagination = (req.query.pagination as string).trim() === 'true'
+
     const nests = pagination
       ? await Nest.find({})
           .populate('dad mom children specie')
@@ -23,7 +24,8 @@ const getAllNest = async (req: Request, res: Response) => {
 
 const getNestById = async (req: Request, res: Response) => {
   try {
-    const id = isValidObjectId(req.params.id) ? new mongoose.Types.ObjectId(req.params.id) : ''
+    const id = req.params.id
+    if (!isValidObjectId(id)) return res.status(400).json({ success: false, message: 'Lấy tổ không thành công!' })
     const nest = Nest.findById(id).populate('dad mom children specie').exec()
     res.status(200).json({ success: true, message: 'Lấy danh tổ thành công.', nest: nest })
   } catch (err) {
@@ -45,7 +47,8 @@ const createNest = async (req: Request, res: Response) => {
 
 const deleteNest = async (req: Request, res: Response) => {
   try {
-    const id = isValidObjectId(req.params.id) ? new mongoose.Types.ObjectId(req.params.id) : ''
+    const id = req.params.id
+    if (!isValidObjectId(id)) return res.status(400).json({ success: false, message: 'Xóa không thành công!' })
     Nest.findByIdAndRemove(id)
     res.status(201).json({ success: true, message: 'Xóa tổ thành công.' })
   } catch (err) {
@@ -56,7 +59,8 @@ const deleteNest = async (req: Request, res: Response) => {
 
 const updateNest = async (req: Request, res: Response) => {
   try {
-    const id = isValidObjectId(req.params.id) ? new mongoose.Types.ObjectId(req.params.id) : ''
+    const id = req.params.id
+    if (!isValidObjectId(id)) return res.status(400).json({ success: false, message: 'Cập nhập không thành công!' })
     const newNest = req.body
     Nest.findByIdAndUpdate(id, newNest, { new: true })
     res.status(201).json({ success: true, message: 'Cập nhập tổ thành công.', nest: newNest })

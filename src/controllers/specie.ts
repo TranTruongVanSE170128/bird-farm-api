@@ -5,11 +5,10 @@ const getAllSpecie = async (req: Request, res: Response) => {
   const pageSize = parseInt(req.query.pageSize as string) || 5
   const pageNumber = parseInt(req.query.pageNumber as string) || 1
   const name = req.query.searchQuery as string
-  const pagination= (req.query.pagination as string).trim() ==='true'
 
-  const query ={ name: { $regex: name, $options: 'i' } } 
+  const query = name ? { name: { $regex: name, $options: 'i' } } : {}
   try {
-    const species =  await Specie.find(query)
+    const species = await Specie.find(query)
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
       .select('name imageUrl')

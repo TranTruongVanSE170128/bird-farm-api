@@ -69,3 +69,27 @@ export const getBirdsByIds = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
+
+export const getBirdsBySpecie = async (req: Request, res: Response) => {
+  try {
+    const specieId = req.query.specie as string
+    if (!isValidObjectId(specieId))
+      return res.status(400).json({ success: false, message: 'Lấy chim theo loài không thành công' })
+
+    const query = { specie: new mongoose.Types.ObjectId(specieId), onSale: false, sold: false }
+
+    const birds = await Bird.find(query).exec()
+
+    const birdsMale = birds.filter((bird) => bird.gender === 'male')
+    const birdsFemale = birds.filter((bird) => bird.gender === 'female')
+
+    res.status(200).json({
+      success: true,
+      message: 'Lấy danh sách chim đực và chim cái thành công',
+      birdsMale: birdsMale,
+      birdsFemale: birdsFemale
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
