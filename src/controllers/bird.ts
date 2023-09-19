@@ -8,16 +8,16 @@ export const getSearchBirds = async (req: Request, res: Response) => {
   const searchQuery = (req.query.searchQuery as string) || ''
   const specieId = req.query.specie as string
 
-  const query =
-    specieId && isValidObjectId(specieId)
-      ? {
-          specie: new mongoose.Types.ObjectId(specieId),
-          name: { $regex: searchQuery, $options: 'i' },
-          onSale: true
-        }
-      : { name: { $regex: searchQuery, $options: 'i' }, onSale: true }
-
   try {
+    const query =
+      specieId && isValidObjectId(specieId)
+        ? {
+            specie: new mongoose.Types.ObjectId(specieId),
+            name: { $regex: searchQuery, $options: 'i' },
+            onSale: true
+          }
+        : { name: { $regex: searchQuery, $options: 'i' }, onSale: true }
+
     const birds = await Bird.find(query)
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
