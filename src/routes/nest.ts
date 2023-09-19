@@ -5,7 +5,7 @@ const router= express.Router()
 router.get("/",getAllNest)
 router.get("/:id",getNestById)
 router.post("/",createNest)
-router.delete("/",deleteNest)
-router.put("/",updateNest)
+router.delete("/:id",deleteNest)
+router.put("/:id",updateNest)
 
 export default router
