@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import Bird from '../models/bird'
-import mongoose, { ObjectId, isValidObjectId } from 'mongoose'
+import mongoose, { isValidObjectId } from 'mongoose'
 
 export const getSearchBirds = async (req: Request, res: Response) => {
   const pageSize = parseInt(req.query.pageSize as string) || 5
@@ -8,13 +8,14 @@ export const getSearchBirds = async (req: Request, res: Response) => {
   const searchQuery = (req.query.searchQuery as string) || ''
   const specieId = req.query.specie as string
 
-  const query = specieId
-    ? {
-        specie: new mongoose.Types.ObjectId(specieId),
-        name: { $regex: searchQuery, $options: 'i' },
-        onSale: true
-      }
-    : { name: { $regex: searchQuery, $options: 'i' }, onSale: true }
+  const query =
+    specieId && isValidObjectId(specieId)
+      ? {
+          specie: new mongoose.Types.ObjectId(specieId),
+          name: { $regex: searchQuery, $options: 'i' },
+          onSale: true
+        }
+      : { name: { $regex: searchQuery, $options: 'i' }, onSale: true }
 
   try {
     const birds = await Bird.find(query)
