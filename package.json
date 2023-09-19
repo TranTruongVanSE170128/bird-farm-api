@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "pnpm build && node ./dist/index.js",
+    "start": "rimraf ./dist && tsc && node ./dist/index.js",
     "dev": "nodemon src/index.ts",
     "build": "rimraf ./dist && tsc",
-    "start:docker": "pnpm build && pnpm start",
+    "start:docker": "rimraf ./dist && tsc && node ./dist/index.js",
     "watch": "watchy --no-init-spawn --debounce 1 -w src -- docker compose restart backend",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -28,6 +28,7 @@
     "mailgen": "^2.0.27",
     "mongoose": "^7.5.0",
     "morgan": "^1.10.0",
+    "pre-commit": "^1.2.2",
     "stripe": "^13.6.0",
     "zod": "^3.22.2"
   },
@@ -57,5 +58,10 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2",
     "watchy": "^0.10.1"
-  }
+  },
+  "pre-commit": [
+    "ts.check",
+    "build",
+    "add-build"
+  ]
 }
