@@ -5,22 +5,25 @@ const getAllSpecie = async (req: Request, res: Response) => {
   const pageSize = parseInt(req.query.pageSize as string) || 5
   const pageNumber = parseInt(req.query.pageNumber as string) || 1
   const name = req.query.searchQuery as string
+  const pagination = req.query.pagination === 'false' ? false : true
 
   const query = name ? { name: { $regex: name, $options: 'i' } } : {}
   try {
-    const species = await Specie.find(query)
-      .limit(pageSize)
-      .skip(pageSize * (pageNumber - 1))
-      .select('name imageUrl')
-      .exec()
+    const species = pagination
+      ? await Specie.find(query)
+          .limit(pageSize)
+          .skip(pageSize * (pageNumber - 1))
+          .select('name imageUrl')
+          .exec()
+      : await Specie.find(query).select('name imageUrl').exec()
 
-    const totalSpecies = await Specie.countDocuments(query)
+    const totalSpecies = pagination ? await Specie.countDocuments(query) : null
 
     res.status(200).json({
       success: true,
       message: 'Lấy danh sách loài thành công!',
       currentPage: species ? pageNumber : 0,
-      totalPages: Math.ceil(totalSpecies / pageSize),
+      totalPages: totalSpecies ? Math.ceil(totalSpecies / pageSize) : 1,
       species: species ? species : []
     })
   } catch (err) {
