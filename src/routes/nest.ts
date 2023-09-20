@@ -5,7 +5,7 @@ import checkRole from '../middleware/checkRole'
 import { Role } from '../typings/types'
 const router = express.Router()
 
-router.get('/', getAllNest)
+// router.get('/', getAllNest)
 router.get('/:id', getNestById)
 router.post('/', verifyToken, checkRole(['admin' as Role]), createNest)
 router.delete('/:id', verifyToken, checkRole(['admin' as Role]), deleteNest)

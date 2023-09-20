@@ -6,7 +6,7 @@ const getAllNest = async (req: Request, res: Response) => {
   try {
     const pageSize = parseInt(req.query.pageSize as string) || 5
     const pageNumber = parseInt(req.query.pageNumber as string) || 1
-    const pagination = (req.query.pagination as string).trim() === 'true'
+    const pagination = (req.query.pagination as string) === 'true'
 
     const nests = pagination
       ? await Nest.find({})
