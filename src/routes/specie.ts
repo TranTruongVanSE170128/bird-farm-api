@@ -1,11 +1,15 @@
 import express from 'express'
-import { getAllSpecie, addSpecie, updateSpecie } from '../controllers/specie'
+import { getAllSpecies, addSpecie, updateSpecie, getPaginationSpecies } from '../controllers/specie'
 import { validateRequestData } from '../middleware/validate-request-data'
-import { addSpecieSchema, getAllSpecieSchema, updateSpecieSchema } from '../validations/specie'
+import { addSpecieSchema, updateSpecieSchema, getPaginationSpeciesSchema } from '../validations/specie'
+import verifyToken from '../middleware/auth'
+import checkRole from '../middleware/checkRole'
+import { Role } from '../typings/types'
 const router = express.Router()
 
-router.get('/', getAllSpecie)
-router.post('/', validateRequestData(addSpecieSchema), addSpecie)
-router.put('/:id', validateRequestData(updateSpecieSchema), updateSpecie)
+router.get('/', getAllSpecies)
+router.get('/pagination', validateRequestData(getPaginationSpeciesSchema), getPaginationSpecies)
+router.post('/', verifyToken, checkRole([Role.Admin]), validateRequestData(addSpecieSchema), addSpecie)
+router.put('/:id', verifyToken, checkRole([Role.Admin]), validateRequestData(updateSpecieSchema), updateSpecie)
 
 export default router

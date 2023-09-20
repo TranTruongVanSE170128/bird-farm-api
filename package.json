@@ -20,9 +20,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@hapi/boom": "^10.0.1",
     "argon": "^2.0.21",
     "argon2": "^0.31.1",
     "axios": "^1.5.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
@@ -31,6 +34,7 @@
     "morgan": "^1.10.0",
     "pre-commit": "^1.2.2",
     "stripe": "^13.6.0",
+    "yup": "^1.2.0",
     "zod": "^3.22.2"
   },
   "devDependencies": {
@@ -43,6 +47,7 @@
     "@types/morgan": "^1.9.5",
     "@types/node": "^20.6.0",
     "@types/nodemailer": "^6.4.10",
+    "@types/yup": "^0.32.0",
     "@typescript-eslint/eslint-plugin": "^6.6.0",
     "@typescript-eslint/parser": "^6.6.0",
     "cors": "^2.8.5",

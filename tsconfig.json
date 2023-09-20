@@ -3,7 +3,8 @@
   "compilerOptions": {
     "lib": ["ESNext"],
     "esModuleInterop": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "experimentalDecorators": true
   },
   "include": ["src", "/api/*.ts"],
   "exclude": ["node_modules", "**/*.test.ts"]
