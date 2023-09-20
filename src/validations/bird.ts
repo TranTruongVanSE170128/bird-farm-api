@@ -45,11 +45,11 @@ export const createBirdSchema = z.object({
 })
 export const getBirdsByIdsSchema = z.object({
   body: z.object({
-    birdIds: z.array(z.coerce.string())
+    birds: z.array(z.coerce.string())
   })
-});
-export const getBirdsBySpecieSchema=z.object({
-  body:z.object({
-    specie:z.coerce.string().nonempty("bắt buộc")
+})
+export const getBirdsBySpecieSchema = z.object({
+  query: z.object({
+    specie: z.coerce.string({ required_error: 'bắt buộc' }).nonempty('bắt buộc')
   })
 })
