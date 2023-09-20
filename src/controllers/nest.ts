@@ -1,56 +1,66 @@
 import { Request, Response } from 'express'
 import Nest from '../models/nest'
-import mongoose, { ObjectId, isValidObjectId } from 'mongoose'
+import { isValidObjectId } from 'mongoose'
+import { zParse } from '../helpers/z-parse'
+import { createNestSchema, getNestByIdSchema, getPaginationNestsSchema, updateNestSchema } from '../validations/nest'
 
-const getAllNest = async (req: Request, res: Response) => {
+const getAllNests = async (req: Request, res: Response) => {
   try {
-    const pageSize = parseInt(req.query.pageSize as string) || 5
-    const pageNumber = parseInt(req.query.pageNumber as string) || 1
-    const pagination = (req.query.pagination as string) === 'true'
-
-    const nests = pagination
-      ? await Nest.find({})
-          .populate('dad mom children specie')
-          .limit(pageSize)
-          .skip(pageSize * (pageNumber - 1))
-          .exec()
-      : await Nest.find({}).populate('dad mom children specie').exec()
-    res.status(200).json({ success: true, message: 'Lấy danh sách tổ thành công.', nests: nests })
+    const nests = await Nest.find()
+    res.status(200).json({ success: true, message: 'Lấy danh sách tổ thành công.', nests })
   } catch (err) {
-    console.log(err)
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
+const getPaginationNests = async (req: Request, res: Response) => {
+  const { query } = await zParse(getPaginationNestsSchema, req)
+  const pageSize = query.pageSize || 5
+  const pageNumber = query.pageNumber || 5
+  const searchQuery = query.searchQuery || ''
+
+  const queryMongo = {
+    name: { $regex: searchQuery, $options: 'i' }
+  }
+
+  try {
+    const nests = await Nest.find(queryMongo)
+      .limit(pageSize)
+      .skip(pageSize * (pageNumber - 1))
+      .select('name imageUrl')
+      .exec()
+
+    const totalNests = await Nest.countDocuments(queryMongo)
+
+    res.status(200).json({
+      success: true,
+      message: 'Lấy danh sách tổ chim thành công!',
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalNests / pageSize),
+      nests
+    })
+  } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
 
 const getNestById = async (req: Request, res: Response) => {
+  const { params: id } = await zParse(getNestByIdSchema, req)
   try {
-    const id = req.params.id
-    if (!isValidObjectId(id)) return res.status(400).json({ success: false, message: 'Lấy tổ không thành công!' })
-    const nest = Nest.findById(id).populate('dad mom children specie').exec()
-    res.status(200).json({ success: true, message: 'Lấy danh tổ thành công.', nest: nest })
+    const nest = Nest.findById(id)
+    res.status(200).json({ success: true, message: 'Lấy tổ chim thành công.', nest })
   } catch (err) {
-    console.log(err)
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
 
 const createNest = async (req: Request, res: Response) => {
+  const { body } = await zParse(createNestSchema, req)
   try {
-    const newNest = new Nest(req.body)
-    newNest.save()
-    res.status(201).json({ success: true, message: 'Tạo mới tổ thành công.', nest: newNest })
-  } catch (err) {
-    console.log(err)
-    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
-  }
-}
+    const newNest = new Nest(body)
+    await newNest.save()
 
-const deleteNest = async (req: Request, res: Response) => {
-  try {
-    const id = req.params.id
-    if (!isValidObjectId(id)) return res.status(400).json({ success: false, message: 'Xóa không thành công!' })
-    Nest.findByIdAndRemove(id)
-    res.status(201).json({ success: true, message: 'Xóa tổ thành công.' })
+    res.status(201).json({ success: true, message: 'Tạo tổ chim thành công.', nest: newNest })
   } catch (err) {
     console.log(err)
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
@@ -58,16 +68,17 @@ const deleteNest = async (req: Request, res: Response) => {
 }
 
 const updateNest = async (req: Request, res: Response) => {
+  const {
+    params: { id },
+    body
+  } = await zParse(updateNestSchema, req)
+
   try {
-    const id = req.params.id
-    if (!isValidObjectId(id)) return res.status(400).json({ success: false, message: 'Cập nhập không thành công!' })
-    const newNest = req.body
-    Nest.findByIdAndUpdate(id, newNest, { new: true })
-    res.status(201).json({ success: true, message: 'Cập nhập tổ thành công.', nest: newNest })
+    const nest = await Nest.findByIdAndUpdate(id, body, { new: true })
+    res.status(200).json({ success: true, message: 'Tổ chim đã được cập nhật thành công.', nest })
   } catch (err) {
-    console.log(err)
-    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+    res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
   }
 }
 
-export { getAllNest, getNestById, deleteNest, updateNest, createNest }
+export { getAllNests, getNestById, updateNest, createNest, getPaginationNests }

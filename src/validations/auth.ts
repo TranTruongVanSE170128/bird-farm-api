@@ -1,51 +1,45 @@
 import { z } from 'zod'
 
-const emailValidation = z.string().nonempty('email bắt buộc').email().trim()
-const passwordValidation = z.string().nonempty('mật khẩu bắt buộc')
-const idValidation = z.string().nonempty('id bắt buộc').trim()
-const verifyCodeValidation = z.string().nonempty('mã xác thực bắt buộc').trim()
-const accessTokenValidation = z.string().nonempty('access token bắt buộc').trim()
-
 export const loginGoogleSchema = z.object({
   body: z.object({
-    accessTokenGoogle: accessTokenValidation
+    accessTokenGoogle: z.string().trim()
   })
 })
 
 export const signInSchema = z.object({
   body: z.object({
-    email: emailValidation,
-    password: passwordValidation
+    email: z.string().trim().toLowerCase().email(),
+    password: z.string().trim()
   })
 })
 
 export const signUpSchema = z.object({
   body: z.object({
     name: z.string().nonempty('tên bắt buộc').trim(),
-    email: emailValidation,
-    password: passwordValidation
+    email: z.string().trim().toLowerCase().email(),
+    password: z.string().trim()
   })
 })
 
 export const forgetPasswordSchema = z.object({
   body: z.object({
-    email: emailValidation
+    email: z.string().trim().toLowerCase().email()
   })
 })
 
 export const verifyEmailSchema = z.object({
   params: z.object({
-    id: idValidation,
-    verifyCode: verifyCodeValidation
+    id: z.string().trim(),
+    verifyCode: z.string().trim()
   })
 })
 
 export const resetPasswordSchema = z.object({
   params: z.object({
-    id: idValidation,
-    resetPasswordCode: verifyCodeValidation
+    id: z.string().trim(),
+    resetPasswordCode: z.string().trim()
   }),
   body: z.object({
-    password: passwordValidation
+    password: z.string().trim()
   })
 })

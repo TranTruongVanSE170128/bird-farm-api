@@ -1,14 +1,16 @@
 import express from 'express'
-import { getAllNest, getNestById, deleteNest, updateNest, createNest } from '../controllers/nest'
+import { getNestById, updateNest, createNest, getPaginationNests } from '../controllers/nest'
 import verifyToken from '../middleware/auth'
 import checkRole from '../middleware/checkRole'
 import { Role } from '../typings/types'
+import { validateRequestData } from '../middleware/validate-request-data'
+import { createNestSchema, getNestByIdSchema, getPaginationNestsSchema, updateNestSchema } from '../validations/nest'
 const router = express.Router()
 
-// router.get('/', getAllNest)
-router.get('/:id', getNestById)
-router.post('/', verifyToken, checkRole(['admin' as Role]), createNest)
-router.delete('/:id', verifyToken, checkRole(['admin' as Role]), deleteNest)
-router.put('/:id', verifyToken, checkRole(['admin' as Role]), updateNest)
+// router.get('/', getAllNests)
+router.get('/pagination', validateRequestData(getPaginationNestsSchema), getPaginationNests)
+router.get('/:id', validateRequestData(getNestByIdSchema), getNestById)
+router.post('/', verifyToken, checkRole([Role.Admin]), validateRequestData(createNestSchema), createNest)
+router.put('/:id', verifyToken, checkRole([Role.Admin]), validateRequestData(updateNestSchema), updateNest)
 
 export default router

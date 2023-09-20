@@ -1,55 +1,46 @@
 import { z } from 'zod'
 
-export const getByIdSchema = z.object({
+export const getNestByIdSchema = z.object({
   params: z.object({
     id: z.string().trim()
   })
 })
-export const createIdSchema = z.object({
+
+export const getPaginationNestsSchema = z.object({
+  query: z.object({
+    pageSize: z.number().optional(),
+    pageNumber: z.number().optional(),
+    searchQuery: z.string().trim().optional()
+  })
+})
+
+export const createNestSchema = z.object({
   body: z.object({
-    specie: z.string().nonempty('bắt buộc loài').trim(),
-    dad: z.string().nonempty('bắt buộc cha').trim(),
-    mom: z.string().nonempty('bắt buộc mẹ').trim(),
-    children: z.array(z.string().nonempty('bắt buộc chim').trim()),
-    sold: z.boolean().optional(),
-    onSale: z.boolean().optional(),
+    specie: z.string().trim(),
+    name: z.string().trim(),
     price: z.number(),
     imageUrls: z.array(z.string().trim()).optional(),
     description: z.string().optional(),
-    discount: z
-      .object({
-        discountPercent: z.number(),
-        startDate: z.date(),
-        endDate: z.date()
-      })
-      .optional()
+    dad: z.string().trim().optional(),
+    mom: z.string().trim().optional(),
+    sold: z.boolean().optional()
+    // onSale: z.boolean().optional(),
   })
 })
-export const deleteNestSchema = z.object({
-  params: z.object({
-    id: z.string().nonempty('bắt buộc id').trim()
-  })
-})
+
 export const updateNestSchema = z.object({
   params: z.object({
-    id: z.string().nonempty('bắt buộc id').trim()
+    id: z.string().trim()
   }),
   body: z.object({
-    specie: z.string().nonempty('bắt buộc loài').trim(),
-    dad: z.string().nonempty('bắt buộc cha').trim(),
-    mom: z.string().nonempty('bắt buộc mẹ').trim(),
-    children: z.array(z.string().nonempty('bắt buộc chim').trim()),
-    sold: z.boolean().optional(),
-    onSale: z.boolean().optional(),
-    price: z.number(),
+    specie: z.string().trim().optional(),
+    name: z.string().trim().optional(),
+    price: z.number().optional(),
     imageUrls: z.array(z.string().trim()).optional(),
     description: z.string().optional(),
-    discount: z
-      .object({
-        discountPercent: z.number(),
-        startDate: z.date(),
-        endDate: z.date()
-      })
-      .optional()
+    dad: z.string().trim().optional(),
+    mom: z.string().trim().optional(),
+    sold: z.boolean().optional()
+    // onSale: z.boolean().optional(),
   })
 })
