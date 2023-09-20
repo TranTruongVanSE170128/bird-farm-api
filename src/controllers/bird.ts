@@ -76,7 +76,7 @@ export const getBirdsBySpecie = async (req: Request, res: Response) => {
     if (!isValidObjectId(specieId))
       return res.status(400).json({ success: false, message: 'Lấy chim theo loài không thành công' })
 
-    const query = { specie: new mongoose.Types.ObjectId(specieId), onSale: false, sold: false }
+    const query = { specie: new mongoose.Types.ObjectId(specieId),sold:false }
 
     const birds = await Bird.find(query).exec()
 
