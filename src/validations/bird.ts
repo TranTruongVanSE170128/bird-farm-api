@@ -9,6 +9,8 @@ export const getSearchBirdsSchema = z.object({
   })
 })
 
+export const getAdminBirdsSchema = getSearchBirdsSchema
+
 export const getBirdDetailSchema = z.object({
   params: z.object({
     id: z.coerce.string().trim()
@@ -49,6 +51,7 @@ export const createBirdSchema = z.object({
       .optional()
   })
 })
+
 export const getBirdsByIdsSchema = z.object({
   body: z.object({
     birdIds: z.array(z.coerce.string())

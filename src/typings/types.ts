@@ -46,4 +46,8 @@ export type Discount = {
   endDate: Date
 }
 
-export type Role = 'customer' | 'staff' | 'manager'
+export enum Role {
+  Customer = 'customer',
+  Staff = 'staff',
+  Admin = 'admin'
+}
