@@ -2,8 +2,8 @@ import { z } from 'zod'
 
 export const getPaginationSpeciesSchema = z.object({
   query: z.object({
-    pageSize: z.number().optional(),
-    pageNumber: z.number().optional(),
+    pageSize: z.coerce.number().optional(),
+    pageNumber: z.coerce.number().optional(),
     searchQuery: z.string().trim().optional()
   })
 })

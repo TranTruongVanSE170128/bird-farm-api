@@ -1,22 +1,30 @@
 import { Request, Response } from 'express'
 import Bird from '../models/bird'
-import mongoose, { isValidObjectId } from 'mongoose'
+import mongoose, { ObjectId, isValidObjectId } from 'mongoose'
+import { zParse } from '../helpers/z-parse'
+import {
+  getBirdDetailSchema,
+  getBirdsBreedSchema,
+  getBirdsByIdsSchema,
+  getPaginationBirdsAdminSchema,
+  getPaginationBirdsSchema
+} from '../validations/bird'
 
-export const getSearchBirds = async (req: Request, res: Response) => {
-  const pageSize = parseInt(req.query.pageSize as string) || 5
-  const pageNumber = parseInt(req.query.pageNumber as string) || 1
-  const searchQuery = (req.query.searchQuery as string) || ''
-  const specieId = req.query.specie as string
+export const getPaginationBirds = async (req: Request, res: Response) => {
+  const { query } = await zParse(getPaginationBirdsSchema, req)
+  const pageSize = query.pageSize || 5
+  const pageNumber = query.pageNumber || 5
+  const searchQuery = query.searchQuery || ''
+  const specieId = query.specie
 
   try {
-    const query =
-      specieId && isValidObjectId(specieId)
-        ? {
-            specie: new mongoose.Types.ObjectId(specieId),
-            name: { $regex: searchQuery, $options: 'i' },
-            onSale: true
-          }
-        : { name: { $regex: searchQuery, $options: 'i' }, onSale: true }
+    const query = specieId
+      ? {
+          specie: new mongoose.Types.ObjectId(specieId),
+          name: { $regex: searchQuery, $options: 'i' },
+          onSale: true
+        }
+      : { name: { $regex: searchQuery, $options: 'i' }, onSale: true }
 
     const birds = await Bird.find(query)
       .limit(pageSize)
@@ -39,8 +47,47 @@ export const getSearchBirds = async (req: Request, res: Response) => {
   }
 }
 
+export const getPaginationBirdsAdmin = async (req: Request, res: Response) => {
+  const { query } = await zParse(getPaginationBirdsAdminSchema, req)
+  const pageSize = query.pageSize || 5
+  const pageNumber = query.pageNumber || 5
+  const searchQuery = query.searchQuery || ''
+  const specieId = query.specie
+
+  try {
+    const query = specieId
+      ? {
+          specie: new mongoose.Types.ObjectId(specieId),
+          name: { $regex: searchQuery, $options: 'i' }
+        }
+      : { name: { $regex: searchQuery, $options: 'i' } }
+
+    const birds = await Bird.find(query)
+      .limit(pageSize)
+      .skip(pageSize * (pageNumber - 1))
+      .select('name imageUrls price gender discount onSale')
+      .populate('specie', { name: 1 })
+      .exec()
+
+    const totalBirds = await Bird.countDocuments(query)
+
+    res.status(200).json({
+      success: true,
+      message: 'Lấy danh sách chim thành công!',
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalBirds / pageSize),
+      birds: birds
+    })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
 export const getBirdDetail = async (req: Request, res: Response) => {
-  const { id } = req.params
+  const {
+    params: { id }
+  } = await zParse(getBirdDetailSchema, req)
 
   try {
     const bird = await Bird.findById(id).populate('specie', { name: 1 })
@@ -52,6 +99,7 @@ export const getBirdDetail = async (req: Request, res: Response) => {
     res.status(201).json({ success: true, bird })
   } catch (err) {
     console.log(err)
+
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
@@ -68,13 +116,14 @@ export const createBird = async (req: Request, res: Response) => {
 }
 
 export const getBirdsByIds = async (req: Request, res: Response) => {
-  const ids = req.body.birds
-  const validIds = ids.filter((id: string) => isValidObjectId(id))
+  const {
+    body: { birds: ids }
+  } = await zParse(getBirdsByIdsSchema, req)
 
   try {
-    const query = { _id: { $in: validIds }, onSale: true }
+    const query = { _id: { $in: ids }, onSale: true }
 
-    const birds = await Bird.find(query).select('-sold -onSale -description').populate('specie')
+    const birds = await Bird.find(query).select('-sold -onSale -description').populate('specie', { name: 1 })
 
     res.status(200).json({
       success: true,
@@ -82,21 +131,18 @@ export const getBirdsByIds = async (req: Request, res: Response) => {
       birds: birds
     })
   } catch (err) {
-    console.error(err)
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
 
-export const getBirdsBySpecie = async (req: Request, res: Response) => {
+export const getBirdsBreed = async (req: Request, res: Response) => {
+  const {
+    query: { specie }
+  } = await zParse(getBirdsBreedSchema, req)
+
   try {
-    const specieId = req.query.specie as string
-    if (!isValidObjectId(specieId))
-      return res.status(400).json({ success: false, message: 'Lấy chim theo loài không thành công' })
-
-    const query = { specie: new mongoose.Types.ObjectId(specieId), onSale: true }
-
+    const query = { specie: new mongoose.Types.ObjectId(specie), onSale: false }
     const birds = await Bird.find(query).exec()
-
     const birdsMale = birds.filter((bird) => bird.gender === 'male')
     const birdsFemale = birds.filter((bird) => bird.gender === 'female')
 

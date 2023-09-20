@@ -1,50 +1,52 @@
+import mongoose, { isValidObjectId } from 'mongoose'
 import { z } from 'zod'
 
-export const getSearchBirdsSchema = z.object({
+export const getPaginationBirdsSchema = z.object({
   query: z.object({
-    pageSize: z.string().trim().optional(),
-    pageNumber: z.string().trim().optional(),
+    pageSize: z.coerce.number().optional(),
+    pageNumber: z.coerce.number().optional(),
     searchQuery: z.string().trim().optional(),
-    specie: z.string().trim().optional()
+    specie: z.coerce.string().optional()
   })
 })
 
-export const getAdminBirdsSchema = getSearchBirdsSchema
+export const getPaginationBirdsAdminSchema = getPaginationBirdsSchema
 
 export const getBirdDetailSchema = z.object({
   params: z.object({
-    id: z.string().trim()
+    id: z.string().refine((val) => {
+      return mongoose.Types.ObjectId.isValid(val)
+    })
   })
 })
 
 export const createBirdSchema = z.object({
   body: z.object({
-    specie: z.string().nonempty('bắt buộc loài').trim(),
-    name: z.string().nonempty('bắt buộc tên').trim(),
-    birth: z.date().optional(),
-    price: z.number(),
-    description: z.string().optional(),
-    sold: z.boolean().optional(),
-    onSale: z.boolean().optional(),
+    specie: z.string().trim(),
+    name: z.string().trim(),
+    price: z.coerce.number(),
     gender: z.enum(['male', 'female']),
-    imageUrls: z.array(z.string()).optional(),
+    birth: z.date().optional(),
+    description: z.string().trim().optional(),
+    onSale: z.boolean().optional(),
+    imageUrls: z.array(z.string().trim()).optional(),
     parent: z
       .object({
-        dad: z.string().optional(),
-        mom: z.string().optional()
+        dad: z.string().trim().optional(),
+        mom: z.string().trim().optional()
       })
       .optional(),
     achievements: z
       .array(
         z.object({
-          competition: z.string(),
-          rank: z.number()
+          competition: z.string().trim(),
+          rank: z.coerce.number()
         })
       )
       .optional(),
     discount: z
       .object({
-        discountPercent: z.number(),
+        discountPercent: z.coerce.number(),
         startDate: z.date(),
         endDate: z.date()
       })
@@ -54,11 +56,14 @@ export const createBirdSchema = z.object({
 
 export const getBirdsByIdsSchema = z.object({
   body: z.object({
-    birds: z.array(z.string())
+    birds: z.array(z.string()).transform((val) => val.filter((bird) => isValidObjectId(bird)))
   })
 })
-export const getBirdsBySpecieSchema = z.object({
+
+export const getBirdsBreedSchema = z.object({
   query: z.object({
-    specie: z.string({ required_error: 'bắt buộc' }).nonempty('bắt buộc')
+    specie: z.string().refine((val) => {
+      return mongoose.Types.ObjectId.isValid(val)
+    })
   })
 })

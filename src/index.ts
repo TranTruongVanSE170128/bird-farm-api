@@ -8,7 +8,6 @@ import birdRoute from './routes/bird'
 import userRoute from './routes/user'
 import checkoutRoute from './routes/checkout'
 import nestRoute from './routes/nest'
-import adminBirdRoute from './routes/admin-bird'
 import { config } from 'dotenv'
 
 config()
@@ -42,8 +41,6 @@ app.use('/api/species', specieRoute)
 app.use('/api/birds', birdRoute)
 app.use('/api/checkout', checkoutRoute)
 app.use('/api/nests', nestRoute)
-
-app.use('/api/admin/birds', adminBirdRoute)
 
 const PORT = process.env.PORT || 5000
 

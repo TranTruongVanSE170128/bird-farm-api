@@ -27,7 +27,6 @@ const getPaginationNests = async (req: Request, res: Response) => {
     const nests = await Nest.find(queryMongo)
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
-      .select('name imageUrl')
       .exec()
 
     const totalNests = await Nest.countDocuments(queryMongo)
@@ -45,7 +44,9 @@ const getPaginationNests = async (req: Request, res: Response) => {
 }
 
 const getNestById = async (req: Request, res: Response) => {
-  const { params: id } = await zParse(getNestByIdSchema, req)
+  const {
+    params: { id }
+  } = await zParse(getNestByIdSchema, req)
   try {
     const nest = Nest.findById(id)
     res.status(200).json({ success: true, message: 'Lấy tổ chim thành công.', nest })

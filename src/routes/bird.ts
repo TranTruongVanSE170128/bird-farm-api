@@ -1,21 +1,43 @@
 import express from 'express'
-import { getSearchBirds, getBirdsByIds, getBirdDetail, getBirdsBySpecie } from '../controllers/bird'
+import {
+  getPaginationBirds,
+  getBirdsByIds,
+  getBirdDetail,
+  getBirdsBreed,
+  getPaginationBirdsAdmin,
+  createBird
+} from '../controllers/bird'
 import { validateRequestData } from '../middleware/validate-request-data'
 import {
-  getSearchBirdsSchema,
+  getPaginationBirdsSchema,
   getBirdsByIdsSchema,
   getBirdDetailSchema,
-  getBirdsBySpecieSchema
+  getBirdsBreedSchema,
+  getPaginationBirdsAdminSchema,
+  createBirdSchema
 } from '../validations/bird'
+import verifyToken from '../middleware/auth'
+import checkRole from '../middleware/checkRole'
+import { Role } from '../typings/types'
 
 const router = express.Router()
 
-router.get('/', validateRequestData(getSearchBirdsSchema), getSearchBirds)
+router.get('/pagination', validateRequestData(getPaginationBirdsSchema), getPaginationBirds)
+
+router.get(
+  '/pagination/admin',
+  verifyToken,
+  checkRole([Role.Admin]),
+  validateRequestData(getPaginationBirdsAdminSchema),
+  getPaginationBirdsAdmin
+)
+
+router.post('/', verifyToken, checkRole([Role.Admin]), validateRequestData(createBirdSchema), createBird)
 
 router.get('/:id', validateRequestData(getBirdDetailSchema), getBirdDetail)
 
 router.get('/get-by-ids', validateRequestData(getBirdsByIdsSchema), getBirdsByIds)
 
-router.get('/pairing', validateRequestData(getBirdsBySpecieSchema), getBirdsBySpecie)
+router.get('/breed', validateRequestData(getBirdsBreedSchema), getBirdsBreed)
 
 export default router
