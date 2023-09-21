@@ -17,6 +17,12 @@ export const getPaginationNestsSchema = z.object({
   })
 })
 
+export const getNestsByIdsSchema = z.object({
+  body: z.object({
+    nests: z.array(z.string()).transform((val) => val.filter((nest) => isValidObjectId(nest)))
+  })
+})
+
 export const createNestSchema = z.object({
   body: z.object({
     specie: z.string().refine((val) => {

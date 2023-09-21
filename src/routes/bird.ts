@@ -36,7 +36,7 @@ router.post('/', verifyToken, checkRole([Role.Admin]), validateRequestData(creat
 
 router.get('/:id', validateRequestData(getBirdDetailSchema), getBirdDetail)
 
-router.get('/get-by-ids', validateRequestData(getBirdsByIdsSchema), getBirdsByIds)
+router.post('/get-by-ids', validateRequestData(getBirdsByIdsSchema), getBirdsByIds)
 
 router.get('/breed', validateRequestData(getBirdsBreedSchema), getBirdsBreed)
 

@@ -1,8 +1,13 @@
 import { Request, Response } from 'express'
 import Nest from '../models/nest'
-import { isValidObjectId } from 'mongoose'
 import { zParse } from '../helpers/z-parse'
-import { createNestSchema, getNestByIdSchema, getPaginationNestsSchema, updateNestSchema } from '../validations/nest'
+import {
+  createNestSchema,
+  getNestByIdSchema,
+  getNestsByIdsSchema,
+  getPaginationNestsSchema,
+  updateNestSchema
+} from '../validations/nest'
 
 const getAllNests = async (req: Request, res: Response) => {
   try {
@@ -50,6 +55,26 @@ const getNestById = async (req: Request, res: Response) => {
   try {
     const nest = Nest.findById(id)
     res.status(200).json({ success: true, message: 'Lấy tổ chim thành công.', nest })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const getNestsByIds = async (req: Request, res: Response) => {
+  const {
+    body: { nests: ids }
+  } = await zParse(getNestsByIdsSchema, req)
+
+  try {
+    const query = { _id: { $in: ids }, onSale: true }
+
+    const nests = await Nest.find(query)
+
+    res.status(200).json({
+      success: true,
+      message: 'Lấy danh sách tổ chim thành công.',
+      nests
+    })
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
