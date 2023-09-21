@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import { z } from 'zod'
 
 export const getPaginationSpeciesSchema = z.object({
@@ -5,6 +6,12 @@ export const getPaginationSpeciesSchema = z.object({
     pageSize: z.coerce.number().optional(),
     pageNumber: z.coerce.number().optional(),
     searchQuery: z.string().trim().optional()
+  })
+})
+
+export const getSpecieDetailSchema = z.object({
+  params: z.object({
+    id: z.string()
   })
 })
 

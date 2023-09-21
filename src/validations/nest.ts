@@ -35,7 +35,6 @@ export const createNestSchema = z.object({
     dad: z.string().optional(),
     mom: z.string().optional(),
     sold: z.boolean().optional()
-    // onSale: z.boolean().optional(),
   })
 })
 
@@ -54,6 +53,5 @@ export const updateNestSchema = z.object({
     dad: z.string().optional(),
     mom: z.string().optional(),
     sold: z.boolean().optional()
-    // onSale: z.boolean().optional(),
   })
 })

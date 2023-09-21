@@ -5,7 +5,8 @@ import {
   getBirdDetail,
   getBirdsBreed,
   getPaginationBirdsAdmin,
-  createBird
+  createBird,
+  updateBird
 } from '../controllers/bird'
 import { validateRequestData } from '../middleware/validate-request-data'
 import {
@@ -14,7 +15,8 @@ import {
   getBirdDetailSchema,
   getBirdsBreedSchema,
   getPaginationBirdsAdminSchema,
-  createBirdSchema
+  createBirdSchema,
+  updateBirdSchema
 } from '../validations/bird'
 import verifyToken from '../middleware/auth'
 import checkRole from '../middleware/checkRole'
@@ -35,6 +37,8 @@ router.get(
 router.post('/', verifyToken, checkRole([Role.Admin]), validateRequestData(createBirdSchema), createBird)
 
 router.get('/:id', validateRequestData(getBirdDetailSchema), getBirdDetail)
+
+router.put('/:id', validateRequestData(updateBirdSchema), updateBird)
 
 router.post('/get-by-ids', validateRequestData(getBirdsByIdsSchema), getBirdsByIds)
 

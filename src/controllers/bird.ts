@@ -7,7 +7,8 @@ import {
   getBirdsBreedSchema,
   getBirdsByIdsSchema,
   getPaginationBirdsAdminSchema,
-  getPaginationBirdsSchema
+  getPaginationBirdsSchema,
+  updateBirdSchema
 } from '../validations/bird'
 
 export const getPaginationBirds = async (req: Request, res: Response) => {
@@ -22,9 +23,9 @@ export const getPaginationBirds = async (req: Request, res: Response) => {
       ? {
           specie: new mongoose.Types.ObjectId(specieId),
           name: { $regex: searchQuery, $options: 'i' },
-          onSale: true
+          type: true
         }
-      : { name: { $regex: searchQuery, $options: 'i' }, onSale: true }
+      : { name: { $regex: searchQuery, $options: 'i' }, type: 'sell' }
 
     const birds = await Bird.find(query)
       .limit(pageSize)
@@ -65,7 +66,7 @@ export const getPaginationBirdsAdmin = async (req: Request, res: Response) => {
     const birds = await Bird.find(query)
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
-      .select('name imageUrls price gender discount onSale')
+      .select('name imageUrls price gender discount type')
       .populate('specie', { name: 1 })
       .exec()
 
@@ -121,9 +122,9 @@ export const getBirdsByIds = async (req: Request, res: Response) => {
   } = await zParse(getBirdsByIdsSchema, req)
 
   try {
-    const query = { _id: { $in: ids }, onSale: true }
+    const query = { _id: { $in: ids }, type: 'sell' }
 
-    const birds = await Bird.find(query).select('-sold -onSale -description').populate('specie', { name: 1 })
+    const birds = await Bird.find(query).select('-sold -type -description').populate('specie', { name: 1 })
 
     res.status(200).json({
       success: true,
@@ -141,7 +142,7 @@ export const getBirdsBreed = async (req: Request, res: Response) => {
   } = await zParse(getBirdsBreedSchema, req)
 
   try {
-    const query = { specie: new mongoose.Types.ObjectId(specie), onSale: false }
+    const query = { specie: new mongoose.Types.ObjectId(specie), type: 'sell' }
     const birds = await Bird.find(query).exec()
     const birdsMale = birds.filter((bird) => bird.gender === 'male')
     const birdsFemale = birds.filter((bird) => bird.gender === 'female')
@@ -154,5 +155,19 @@ export const getBirdsBreed = async (req: Request, res: Response) => {
     })
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const updateBird = async (req: Request, res: Response) => {
+  const {
+    params: { id },
+    body
+  } = await zParse(updateBirdSchema, req)
+
+  try {
+    const bird = await Bird.findByIdAndUpdate(id, body, { new: true })
+    res.status(200).json({ success: true, message: 'Chim đã được cập nhật thành công.', bird })
+  } catch (err) {
+    res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
   }
 }

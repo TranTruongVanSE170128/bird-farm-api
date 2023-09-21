@@ -26,9 +26,48 @@ export const createBirdSchema = z.object({
     name: z.string().trim(),
     price: z.coerce.number(),
     gender: z.enum(['male', 'female']),
-    birth: z.date().optional(),
+    birth: z.coerce.date().optional(),
     description: z.string().trim().optional(),
-    onSale: z.boolean().optional(),
+    type: z.enum(['male', 'female']),
+    imageUrls: z.array(z.string().trim()).optional(),
+    parent: z
+      .object({
+        dad: z.string().trim().optional(),
+        mom: z.string().trim().optional()
+      })
+      .optional(),
+    achievements: z
+      .array(
+        z.object({
+          competition: z.string().trim(),
+          rank: z.coerce.number()
+        })
+      )
+      .optional(),
+    discount: z
+      .object({
+        discountPercent: z.coerce.number(),
+        startDate: z.date(),
+        endDate: z.date()
+      })
+      .optional()
+  })
+})
+
+export const updateBirdSchema = z.object({
+  params: z.object({
+    id: z.string().refine((val) => {
+      return mongoose.Types.ObjectId.isValid(val)
+    })
+  }),
+  body: z.object({
+    specie: z.string().trim().optional(),
+    name: z.string().trim().optional(),
+    price: z.coerce.number().optional(),
+    gender: z.enum(['male', 'female']).optional(),
+    birth: z.coerce.date().optional(),
+    description: z.string().trim().optional(),
+    type: z.enum(['sell', 'breed']).optional(),
     imageUrls: z.array(z.string().trim()).optional(),
     parent: z
       .object({

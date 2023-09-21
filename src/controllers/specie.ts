@@ -1,6 +1,11 @@
 import { Request, Response } from 'express'
 import Specie from '../models/specie'
-import { addSpecieSchema, getPaginationSpeciesSchema, updateSpecieSchema } from '../validations/specie'
+import {
+  addSpecieSchema,
+  getPaginationSpeciesSchema,
+  updateSpecieSchema,
+  getSpecieDetailSchema
+} from '../validations/specie'
 import { zParse } from '../helpers/z-parse'
 
 const getAllSpecies = async (req: Request, res: Response) => {
@@ -8,6 +13,20 @@ const getAllSpecies = async (req: Request, res: Response) => {
     const species = await Specie.find()
     res.status(200).json({ success: false, message: 'Lấy danh sách loài thành công', species })
   } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
+const getSpecieDetail = async (req: Request, res: Response) => {
+  const {
+    params: { id }
+  } = await zParse(getSpecieDetailSchema, req)
+  try {
+    const specie = await Specie.findById(id)
+    res.status(200).json({ success: true, message: 'Lấy loài chim thành công.', specie })
+  } catch (err) {
+    console.log(err)
+
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
@@ -70,4 +89,4 @@ const updateSpecie = async (req: Request, res: Response) => {
   }
 }
 
-export { getAllSpecies, addSpecie, updateSpecie, getPaginationSpecies }
+export { getAllSpecies, addSpecie, updateSpecie, getPaginationSpecies, getSpecieDetail }
