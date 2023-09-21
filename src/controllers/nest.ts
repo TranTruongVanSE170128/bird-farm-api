@@ -66,7 +66,7 @@ export const getNestsByIds = async (req: Request, res: Response) => {
   } = await zParse(getNestsByIdsSchema, req)
 
   try {
-    const query = { _id: { $in: ids }, onSale: true }
+    const query = { _id: { $in: ids } }
 
     const nests = await Nest.find(query)
 

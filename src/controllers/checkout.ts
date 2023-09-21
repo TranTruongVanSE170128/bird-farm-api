@@ -1,7 +1,8 @@
 import { Request, Response } from 'express'
 import { isValidObjectId } from 'mongoose'
 import Stripe from 'stripe'
-import bird from '../models/bird'
+import Bird from '../models/bird'
+import Nest from '../models/nest'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {} as Stripe.StripeConfig)
 
@@ -11,10 +12,15 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
   try {
     const { birds: birdRecords } = products
     const birdIds = Object.keys(birdRecords)
-    const validIds = birdIds.filter((id: string) => isValidObjectId(id))
-    const birds = await bird.find({ _id: { $in: validIds } })
+    const validBirdIds = birdIds.filter((id: string) => isValidObjectId(id))
+    const birds = await Bird.find({ _id: { $in: validBirdIds } })
 
-    const lineItems = birds.map((bird) => {
+    const { nests: nestRecords } = products
+    const nestIds = Object.keys(nestRecords)
+    const validNestIds = nestIds.filter((id: string) => isValidObjectId(id))
+    const nests = await Nest.find({ _id: { $in: validNestIds } })
+
+    const lineBirdItems = birds.map((bird) => {
       return {
         price_data: {
           currency: 'VND',
@@ -27,9 +33,22 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       }
     })
 
+    const lineNestItems = nests.map((nest) => {
+      return {
+        price_data: {
+          currency: 'VND',
+          product_data: {
+            name: nest.name
+          },
+          unit_amount: nest.price
+        },
+        quantity: nestRecords[nest.id]
+      }
+    })
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: lineItems,
+      line_items: [...lineBirdItems, ...lineNestItems],
       mode: 'payment',
       success_url: 'http://localhost:5000/success.html',
       cancel_url: 'http://localhost:5000/cancel.html'
