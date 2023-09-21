@@ -7,11 +7,11 @@ const OrderSchema = new mongoose.Schema(
     address: String,
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
     birds: { type: [mongoose.Schema.Types.ObjectId], ref: 'Bird' },
-    status: String,
+    status: { type: String, enum: ['processing', 'delivering', 'success', 'canceled'], default: 'processing' },
     totalMoney: Number,
     date: Date
   },
   { timestamps: true }
 )
 
-module.exports = mongoose.model('Order', OrderSchema)
+export default mongoose.model('Order', OrderSchema)
