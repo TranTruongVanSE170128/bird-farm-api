@@ -30,6 +30,7 @@ const getPaginationNests = async (req: Request, res: Response) => {
 
   try {
     const nests = await Nest.find(queryMongo)
+      .populate('specie')
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
       .exec()
