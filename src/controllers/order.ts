@@ -16,7 +16,6 @@ export const getPaginationOrders = async (req: Request, res: Response) => {
   const pageNumber = query.pageNumber || 5
   const pageSize = query.pageSize || 5
   const status = query.status
-
   try {
     const query: any = { user: new mongoose.Types.ObjectId(res.locals.user.id) }
 
@@ -24,7 +23,7 @@ export const getPaginationOrders = async (req: Request, res: Response) => {
       query.status = status
     }
 
-    const orders = Order.find(query)
+    const orders = await Order.find(query)
       .sort({ date: -1 })
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
@@ -53,7 +52,7 @@ export const getPaginationOrdersAdmin = async (req: Request, res: Response) => {
   try {
     const query = status ? { status: status } : {}
 
-    const orders = Order.find(query)
+    const orders = await Order.find(query)
       .sort({ date: -1 })
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
