@@ -1,4 +1,4 @@
-import mongoose, { isValidObjectId } from 'mongoose'
+import { isValidObjectId } from 'mongoose'
 import { z } from 'zod'
 
 export const getPaginationOrdersSchema = z.object({
@@ -26,14 +26,21 @@ export const createOrderSchema = z.object({
           return isValidObjectId(val)
         })
       )
-      .optional(),
-    status: z
+      .default([]),
+    nests: z
+      .array(
+        z.string().refine((val) => {
+          return isValidObjectId(val)
+        })
+      )
+      .default([]),
+    status: z.enum(['processing', 'delivering', 'success', 'canceled']).default('processing'),
+    voucher: z
       .string()
       .refine((val) => {
-        return val in ['processing', 'delivering', 'success', 'canceled']
+        return isValidObjectId(val)
       })
-      .optional(),
-    totalMoney: z.coerce.number().optional()
+      .optional()
   })
 })
 
@@ -44,9 +51,9 @@ export const updateOrderSchema = z.object({
     })
   }),
   body: z.object({
-    receiver: z.string().trim(),
-    phone: z.string().trim(),
-    address: z.string().trim(),
+    receiver: z.string().trim().optional(),
+    phone: z.string().trim().optional(),
+    address: z.string().trim().optional(),
     birds: z
       .array(
         z.string().refine((val) => {
@@ -54,12 +61,19 @@ export const updateOrderSchema = z.object({
         })
       )
       .optional(),
-    status: z
+    nests: z
+      .array(
+        z.string().refine((val) => {
+          return isValidObjectId(val)
+        })
+      )
+      .optional(),
+    status: z.enum(['processing', 'delivering', 'success', 'canceled']).optional(),
+    voucher: z
       .string()
       .refine((val) => {
-        return val in ['processing', 'delivering', 'success', 'canceled']
+        return isValidObjectId(val)
       })
-      .optional(),
-    totalMoney: z.coerce.number().optional()
+      .optional()
   })
 })

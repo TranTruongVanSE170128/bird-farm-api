@@ -23,7 +23,7 @@ services:
       NODEMAILER_USER: birdfarmswp@gmail.com
       NODEMAILER_PASSWORD: mngeorziuyhetrgk
       ACCESS_TOKEN_SECRET: This is secret access token
-      STRIPE_SECRET_KEY: sk_test_51NrNnFINUTNxgE0XRIW9yfTjXc1aJkfYIVHQONcfbMtAvef0GXee1D7pO24lN1UrG7t0saYlGopoBpgbFSnPQz9e00SIfnW9uH 
+      STRIPE_SECRET_KEY: sk_test_51NrNnFINUTNxgE0XRIW9yfTjXc1aJkfYIVHQONcfbMtAvef0GXee1D7pO24lN1UrG7t0saYlGopoBpgbFSnPQz9e00SIfnW9uH
     depends_on:
       - mongo_db
 

@@ -3,6 +3,8 @@ import mongoose from 'mongoose'
 import Order from '../models/order'
 import { zParse } from '../helpers/z-parse'
 import { createOrderSchema, getPaginationOrdersSchema, updateOrderSchema } from '../validations/order'
+import Bird from '../models/bird'
+import Nest from '../models/nest'
 
 export const getPaginationOrders = async (req: Request, res: Response) => {
   const { query } = await zParse(getPaginationOrdersSchema, req)
@@ -26,23 +28,57 @@ export const getPaginationOrders = async (req: Request, res: Response) => {
 
 export const createOrder = async (req: Request, res: Response) => {
   const { body } = await zParse(createOrderSchema, req)
+
+  const birdIds = body.birds
+  const nestIds = body.nests
+
   try {
-    const newOrder = new Order({ ...body, user: new mongoose.Types.ObjectId(res.locals.user.id) })
+    const birdTotalPrice = await Bird.aggregate([
+      { $match: { _id: { $in: birdIds } } },
+      { $group: { _id: null, totalPrice: { $sum: '$price' } } }
+    ])
+
+    const nestTotalPrice = await Nest.aggregate([
+      { $match: { _id: { $in: nestIds } } },
+      { $group: { _id: null, totalPrice: { $sum: '$price' } } }
+    ])
+
+    const totalMoney = (birdTotalPrice[0]?.totalPrice || 0) + (nestTotalPrice[0]?.totalPrice || 0)
+
+    const newOrder = new Order({ ...body, totalMoney, user: new mongoose.Types.ObjectId(res.locals.user.id) })
     await newOrder.save()
+
     res.status(201).json({ success: true, message: 'Tạo hóa đơn thành công.' })
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
+
 export const updateOrder = async (req: Request, res: Response) => {
   const {
     params: { id },
     body
   } = await zParse(updateOrderSchema, req)
+
+  const birdIds = body.birds
+  const nestIds = body.nests
+
   try {
-    await Order.findByIdAndUpdate(id, body, { new: true })
-    res.status(204).json({ success: true, message: 'Cập nhập hóa đơn thành công.' })
+    const birdTotalPrice = await Bird.aggregate([
+      { $match: { _id: { $in: birdIds } } },
+      { $group: { _id: null, totalPrice: { $sum: '$price' } } }
+    ])
+
+    const nestTotalPrice = await Nest.aggregate([
+      { $match: { _id: { $in: nestIds } } },
+      { $group: { _id: null, totalPrice: { $sum: '$price' } } }
+    ])
+
+    const totalMoney = (birdTotalPrice[0]?.totalPrice || 0) + (nestTotalPrice[0]?.totalPrice || 0)
+
+    const order = await Order.findByIdAndUpdate(id, { ...body, totalMoney }, { new: true })
+    res.status(200).json({ success: true, message: 'Đơn hàng được cập nhật thành công.', order })
   } catch (err) {
-    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+    res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
   }
 }
