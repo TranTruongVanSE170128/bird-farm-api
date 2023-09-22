@@ -2,7 +2,12 @@ import { Request, Response } from 'express'
 import mongoose from 'mongoose'
 import Order from '../models/order'
 import { zParse } from '../helpers/z-parse'
-import { createOrderSchema, getPaginationOrdersSchema, updateOrderSchema } from '../validations/order'
+import {
+  createOrderSchema,
+  getPaginationOrdersSchema,
+  updateOrderSchema,
+  getPaginationOrdersAdminSchema
+} from '../validations/order'
 import Bird from '../models/bird'
 import Nest from '../models/nest'
 
@@ -20,7 +25,39 @@ export const getPaginationOrders = async (req: Request, res: Response) => {
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
       .exec()
-    res.status(200).json({ success: false, message: 'Lấy danh sách hóa đơn thành công.', orders: orders })
+    const totalOrders = await Order.countDocuments(query)
+    res.status(200).json({
+      success: false,
+      message: 'Lấy danh sách đơn hàng thành công.',
+      currentPage: pageNumber,
+      totalPage: Math.ceil(totalOrders / pageSize),
+      orders: orders
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const getPaginationOrdersAdmin = async (req: Request, res: Response) => {
+  const { query } = await zParse(getPaginationOrdersAdminSchema, req)
+  const pageNumber = query.pageNumber || 5
+  const pageSize = query.pageSize || 5
+  const status = query.status
+  try {
+    const query = status ? { status: status } : {}
+    const orders = Order.find(query)
+      .sort({ date: -1 })
+      .limit(pageSize)
+      .skip(pageSize * (pageNumber - 1))
+      .exec()
+    const totalOrders = await Order.countDocuments(query)
+    res.status(200).json({
+      success: false,
+      message: 'Lấy danh sách đơn hàng thành công.',
+      currentPage: pageNumber,
+      totalPage: Math.ceil(totalOrders / pageSize),
+      orders: orders
+    })
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }

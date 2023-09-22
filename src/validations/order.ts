@@ -5,13 +5,14 @@ export const getPaginationOrdersSchema = z.object({
   query: z.object({
     pageSize: z.coerce.number().optional(),
     pageNumber: z.coerce.number().optional(),
-    status: z
-      .string()
-      .trim()
-      .refine((val) => {
-        return val in ['processing', 'delivering', 'success', 'canceled']
-      })
-      .optional()
+    status: z.enum(['processing', 'delivering', 'success', 'canceled']).optional()
+  })
+})
+export const getPaginationOrdersAdminSchema = z.object({
+  query: z.object({
+    pageSize: z.coerce.number().optional(),
+    pageNumber: z.coerce.number().optional(),
+    status: z.enum(['processing', 'delivering', 'success', 'canceled']).optional()
   })
 })
 
