@@ -6,11 +6,12 @@ export const getPaginationBirdsSchema = z.object({
     pageSize: z.coerce.number().optional(),
     pageNumber: z.coerce.number().optional(),
     searchQuery: z.string().trim().optional(),
-    specie: z.coerce.string().optional()
+    specie: z.coerce.string().optional(),
+    type: z.enum(['sell', 'breed']).optional()
   })
 })
 
-export const getPaginationBirdsAdminSchema = getPaginationBirdsSchema
+// export const getPaginationBirdsAdminSchema = getPaginationBirdsSchema
 
 export const getBirdDetailSchema = z.object({
   params: z.object({
@@ -28,7 +29,7 @@ export const createBirdSchema = z.object({
     gender: z.enum(['male', 'female']),
     birth: z.coerce.date().optional(),
     description: z.string().trim().optional(),
-    type: z.enum(['male', 'female']),
+    type: z.enum(['sell', 'breed']),
     imageUrls: z.array(z.string().trim()).optional(),
     parent: z
       .object({

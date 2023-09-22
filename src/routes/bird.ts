@@ -4,7 +4,7 @@ import {
   getBirdsByIds,
   getBirdDetail,
   getBirdsBreed,
-  getPaginationBirdsAdmin,
+  // getPaginationBirdsAdmin,
   createBird,
   updateBird
 } from '../controllers/bird'
@@ -14,7 +14,7 @@ import {
   getBirdsByIdsSchema,
   getBirdDetailSchema,
   getBirdsBreedSchema,
-  getPaginationBirdsAdminSchema,
+  // getPaginationBirdsAdminSchema,
   createBirdSchema,
   updateBirdSchema
 } from '../validations/bird'
@@ -26,13 +26,13 @@ const router = express.Router()
 
 router.get('/pagination', validateRequestData(getPaginationBirdsSchema), getPaginationBirds)
 
-router.get(
-  '/pagination/admin',
-  verifyToken,
-  checkRole([Role.Admin]),
-  validateRequestData(getPaginationBirdsAdminSchema),
-  getPaginationBirdsAdmin
-)
+// router.get(
+//   '/pagination/admin',
+//   verifyToken,
+//   checkRole([Role.Admin]),
+//   validateRequestData(getPaginationBirdsAdminSchema),
+//   getPaginationBirdsAdmin
+// )
 
 router.post('/', verifyToken, checkRole([Role.Admin]), validateRequestData(createBirdSchema), createBird)
 

@@ -6,7 +6,7 @@ import {
   getBirdDetailSchema,
   getBirdsBreedSchema,
   getBirdsByIdsSchema,
-  getPaginationBirdsAdminSchema,
+  // getPaginationBirdsAdminSchema,
   getPaginationBirdsSchema,
   updateBirdSchema
 } from '../validations/bird'
@@ -17,20 +17,24 @@ export const getPaginationBirds = async (req: Request, res: Response) => {
   const pageNumber = query.pageNumber || 5
   const searchQuery = query.searchQuery || ''
   const specieId = query.specie
+  const type = query.type
 
   try {
-    const query = specieId
-      ? {
-          specie: new mongoose.Types.ObjectId(specieId),
-          name: { $regex: searchQuery, $options: 'i' },
-          type: true
-        }
-      : { name: { $regex: searchQuery, $options: 'i' }, type: 'sell' }
+    const query: any = { name: { $regex: searchQuery, $options: 'i' } }
+
+    if (specieId) {
+      query.specie = new mongoose.Types.ObjectId(specieId)
+    }
+
+    if (type) {
+      query.type = type
+    }
 
     const birds = await Bird.find(query)
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
-      .select('name imageUrls price gender discount specie')
+      .select('name imageUrls price gender discount specie type sellPrice breedPrice')
+      .populate('specie')
       .exec()
 
     const totalBirds = await Bird.countDocuments(query)
@@ -48,42 +52,42 @@ export const getPaginationBirds = async (req: Request, res: Response) => {
   }
 }
 
-export const getPaginationBirdsAdmin = async (req: Request, res: Response) => {
-  const { query } = await zParse(getPaginationBirdsAdminSchema, req)
-  const pageSize = query.pageSize || 5
-  const pageNumber = query.pageNumber || 5
-  const searchQuery = query.searchQuery || ''
-  const specieId = query.specie
+// export const getPaginationBirdsAdmin = async (req: Request, res: Response) => {
+//   const { query } = await zParse(getPaginationBirdsAdminSchema, req)
+//   const pageSize = query.pageSize || 5
+//   const pageNumber = query.pageNumber || 5
+//   const searchQuery = query.searchQuery || ''
+//   const specieId = query.specie
 
-  try {
-    const query = specieId
-      ? {
-          specie: new mongoose.Types.ObjectId(specieId),
-          name: { $regex: searchQuery, $options: 'i' }
-        }
-      : { name: { $regex: searchQuery, $options: 'i' } }
+//   try {
+//     const query = specieId
+//       ? {
+//           specie: new mongoose.Types.ObjectId(specieId),
+//           name: { $regex: searchQuery, $options: 'i' }
+//         }
+//       : { name: { $regex: searchQuery, $options: 'i' } }
 
-    const birds = await Bird.find(query)
-      .limit(pageSize)
-      .skip(pageSize * (pageNumber - 1))
-      .select('name imageUrls price gender discount type')
-      .populate('specie', { name: 1 })
-      .exec()
+//     const birds = await Bird.find(query)
+//       .limit(pageSize)
+//       .skip(pageSize * (pageNumber - 1))
+//       .select('name imageUrls price gender discount type')
+//       .populate('specie', { name: 1 })
+//       .exec()
 
-    const totalBirds = await Bird.countDocuments(query)
+//     const totalBirds = await Bird.countDocuments(query)
 
-    res.status(200).json({
-      success: true,
-      message: 'Lấy danh sách chim thành công!',
-      currentPage: pageNumber,
-      totalPages: Math.ceil(totalBirds / pageSize),
-      birds: birds
-    })
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
-  }
-}
+//     res.status(200).json({
+//       success: true,
+//       message: 'Lấy danh sách chim thành công!',
+//       currentPage: pageNumber,
+//       totalPages: Math.ceil(totalBirds / pageSize),
+//       birds: birds
+//     })
+//   } catch (err) {
+//     console.error(err)
+//     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+//   }
+// }
 
 export const getBirdDetail = async (req: Request, res: Response) => {
   const {

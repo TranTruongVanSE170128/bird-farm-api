@@ -35,7 +35,6 @@ export const createOrderSchema = z.object({
         })
       )
       .default([]),
-    status: z.enum(['processing', 'delivering', 'success', 'canceled']).default('processing'),
     voucher: z
       .string()
       .refine((val) => {
