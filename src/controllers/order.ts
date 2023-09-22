@@ -16,16 +16,22 @@ export const getPaginationOrders = async (req: Request, res: Response) => {
   const pageNumber = query.pageNumber || 5
   const pageSize = query.pageSize || 5
   const status = query.status
+
   try {
-    const query = status
-      ? { status: status, user: new mongoose.Types.ObjectId(res.locals.user.id) }
-      : { user: new mongoose.Types.ObjectId(res.locals.user.id) }
+    const query: any = { user: new mongoose.Types.ObjectId(res.locals.user.id) }
+
+    if (status) {
+      query.status = status
+    }
+
     const orders = Order.find(query)
       .sort({ date: -1 })
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
       .exec()
+
     const totalOrders = await Order.countDocuments(query)
+
     res.status(200).json({
       success: false,
       message: 'Lấy danh sách đơn hàng thành công.',
@@ -43,14 +49,18 @@ export const getPaginationOrdersAdmin = async (req: Request, res: Response) => {
   const pageNumber = query.pageNumber || 5
   const pageSize = query.pageSize || 5
   const status = query.status
+
   try {
     const query = status ? { status: status } : {}
+
     const orders = Order.find(query)
       .sort({ date: -1 })
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
       .exec()
+
     const totalOrders = await Order.countDocuments(query)
+
     res.status(200).json({
       success: false,
       message: 'Lấy danh sách đơn hàng thành công.',
