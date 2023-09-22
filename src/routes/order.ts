@@ -9,5 +9,5 @@ const router = express.Router()
 router.get('/pagination', verifyToken, getPaginationOrders)
 router.post('/', verifyToken, createOrder)
 router.put('/:id', verifyToken, updateOrder)
-router.get('admin/pagination', verifyToken, checkRole([Role.Admin]), getPaginationOrdersAdmin)
+router.get('/admin/pagination', verifyToken, checkRole([Role.Admin]), getPaginationOrdersAdmin)
 export default router
