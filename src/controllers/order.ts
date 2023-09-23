@@ -24,7 +24,7 @@ export const getPaginationOrders = async (req: Request, res: Response) => {
       query.status = status
     }
 
-    const orders = Order.find(query)
+    const orders = await Order.find(query)
       .sort({ date: -1 })
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
@@ -53,7 +53,7 @@ export const getPaginationOrdersAdmin = async (req: Request, res: Response) => {
   try {
     const query = status ? { status: status } : {}
 
-    const orders = Order.find(query)
+    const orders = await Order.find(query)
       .sort({ date: -1 })
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
