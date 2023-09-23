@@ -14,7 +14,7 @@ import {
 export const getPaginationBirds = async (req: Request, res: Response) => {
   const { query } = await zParse(getPaginationBirdsSchema, req)
   const pageSize = query.pageSize || 5
-  const pageNumber = query.pageNumber || 5
+  const pageNumber = query.pageNumber || 1
   const searchQuery = query.searchQuery || ''
   const specieId = query.specie
   const type = query.type
@@ -108,6 +108,7 @@ export const getBirdDetail = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
+
 export const createBird = async (req: Request, res: Response) => {
   try {
     const newBird = new Bird(req.body)

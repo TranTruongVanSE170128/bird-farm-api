@@ -27,7 +27,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
           product_data: {
             name: bird.name
           },
-          unit_amount: bird.price
+          unit_amount: bird.sellPrice
         },
         quantity: birdRecords[bird.id]
       }

@@ -1,4 +1,4 @@
-import { isValidObjectId } from 'mongoose'
+import mongoose, { isValidObjectId } from 'mongoose'
 import { z } from 'zod'
 
 export const getPaginationOrdersSchema = z.object({
@@ -13,6 +13,14 @@ export const getPaginationOrdersAdminSchema = z.object({
     pageSize: z.coerce.number().optional(),
     pageNumber: z.coerce.number().optional(),
     status: z.enum(['processing', 'delivering', 'success', 'canceled']).optional()
+  })
+})
+
+export const getOrderDetailSchema = z.object({
+  params: z.object({
+    id: z.string().refine((val) => {
+      return mongoose.Types.ObjectId.isValid(val)
+    })
   })
 })
 

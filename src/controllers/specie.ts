@@ -34,7 +34,7 @@ const getSpecieDetail = async (req: Request, res: Response) => {
 const getPaginationSpecies = async (req: Request, res: Response) => {
   const { query } = await zParse(getPaginationSpeciesSchema, req)
   const pageSize = query.pageSize || 5
-  const pageNumber = query.pageNumber || 5
+  const pageNumber = query.pageNumber || 1
   const searchQuery = query.searchQuery || ''
 
   const queryMongo = {

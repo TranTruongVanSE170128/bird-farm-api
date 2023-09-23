@@ -21,7 +21,7 @@ const getAllNests = async (req: Request, res: Response) => {
 const getPaginationNests = async (req: Request, res: Response) => {
   const { query } = await zParse(getPaginationNestsSchema, req)
   const pageSize = query.pageSize || 5
-  const pageNumber = query.pageNumber || 5
+  const pageNumber = query.pageNumber || 1
   const searchQuery = query.searchQuery || ''
 
   const queryMongo = {
@@ -54,7 +54,7 @@ const getNestById = async (req: Request, res: Response) => {
     params: { id }
   } = await zParse(getNestByIdSchema, req)
   try {
-    const nest = Nest.findById(id)
+    const nest = await Nest.findById(id).populate('specie')
     res.status(200).json({ success: true, message: 'Lấy tổ chim thành công.', nest })
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })

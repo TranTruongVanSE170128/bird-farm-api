@@ -6,14 +6,15 @@ import {
   createOrderSchema,
   getPaginationOrdersSchema,
   updateOrderSchema,
-  getPaginationOrdersAdminSchema
+  getPaginationOrdersAdminSchema,
+  getOrderDetailSchema
 } from '../validations/order'
 import Bird from '../models/bird'
 import Nest from '../models/nest'
 
 export const getPaginationOrders = async (req: Request, res: Response) => {
   const { query } = await zParse(getPaginationOrdersSchema, req)
-  const pageNumber = query.pageNumber || 5
+  const pageNumber = query.pageNumber || 1
   const pageSize = query.pageSize || 5
   const status = query.status
 
@@ -46,7 +47,7 @@ export const getPaginationOrders = async (req: Request, res: Response) => {
 
 export const getPaginationOrdersAdmin = async (req: Request, res: Response) => {
   const { query } = await zParse(getPaginationOrdersAdminSchema, req)
-  const pageNumber = query.pageNumber || 5
+  const pageNumber = query.pageNumber || 1
   const pageSize = query.pageSize || 5
   const status = query.status
 
@@ -54,6 +55,7 @@ export const getPaginationOrdersAdmin = async (req: Request, res: Response) => {
     const query = status ? { status: status } : {}
 
     const orders = await Order.find(query)
+      .populate('user')
       .sort({ date: -1 })
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
@@ -73,6 +75,26 @@ export const getPaginationOrdersAdmin = async (req: Request, res: Response) => {
   }
 }
 
+export const getOrderDetail = async (req: Request, res: Response) => {
+  const {
+    params: { id }
+  } = await zParse(getOrderDetailSchema, req)
+
+  try {
+    const order = await Order.findById(id).populate('user birds nests')
+
+    if (!order) {
+      res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' })
+    }
+
+    res.status(201).json({ success: true, order })
+  } catch (err) {
+    console.log(err)
+
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
 export const createOrder = async (req: Request, res: Response) => {
   const { body } = await zParse(createOrderSchema, req)
 
@@ -85,7 +107,7 @@ export const createOrder = async (req: Request, res: Response) => {
     const nests = await Nest.find({ _id: { $in: nestIds } })
 
     birds.forEach((bird) => {
-      totalMoney += bird?.price || 0
+      totalMoney += bird?.sellPrice || 0
     })
 
     nests.forEach((nest) => {
@@ -116,7 +138,7 @@ export const updateOrder = async (req: Request, res: Response) => {
     const nests = await Nest.find({ _id: { $in: nestIds } })
 
     birds.forEach((bird) => {
-      totalMoney += bird?.price || 0
+      totalMoney += bird?.sellPrice || 0
     })
 
     nests.forEach((nest) => {
