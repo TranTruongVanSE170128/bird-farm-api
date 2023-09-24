@@ -3,20 +3,22 @@ import { isValidObjectId } from 'mongoose'
 import Stripe from 'stripe'
 import Bird from '../models/bird'
 import Nest from '../models/nest'
+import { zParse } from '../helpers/z-parse'
+import { createCheckoutSessionSchema } from '../validations/checkout'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {} as Stripe.StripeConfig)
 
 export const createCheckoutSession = async (req: Request, res: Response) => {
-  const { products } = req.body
+  const {
+    body: { products }
+  } = await zParse(createCheckoutSessionSchema, req)
 
   try {
-    const { birds: birdRecords } = products
-    const birdIds = Object.keys(birdRecords)
+    const { birds: birdIds } = products
     const validBirdIds = birdIds.filter((id: string) => isValidObjectId(id))
     const birds = await Bird.find({ _id: { $in: validBirdIds } })
 
-    const { nests: nestRecords } = products
-    const nestIds = Object.keys(nestRecords)
+    const { nests: nestIds } = products
     const validNestIds = nestIds.filter((id: string) => isValidObjectId(id))
     const nests = await Nest.find({ _id: { $in: validNestIds } })
 
@@ -29,7 +31,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
           },
           unit_amount: bird.sellPrice
         },
-        quantity: birdRecords[bird.id]
+        quantity: 1
       }
     })
 
@@ -42,13 +44,20 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
           },
           unit_amount: nest.price
         },
-        quantity: nestRecords[nest.id]
+        quantity: 1
+      }
+    })
+
+    const customer = await stripe.customers.create({
+      metadata: {
+        userId: res.locals.user.id
       }
     })
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [...lineBirdItems, ...lineNestItems],
+      customer: customer.id,
       mode: 'payment',
       success_url: 'http://localhost:5000/success.html',
       cancel_url: 'http://localhost:5000/cancel.html'
@@ -60,4 +69,42 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 
     res.status(500).json({ success: false, message: 'Lỗi hệ thống' })
   }
+}
+
+export const stripeWebhook = (req: Request, res: Response) => {
+  const endpointSecret = 'whsec_fb52b06822f597f1658fd0330e2036b3c867eadabb1733a70ed27b3e5321d6bb'
+  const sig = req.headers['stripe-signature']
+
+  let data: any
+  let eventType
+
+  if (endpointSecret) {
+    let event
+
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig!, endpointSecret)
+    } catch (err: any) {
+      res.status(400).send(`Webhook Error: ${err.message}`)
+      return
+    }
+
+    data = event.data.object
+    eventType = event.type
+  } else {
+    data = req.body.data.object
+    eventType = req.body.type
+  }
+
+  // Handle the event
+  if (eventType === 'checkout.session.completed') {
+    stripe.customers
+      .retrieve(data.customer)
+      .then((customer) => {
+        console.log({ data, customer })
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
+  res.send()
 }

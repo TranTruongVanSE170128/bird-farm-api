@@ -114,7 +114,12 @@ export const createOrder = async (req: Request, res: Response) => {
       totalMoney += nest?.price || 0
     })
 
-    const newOrder = new Order({ ...body, totalMoney, user: new mongoose.Types.ObjectId(res.locals.user.id) })
+    const newOrder = new Order({
+      ...body,
+      totalMoney,
+      user: new mongoose.Types.ObjectId(res.locals.user.id),
+      methodPayment: 'cod' //this function always create order COD, the order with online payment will be created after stripe webhook verification
+    })
     await newOrder.save()
 
     res.status(201).json({ success: true, message: 'Tạo đơn hàng thành công.' })

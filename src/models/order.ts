@@ -10,7 +10,8 @@ const OrderSchema = new mongoose.Schema(
     nests: { type: [mongoose.Schema.Types.ObjectId], ref: 'Nest' },
     status: { type: String, enum: ['processing', 'delivering', 'success', 'canceled'], default: 'processing' },
     totalMoney: { type: Number, require: true },
-    voucher: { type: mongoose.Schema.Types.ObjectId, ref: 'Voucher' }
+    voucher: { type: mongoose.Schema.Types.ObjectId, ref: 'Voucher' },
+    methodPayment: { type: String, enum: ['cod', 'online'], require: true }
   },
   { timestamps: true }
 )

@@ -129,7 +129,7 @@ export const getBirdsByIds = async (req: Request, res: Response) => {
   try {
     const query = { _id: { $in: ids } }
 
-    const birds = await Bird.find(query).select('-sold -type -description').populate('specie', { name: 1 })
+    const birds = await Bird.find(query).select('-sold -description').populate('specie', { name: 1 })
 
     res.status(200).json({
       success: true,

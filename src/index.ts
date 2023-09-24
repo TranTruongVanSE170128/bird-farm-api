@@ -6,10 +6,13 @@ import mongoose from 'mongoose'
 import specieRoute from './routes/specie'
 import birdRoute from './routes/bird'
 import userRoute from './routes/user'
-import checkoutRoute from './routes/checkout'
+import stripeRoute from './routes/stripe'
 import nestRoute from './routes/nest'
 import orderRoute from './routes/order'
 import { config } from 'dotenv'
+import Stripe from 'stripe'
+import { stripeWebhook } from './controllers/stripe'
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {} as Stripe.StripeConfig)
 
 config()
 
@@ -30,17 +33,16 @@ const app = express()
 app.use(express.static('public'))
 app.use(morgan('dev'))
 app.use(cors({ credentials: true }))
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhook)
 app.use(express.json())
-
 app.get('/', (req, res) => {
   res.json({ hello: 'hello world!' })
 })
-
 app.use('/api/auth', authRoute)
 app.use('/api/users', userRoute)
 app.use('/api/species', specieRoute)
 app.use('/api/birds', birdRoute)
-app.use('/api/checkout', checkoutRoute)
+app.use('/api/stripe', stripeRoute)
 app.use('/api/nests', nestRoute)
 app.use('/api/orders', orderRoute)
 

@@ -23,9 +23,14 @@ const getPaginationNests = async (req: Request, res: Response) => {
   const pageSize = query.pageSize || 5
   const pageNumber = query.pageNumber || 1
   const searchQuery = query.searchQuery || ''
+  const specie = query.specie
 
-  const queryMongo = {
+  const queryMongo: any = {
     name: { $regex: searchQuery, $options: 'i' }
+  }
+
+  if (specie) {
+    queryMongo.specie = specie
   }
 
   try {

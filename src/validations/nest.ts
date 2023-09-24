@@ -13,7 +13,8 @@ export const getPaginationNestsSchema = z.object({
   query: z.object({
     pageSize: z.coerce.number().optional(),
     pageNumber: z.coerce.number().optional(),
-    searchQuery: z.string().trim().optional()
+    searchQuery: z.string().trim().optional(),
+    specie: z.string().optional()
   })
 })
 
