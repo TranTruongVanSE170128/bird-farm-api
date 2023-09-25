@@ -7,7 +7,8 @@ import {
   getPaginationOrdersSchema,
   updateOrderSchema,
   getPaginationOrdersAdminSchema,
-  getOrderDetailSchema
+  getOrderDetailSchema,
+  approveOrderSchema
 } from '../validations/order'
 import Bird from '../models/bird'
 import Nest from '../models/nest'
@@ -153,6 +154,45 @@ export const updateOrder = async (req: Request, res: Response) => {
     const order = await Order.findByIdAndUpdate(id, { ...body, totalMoney }, { new: true })
     res.status(200).json({ success: true, message: 'Đơn hàng được cập nhật thành công.', order })
   } catch (err) {
+    res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const approveOrder = async (req: Request, res: Response) => {
+  const {
+    params: { id }
+  } = await zParse(approveOrderSchema, req)
+
+  try {
+    const order = await Order.findById(id)
+
+    if (!order) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy đơn hàng' })
+    }
+
+    if (order.status !== 'processing') {
+      res
+        .status(400)
+        .json({ success: false, message: 'Không thể chấp thuận đơn hàng đang có trạng thái:' + order.status })
+    }
+
+    const birdInvalid = await Bird.findOne({ _id: { $in: order.birds }, sold: true })
+    const nestInvalid = await Nest.findOne({ _id: { $in: order.nests }, sold: true })
+
+    if (birdInvalid || nestInvalid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Không thể chấp thuận đơn hàng vì có một hoặc nhiều sản phẩm đã được bán'
+      })
+    }
+
+    order.status = 'delivering'
+    await Bird.updateMany({ _id: { $in: order.birds } }, { sold: true })
+    await Nest.updateMany({ _id: { $in: order.nests } }, { sold: true })
+    await order.save()
+
+    return res.status(200).json({ success: true, message: 'Đơn hàng đã được chấp thuận' })
+  } catch (error) {
     res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
   }
 }

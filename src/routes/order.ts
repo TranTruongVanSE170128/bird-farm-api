@@ -8,7 +8,8 @@ import {
   getPaginationOrders,
   getPaginationOrdersAdmin,
   updateOrder,
-  getOrderDetail
+  getOrderDetail,
+  approveOrder
 } from '../controllers/order'
 const router = express.Router()
 
@@ -19,6 +20,8 @@ router.post('/', verifyToken, createOrder)
 router.get('/:id', verifyToken, checkRole([Role.Admin]), getOrderDetail)
 
 router.put('/:id', verifyToken, checkRole([Role.Admin]), updateOrder)
+
+router.put('/:id/approve', verifyToken, checkRole([Role.Admin]), approveOrder)
 
 router.get('/pagination/admin', verifyToken, checkRole([Role.Admin]), getPaginationOrdersAdmin)
 export default router
