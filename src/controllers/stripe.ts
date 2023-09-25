@@ -1,16 +1,17 @@
 import { Request, Response } from 'express'
-import { isValidObjectId } from 'mongoose'
+import mongoose, { isValidObjectId } from 'mongoose'
 import Stripe from 'stripe'
 import Bird from '../models/bird'
 import Nest from '../models/nest'
 import { zParse } from '../helpers/z-parse'
 import { createCheckoutSessionSchema } from '../validations/checkout'
+import Order from '../models/order'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {} as Stripe.StripeConfig)
 
 export const createCheckoutSession = async (req: Request, res: Response) => {
   const {
-    body: { products }
+    body: { products, receiver, address, phone }
   } = await zParse(createCheckoutSessionSchema, req)
 
   try {
@@ -50,7 +51,14 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 
     const customer = await stripe.customers.create({
       metadata: {
-        userId: res.locals.user.id
+        userId: res.locals.user.id,
+        data: JSON.stringify({
+          birds: birdIds,
+          nests: nestIds,
+          receiver,
+          address,
+          phone
+        })
       }
     })
 
@@ -59,8 +67,8 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       line_items: [...lineBirdItems, ...lineNestItems],
       customer: customer.id,
       mode: 'payment',
-      success_url: 'http://localhost:5000/success.html',
-      cancel_url: 'http://localhost:5000/cancel.html'
+      success_url: `${process.env.BASE_URL}/success.html`,
+      cancel_url: `${process.env.BASE_URL}/cancel.html`
     })
 
     res.status(200).json({ id: session.id })
@@ -99,8 +107,30 @@ export const stripeWebhook = (req: Request, res: Response) => {
   if (eventType === 'checkout.session.completed') {
     stripe.customers
       .retrieve(data.customer)
-      .then((customer) => {
-        console.log({ data, customer })
+      .then(async (customer: any) => {
+        const data = JSON.parse(customer.metadata.data)
+        const birdIds = data.birds
+        const nestIds = data.nests
+
+        let totalMoney = 0
+        const birds = await Bird.find({ _id: { $in: birdIds } })
+        const nests = await Nest.find({ _id: { $in: nestIds } })
+
+        birds.forEach((bird) => {
+          totalMoney += bird?.sellPrice || 0
+        })
+
+        nests.forEach((nest) => {
+          totalMoney += nest?.price || 0
+        })
+
+        const newOrder = new Order({
+          ...data,
+          totalMoney,
+          user: new mongoose.Types.ObjectId(customer.metadata.userId),
+          methodPayment: 'online'
+        })
+        await newOrder.save()
       })
       .catch((err) => {
         console.log(err)
