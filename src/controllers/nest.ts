@@ -26,7 +26,8 @@ const getPaginationNests = async (req: Request, res: Response) => {
   const specie = query.specie
 
   const queryMongo: any = {
-    name: { $regex: searchQuery, $options: 'i' }
+    name: { $regex: searchQuery, $options: 'i' },
+    sold: false
   }
 
   if (specie) {

@@ -4,7 +4,8 @@ import verifyToken from '../middleware/auth'
 import checkRole from '../middleware/checkRole'
 import { Role } from '../typings/types'
 import { createOrderNest } from '../controllers/orderNest'
+import { createOrderNestSchema } from '../validations/orderNest'
 const router = express.Router()
 
-router.post('/', verifyToken, createOrderNest)
+router.post('/', validateRequestData(createOrderNestSchema), verifyToken, createOrderNest)
 export default router

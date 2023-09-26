@@ -109,15 +109,11 @@ export const createOrder = async (req: Request, res: Response) => {
     const nests = await Nest.find({ _id: { $in: nestIds } })
 
     birds.forEach(async (bird) => {
-      bird.sold = true
       totalMoney += bird?.sellPrice || 0
-      await bird.save()
     })
 
     nests.forEach(async (nest) => {
-      nest.sold = true
       totalMoney += nest?.price || 0
-      await nest.save()
     })
 
     const newOrder = new Order({
@@ -127,6 +123,7 @@ export const createOrder = async (req: Request, res: Response) => {
       methodPayment: 'cod' //this function always create order COD, the order with online payment will be created after stripe webhook verification
     })
     await newOrder.save()
+
     res.status(201).json({ success: true, message: 'Tạo đơn hàng thành công.' })
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
