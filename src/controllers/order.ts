@@ -7,7 +7,8 @@ import {
   getPaginationOrdersSchema,
   updateOrderSchema,
   getPaginationOrdersAdminSchema,
-  getOrderDetailSchema
+  getOrderDetailSchema,
+  receiveOrderSchema
 } from '../validations/order'
 import Bird from '../models/bird'
 import Nest from '../models/nest'
@@ -154,5 +155,26 @@ export const updateOrder = async (req: Request, res: Response) => {
     res.status(200).json({ success: true, message: 'Đơn hàng được cập nhật thành công.', order })
   } catch (err) {
     res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
+  }
+}
+export const receiveOrder = async (req: Request, res: Response) => {
+  const {
+    params: { id }
+  } = await zParse(receiveOrderSchema, req)
+  try {
+    const order = await Order.findById(id)
+    if (!order) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy đơn hàng.' })
+    }
+    if (order.status !== 'delivering') {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Không thể đã lấy đơn hàng có trạng thái: ' + order.status })
+    }
+    order.status = 'success'
+    await order.save()
+    res.status(200).json({ success: true, message: 'Đã xác nhận nhận hàng thành công.' })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }

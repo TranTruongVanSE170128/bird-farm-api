@@ -85,3 +85,8 @@ export const updateOrderSchema = z.object({
       .optional()
   })
 })
+export const receiveOrderSchema = z.object({
+  params: z.object({
+    id: z.string().refine((value) => isValidObjectId(value))
+  })
+})

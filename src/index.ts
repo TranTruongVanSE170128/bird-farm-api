@@ -9,6 +9,8 @@ import userRoute from './routes/user'
 import stripeRoute from './routes/stripe'
 import nestRoute from './routes/nest'
 import orderRoute from './routes/order'
+import orderNestRoute from './routes/orderNest'
+
 import { config } from 'dotenv'
 import Stripe from 'stripe'
 import { stripeWebhook } from './controllers/stripe'
@@ -45,6 +47,7 @@ app.use('/api/birds', birdRoute)
 app.use('/api/stripe', stripeRoute)
 app.use('/api/nests', nestRoute)
 app.use('/api/orders', orderRoute)
+app.use('/api/order-nest', orderNestRoute)
 
 const PORT = process.env.PORT || 5000
 
