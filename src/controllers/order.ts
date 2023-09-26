@@ -169,7 +169,7 @@ export const receiveOrder = async (req: Request, res: Response) => {
     if (order.status !== 'delivering') {
       return res
         .status(400)
-        .json({ success: false, message: 'Không thể đã lấy đơn hàng có trạng thái: ' + order.status })
+        .json({ success: false, message: 'Không thể nhận thành công đơn hàng có trạng thái: ' + order.status })
     }
     order.status = 'success'
     await order.save()
