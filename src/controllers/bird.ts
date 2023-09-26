@@ -101,6 +101,14 @@ export const getBirdDetail = async (req: Request, res: Response) => {
       res.status(404).json({ success: false, message: 'Không tìm thấy chim' })
     }
 
+    if (bird?.parent && bird.parent.dad) {
+      bird.parent.dad = (await Bird.findById(bird.parent.dad)) as any
+    }
+
+    if (bird?.parent && bird.parent.mom) {
+      bird.parent.mom = (await Bird.findById(bird.parent.mom)) as any
+    }
+
     res.status(201).json({ success: true, bird })
   } catch (err) {
     console.log(err)
@@ -147,8 +155,8 @@ export const getBirdsBreed = async (req: Request, res: Response) => {
   } = await zParse(getBirdsBreedSchema, req)
 
   try {
-    const query = { specie: new mongoose.Types.ObjectId(specie), type: 'sell' }
-    const birds = await Bird.find(query).exec()
+    const query = { specie: new mongoose.Types.ObjectId(specie) }
+    const birds = await Bird.find(query).select('gender name')
     const birdsMale = birds.filter((bird) => bird.gender === 'male')
     const birdsFemale = birds.filter((bird) => bird.gender === 'female')
 
