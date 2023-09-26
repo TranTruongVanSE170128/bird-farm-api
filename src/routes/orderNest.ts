@@ -6,5 +6,5 @@ import { Role } from '../typings/types'
 import { createOrderNest } from '../controllers/orderNest'
 const router = express.Router()
 
-router.post('/', createOrderNest)
+router.post('/', verifyToken, createOrderNest)
 export default router

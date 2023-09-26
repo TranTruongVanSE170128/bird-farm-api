@@ -14,11 +14,9 @@ import {
 
 const router = express.Router()
 router.get('/pagination/admin', verifyToken, checkRole([Role.Admin]), getPaginationOrdersAdmin)
-router.put('/receive-order/:id', verifyToken, checkRole([Role.Customer]), receiveOrder)
+router.put('/receive-order/:id', verifyToken, receiveOrder)
 router.get('/pagination', verifyToken, getPaginationOrders)
-
 router.get('/:id', verifyToken, checkRole([Role.Admin]), getOrderDetail)
-
 router.put('/:id', verifyToken, checkRole([Role.Admin]), updateOrder)
 router.post('/', verifyToken, createOrder)
 
