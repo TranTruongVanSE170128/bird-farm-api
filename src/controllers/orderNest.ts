@@ -13,6 +13,12 @@ export const createOrderNest = async (req: Request, res: Response) => {
   try {
     const breedMale = await Bird.findById(birdMale).exec()
     const breedFemale = await Bird.findById(birdFemale).exec()
+    if (!breedFemale || !breedMale) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy chim.' })
+    }
+    if (breedMale?.type !== 'breed' || breedFemale?.type !== 'breed') {
+      return res.status(400).json({ success: false, message: 'Chim không phù hợp để phối giống.' })
+    }
     const childPriceFemale = (breedFemale?.breedPrice ?? 0) + (breedMale?.breedPrice ?? 0)
     const childPriceMale = 2 * childPriceFemale
 
@@ -24,6 +30,7 @@ export const createOrderNest = async (req: Request, res: Response) => {
       mom: new mongoose.Types.ObjectId(body.birdFemale),
       customer: new mongoose.Types.ObjectId(res.locals.id)
     })
+
     await newOrderNest.save()
     res.status(201).json({ success: true, message: 'Tạo đơn hàng thành công.', orderNest: newOrderNest })
   } catch (err) {

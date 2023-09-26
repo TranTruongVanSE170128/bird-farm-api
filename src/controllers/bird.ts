@@ -147,7 +147,7 @@ export const getBirdsBreed = async (req: Request, res: Response) => {
   } = await zParse(getBirdsBreedSchema, req)
 
   try {
-    const query = { specie: new mongoose.Types.ObjectId(specie), type: 'sell' }
+    const query = { specie: new mongoose.Types.ObjectId(specie), type: 'breed' }
     const birds = await Bird.find(query).exec()
     const birdsMale = birds.filter((bird) => bird.gender === 'male')
     const birdsFemale = birds.filter((bird) => bird.gender === 'female')
