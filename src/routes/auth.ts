@@ -11,17 +11,15 @@ import {
 } from '../validations/auth'
 
 const router = express.Router()
+router.get('/:id/verify/:verifyCode', validateRequestData(verifyEmailSchema), verifyEmail)
+router.post('/:id/reset-password/:resetPasswordCode', validateRequestData(resetPasswordSchema), resetPassword)
+
+router.post('/forget-password', validateRequestData(forgetPasswordSchema), forgetPassword)
+
+router.post('/sign-up', validateRequestData(signUpSchema), signUp)
 
 router.post('/login-google', validateRequestData(loginGoogleSchema), loginByGoogle)
 
 router.post('/sign-in', validateRequestData(signInSchema), signIn)
-
-router.post('/sign-up', validateRequestData(signUpSchema), signUp)
-
-router.get('/:id/verify/:verifyCode', validateRequestData(verifyEmailSchema), verifyEmail)
-
-router.post('/forget-password', validateRequestData(forgetPasswordSchema), forgetPassword)
-
-router.post('/:id/reset-password/:resetPasswordCode', validateRequestData(resetPasswordSchema), resetPassword)
 
 export default router

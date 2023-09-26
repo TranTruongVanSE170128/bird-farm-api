@@ -15,7 +15,7 @@ import {
 const router = express.Router()
 router.get('/pagination/admin', verifyToken, checkRole([Role.Admin]), getPaginationOrdersAdmin)
 router.get('/pagination', verifyToken, getPaginationOrders)
-router.get('/receive-goods', verifyToken, checkRole([Role.Customer]), receiveOrder)
+router.put('/receive-goods', verifyToken, checkRole([Role.Customer]), receiveOrder)
 
 router.get('/:id', verifyToken, checkRole([Role.Admin]), getOrderDetail)
 

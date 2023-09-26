@@ -24,7 +24,13 @@ import { Role } from '../typings/types'
 
 const router = express.Router()
 
+
+router.get('/breed', validateRequestData(getBirdsBreedSchema), getBirdsBreed)
+
 router.get('/pagination', validateRequestData(getPaginationBirdsSchema), getPaginationBirds)
+
+router.post('/get-by-ids', validateRequestData(getBirdsByIdsSchema), getBirdsByIds)
+
 
 // router.get(
 //   '/pagination/admin',
@@ -34,14 +40,9 @@ router.get('/pagination', validateRequestData(getPaginationBirdsSchema), getPagi
 //   getPaginationBirdsAdmin
 // )
 
-router.post('/', verifyToken, checkRole([Role.Admin]), validateRequestData(createBirdSchema), createBird)
-
 router.get('/:id', validateRequestData(getBirdDetailSchema), getBirdDetail)
 
 router.put('/:id', validateRequestData(updateBirdSchema), updateBird)
-
-router.post('/get-by-ids', validateRequestData(getBirdsByIdsSchema), getBirdsByIds)
-
-router.get('/breed', validateRequestData(getBirdsBreedSchema), getBirdsBreed)
+router.post('/', verifyToken, checkRole([Role.Admin]), validateRequestData(createBirdSchema), createBird)
 
 export default router
