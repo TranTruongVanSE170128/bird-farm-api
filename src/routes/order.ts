@@ -9,19 +9,39 @@ import {
   getPaginationOrdersAdmin,
   updateOrder,
   getOrderDetail,
-  approveOrder
+  approveOrder,
+  receiveOrder
 } from '../controllers/order'
+import {
+  createOrderSchema,
+  getOrderDetailSchema,
+  getPaginationOrdersAdminSchema,
+  getPaginationOrdersSchema,
+  receiveOrderSchema,
+  updateOrderSchema
+} from '../validations/order'
+
 const router = express.Router()
+router.get(
+  '/pagination/admin',
+  verifyToken,
+  validateRequestData(getPaginationOrdersAdminSchema),
+  checkRole([Role.Admin]),
+  getPaginationOrdersAdmin
+)
 
-router.get('/pagination', verifyToken, getPaginationOrders)
-
-router.post('/', verifyToken, createOrder)
-
-router.get('/:id', verifyToken, checkRole([Role.Admin]), getOrderDetail)
-
-router.put('/:id', verifyToken, checkRole([Role.Admin]), updateOrder)
+router.put('/:id/receive', verifyToken, validateRequestData(receiveOrderSchema), receiveOrder)
 
 router.put('/:id/approve', verifyToken, checkRole([Role.Admin]), approveOrder)
 
-router.get('/pagination/admin', verifyToken, checkRole([Role.Admin]), getPaginationOrdersAdmin)
+router.get('/pagination', verifyToken, validateRequestData(getPaginationOrdersSchema), getPaginationOrders)
+
+router.get('/:id', verifyToken, validateRequestData(getOrderDetailSchema), checkRole([Role.Admin]), getOrderDetail)
+
+router.put('/:id', verifyToken, validateRequestData(updateOrderSchema), checkRole([Role.Admin]), updateOrder)
+
+router.post('/', validateRequestData(createOrderSchema), verifyToken, createOrder)
+
+router.post('/', verifyToken, createOrder)
+
 export default router

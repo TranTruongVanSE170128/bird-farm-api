@@ -8,7 +8,8 @@ import {
   updateOrderSchema,
   getPaginationOrdersAdminSchema,
   getOrderDetailSchema,
-  approveOrderSchema
+  approveOrderSchema,
+  receiveOrderSchema
 } from '../validations/order'
 import Bird from '../models/bird'
 import Nest from '../models/nest'
@@ -107,11 +108,11 @@ export const createOrder = async (req: Request, res: Response) => {
     const birds = await Bird.find({ _id: { $in: birdIds } })
     const nests = await Nest.find({ _id: { $in: nestIds } })
 
-    birds.forEach((bird) => {
+    birds.forEach(async (bird) => {
       totalMoney += bird?.sellPrice || 0
     })
 
-    nests.forEach((nest) => {
+    nests.forEach(async (nest) => {
       totalMoney += nest?.price || 0
     })
 
@@ -194,5 +195,27 @@ export const approveOrder = async (req: Request, res: Response) => {
     return res.status(200).json({ success: true, message: 'Đơn hàng đã được chấp thuận' })
   } catch (error) {
     res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const receiveOrder = async (req: Request, res: Response) => {
+  const {
+    params: { id }
+  } = await zParse(receiveOrderSchema, req)
+  try {
+    const order = await Order.findById(id)
+    if (!order) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy đơn hàng.' })
+    }
+    if (order.status !== 'delivering') {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Không thể nhận thành công đơn hàng có trạng thái: ' + order.status })
+    }
+    order.status = 'success'
+    await order.save()
+    res.status(200).json({ success: true, message: 'Đã xác nhận nhận hàng thành công.' })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }

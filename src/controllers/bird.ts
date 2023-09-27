@@ -20,7 +20,7 @@ export const getPaginationBirds = async (req: Request, res: Response) => {
   const type = query.type
 
   try {
-    const query: any = { name: { $regex: searchQuery, $options: 'i' } }
+    const query: any = { name: { $regex: searchQuery, $options: 'i' }, sold: false }
 
     if (specieId) {
       query.specie = new mongoose.Types.ObjectId(specieId)

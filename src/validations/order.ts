@@ -93,3 +93,8 @@ export const approveOrderSchema = z.object({
     })
   })
 })
+export const receiveOrderSchema = z.object({
+  params: z.object({
+    id: z.string().refine((value) => isValidObjectId(value))
+  })
+})
