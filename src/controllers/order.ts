@@ -28,9 +28,23 @@ export const getPaginationOrders = async (req: Request, res: Response) => {
     }
 
     const orders = await Order.find(query)
-      .sort({ date: -1 })
+      .populate({
+        path: 'birds',
+        populate: {
+          path: 'specie',
+          model: 'Specie'
+        }
+      })
+      .populate({
+        path: 'nests',
+        populate: {
+          path: 'specie',
+          model: 'Specie'
+        }
+      })
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
+      .sort({ createdAt: -1 })
       .exec()
 
     const totalOrders = await Order.countDocuments(query)
@@ -58,9 +72,9 @@ export const getPaginationOrdersAdmin = async (req: Request, res: Response) => {
 
     const orders = await Order.find(query)
       .populate('user')
-      .sort({ date: -1 })
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
+      .sort({ createdAt: -1 })
       .exec()
 
     const totalOrders = await Order.countDocuments(query)
@@ -207,6 +221,11 @@ export const receiveOrder = async (req: Request, res: Response) => {
     if (!order) {
       return res.status(400).json({ success: false, message: 'Không tìm thấy đơn hàng.' })
     }
+
+    if (!order.user?.equals(res.locals.user._id)) {
+      return res.status(403).json({ success: false, message: 'Bạn không có quyền nhận đơn hàng này' })
+    }
+
     if (order.status !== 'delivering') {
       return res
         .status(400)
