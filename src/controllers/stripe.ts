@@ -68,8 +68,8 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       line_items: [...lineBirdItems, ...lineNestItems],
       customer: customer.id,
       mode: 'payment',
-      success_url: `${process.env.BASE_URL}/success.html`,
-      cancel_url: `${process.env.BASE_URL}/cancel.html`
+      success_url: `${process.env.BASE_URL}/orders/payment-success`,
+      cancel_url: `${process.env.BASE_URL}/orders/payment-cancel`
     })
 
     res.status(200).json({ id: session.id })
