@@ -9,6 +9,7 @@ import userRoute from './routes/user'
 import stripeRoute from './routes/stripe'
 import nestRoute from './routes/nest'
 import orderRoute from './routes/order'
+import ratingRoute from './routes/rating'
 import orderNestRoute from './routes/orderNest'
 
 import { config } from 'dotenv'
@@ -42,6 +43,7 @@ app.get('/', (req, res) => {
 })
 app.use('/api/auth', authRoute)
 app.use('/api/users', userRoute)
+app.use('/api/ratings', ratingRoute)
 app.use('/api/species', specieRoute)
 app.use('/api/birds', birdRoute)
 app.use('/api/stripe', stripeRoute)
