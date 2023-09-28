@@ -10,11 +10,14 @@ const OrderNestSchema = new mongoose.Schema(
     childPriceFemale: { type: Number, require: true },
     status: {
       type: String,
-      enum: ['processing', 'breeding', 'successful-breeding', 'failed-breeding', 'delivering', 'success', 'canceled'],
+      enum: ['processing', 'breeding', 'delivering', 'success', 'canceled'],
       default: 'processing'
     },
+    stages: [
+      { status: { type: Boolean }, imageUrl: String, description: String, numberOfChild: { type: Number, default: 0 } }
+    ],
     totalMoney: { type: Number },
-
+    rated: { type: Boolean, default: false },
     receiver: { type: String, require: true },
     address: { type: String, require: true },
     phone: { type: String, require: true },

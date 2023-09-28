@@ -7,6 +7,7 @@ const OrderSchema = new mongoose.Schema(
     address: { type: String, require: true },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', require: true },
     birds: { type: [mongoose.Schema.Types.ObjectId], ref: 'Bird' },
+    rated: { type: Boolean, default: false },
     nests: { type: [mongoose.Schema.Types.ObjectId], ref: 'Nest' },
     status: { type: String, enum: ['processing', 'delivering', 'success', 'canceled'], default: 'processing' },
     totalMoney: { type: Number, require: true },
