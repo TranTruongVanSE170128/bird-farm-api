@@ -139,7 +139,7 @@ export const createOrder = async (req: Request, res: Response) => {
     })
     await newOrder.save()
 
-    res.status(201).json({ success: true, message: 'Tạo đơn hàng thành công.' })
+    res.status(201).json({ success: true, message: 'Tạo đơn hàng thành công.', order: newOrder })
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }

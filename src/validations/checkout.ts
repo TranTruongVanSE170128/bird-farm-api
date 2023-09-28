@@ -8,6 +8,7 @@ export const createCheckoutSessionSchema = z.object({
     }),
     receiver: z.string(),
     phone: z.string(),
-    address: z.string()
+    address: z.string(),
+    notice: z.string().optional()
   })
 })

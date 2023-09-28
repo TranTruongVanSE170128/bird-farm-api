@@ -13,7 +13,8 @@ const OrderSchema = new mongoose.Schema(
     statusMessage: String,
     totalMoney: { type: Number, require: true },
     voucher: { type: mongoose.Schema.Types.ObjectId, ref: 'Voucher' },
-    methodPayment: { type: String, enum: ['cod', 'online'], require: true }
+    methodPayment: { type: String, enum: ['cod', 'online'], require: true },
+    notice: String
   },
   { timestamps: true }
 )

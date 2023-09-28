@@ -14,10 +14,15 @@ import {
 const router = express.Router()
 
 // router.get('/', getAllNests)
+
 router.get('/pagination', validateRequestData(getPaginationNestsSchema), getPaginationNests)
+
 router.post('/get-by-ids', validateRequestData(getNestsByIdsSchema), getNestsByIds)
+
 router.get('/:id', validateRequestData(getNestByIdSchema), getNestById)
+
 router.put('/:id', verifyToken, checkRole([Role.Admin]), validateRequestData(updateNestSchema), updateNest)
+
 router.post('/', verifyToken, checkRole([Role.Admin]), validateRequestData(createNestSchema), createNest)
 
 export default router

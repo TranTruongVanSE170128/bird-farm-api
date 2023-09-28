@@ -29,6 +29,7 @@ export const createOrderSchema = z.object({
     receiver: z.string().trim(),
     phone: z.string().trim(),
     address: z.string().trim(),
+    notice: z.string().trim().optional(),
     birds: z
       .array(
         z.string().refine((val) => {

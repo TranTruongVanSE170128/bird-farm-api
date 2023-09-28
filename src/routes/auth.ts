@@ -11,7 +11,9 @@ import {
 } from '../validations/auth'
 
 const router = express.Router()
+
 router.get('/:id/verify/:verifyCode', validateRequestData(verifyEmailSchema), verifyEmail)
+
 router.post('/:id/reset-password/:resetPasswordCode', validateRequestData(resetPasswordSchema), resetPassword)
 
 router.post('/forget-password', validateRequestData(forgetPasswordSchema), forgetPassword)

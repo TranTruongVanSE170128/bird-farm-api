@@ -11,7 +11,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {} as Stripe.
 
 export const createCheckoutSession = async (req: Request, res: Response) => {
   const {
-    body: { products, receiver, address, phone }
+    body: { products, receiver, address, phone, notice }
   } = await zParse(createCheckoutSessionSchema, req)
 
   try {
@@ -57,7 +57,8 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
           nests: nestIds,
           receiver,
           address,
-          phone
+          phone,
+          notice
         })
       }
     })
