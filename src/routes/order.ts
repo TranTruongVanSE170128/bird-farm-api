@@ -10,7 +10,8 @@ import {
   updateOrder,
   getOrderDetail,
   approveOrder,
-  receiveOrder
+  receiveOrder,
+  cancelOrder
 } from '../controllers/order'
 import {
   cancelOrderSchema,
@@ -33,7 +34,7 @@ router.get(
 
 router.put('/:id/receive', verifyToken, validateRequestData(receiveOrderSchema), receiveOrder)
 
-router.put('/:id/cancel', verifyToken, validateRequestData(cancelOrderSchema), receiveOrder)
+router.put('/:id/cancel', validateRequestData(cancelOrderSchema), cancelOrder)
 
 router.put('/:id/approve', verifyToken, checkRole([Role.Admin]), approveOrder)
 
