@@ -9,7 +9,8 @@ import {
   getPaginationOrdersAdminSchema,
   getOrderDetailSchema,
   approveOrderSchema,
-  receiveOrderSchema
+  receiveOrderSchema,
+  cancelOrderSchema
 } from '../validations/order'
 import Bird from '../models/bird'
 import Nest from '../models/nest'
@@ -234,6 +235,28 @@ export const receiveOrder = async (req: Request, res: Response) => {
     order.status = 'success'
     await order.save()
     res.status(200).json({ success: true, message: 'Đã xác nhận nhận hàng thành công.' })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const cancelOrder = async (req: Request, res: Response) => {
+  const {
+    params: { id },
+    query: { statusMessage }
+  } = await zParse(cancelOrderSchema, req)
+  try {
+    const order = await Order.findById(id)
+    if (!order) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy đơn hàng.' })
+    }
+    if (order.status !== 'processing') {
+      return res.status(400).json({ success: false, message: 'Không thể hủy đơn hàng có trạng thái: ' + order.status })
+    }
+    if (statusMessage) order.statusMessage = statusMessage
+    order.status = 'canceled'
+    await order.save()
+    res.status(200).json({ success: true, message: 'Đã hủy đơn hàng thành công.' })
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
