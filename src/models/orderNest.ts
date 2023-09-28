@@ -14,7 +14,12 @@ const OrderNestSchema = new mongoose.Schema(
       default: 'processing'
     },
     stages: [
-      { status: { type: Boolean }, imageUrl: String, description: String, numberOfChild: { type: Number, default: 0 } }
+      {
+        status: Boolean,
+        imageUrl: String,
+        description: String,
+        numberOfChild: Number
+      }
     ],
     totalMoney: { type: Number },
     rated: { type: Boolean, default: false },

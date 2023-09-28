@@ -98,3 +98,11 @@ export const receiveOrderSchema = z.object({
     id: z.string().refine((value) => isValidObjectId(value))
   })
 })
+export const cancelOrderSchema = z.object({
+  params: z.object({
+    id: z.string().refine((value) => isValidObjectId(value))
+  }),
+  query: z.object({
+    statusMessage: z.string().optional()
+  })
+})
