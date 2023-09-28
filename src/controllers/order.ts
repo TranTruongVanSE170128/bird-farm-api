@@ -220,6 +220,7 @@ export const receiveOrder = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
+
 export const cancelOrder = async (req: Request, res: Response) => {
   const {
     params: { id },
