@@ -6,11 +6,11 @@ import {
   createOrderSchema,
   getPaginationOrdersSchema,
   updateOrderSchema,
-  getPaginationOrdersAdminSchema,
   getOrderDetailSchema,
   approveOrderSchema,
   receiveOrderSchema,
-  cancelOrderSchema
+  cancelOrderSchema,
+  getPaginationOrdersManageSchema
 } from '../validations/order'
 import Bird from '../models/bird'
 import Nest from '../models/nest'
@@ -62,8 +62,8 @@ export const getPaginationOrders = async (req: Request, res: Response) => {
   }
 }
 
-export const getPaginationOrdersAdmin = async (req: Request, res: Response) => {
-  const { query } = await zParse(getPaginationOrdersAdminSchema, req)
+export const getPaginationOrdersManage = async (req: Request, res: Response) => {
+  const { query } = await zParse(getPaginationOrdersManageSchema, req)
   const pageNumber = query.pageNumber || 1
   const pageSize = query.pageSize || 5
   const status = query.status

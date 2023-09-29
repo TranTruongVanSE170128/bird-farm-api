@@ -12,3 +12,10 @@ export const createCheckoutSessionSchema = z.object({
     notice: z.string().optional()
   })
 })
+
+export const createDepositSessionSchema = z.object({
+  body: z.object({
+    maleBird: z.string(),
+    femaleBird: z.string()
+  })
+})

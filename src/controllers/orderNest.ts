@@ -3,8 +3,12 @@ import mongoose from 'mongoose'
 import OrderNest from '../models/orderNest'
 import { zParse } from '../helpers/z-parse'
 import Bird from '../models/bird'
-import Nest from '../models/nest'
-import { createOrderNestSchema } from '../validations/orderNest'
+import {
+  approveOrderNestSchema,
+  createOrderNestSchema,
+  getOrderNestDetailSchema,
+  getPaginationOrderNestsManageSchema
+} from '../validations/orderNest'
 
 export const createOrderNest = async (req: Request, res: Response) => {
   const { body } = await zParse(createOrderNestSchema, req)
@@ -34,6 +38,84 @@ export const createOrderNest = async (req: Request, res: Response) => {
     await newOrderNest.save()
     res.status(201).json({ success: true, message: 'Tạo đơn hàng thành công.', orderNest: newOrderNest })
   } catch (err) {
+    res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const getPaginationOrderNestsManage = async (req: Request, res: Response) => {
+  const { query } = await zParse(getPaginationOrderNestsManageSchema, req)
+  const pageNumber = query.pageNumber || 1
+  const pageSize = query.pageSize || 5
+  const status = query.status
+
+  try {
+    const query = status ? { status: status } : {}
+
+    const orderNests = await OrderNest.find(query)
+      .populate('user dad mom')
+      .limit(pageSize)
+      .skip(pageSize * (pageNumber - 1))
+      .sort({ createdAt: -1 })
+      .exec()
+
+    const totalOrderNests = await OrderNest.countDocuments(query)
+
+    res.status(200).json({
+      success: false,
+      message: 'Lấy danh sách đơn đặt tổ chim non thành công.',
+      currentPage: pageNumber,
+      totalPage: Math.ceil(totalOrderNests / pageSize),
+      orderNests: orderNests
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const getOrderNestDetail = async (req: Request, res: Response) => {
+  const {
+    params: { id }
+  } = await zParse(getOrderNestDetailSchema, req)
+
+  try {
+    const orderNest = await OrderNest.findById(id).populate('user dad mom')
+
+    if (!orderNest) {
+      res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' })
+    }
+
+    res.status(201).json({ success: true, orderNest })
+  } catch (err) {
+    console.log(err)
+
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const approveOrderNest = async (req: Request, res: Response) => {
+  const {
+    params: { id }
+  } = await zParse(approveOrderNestSchema, req)
+
+  try {
+    const orderNest = await OrderNest.findById(id)
+
+    if (!orderNest) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy đơn hàng' })
+    }
+
+    if (orderNest.status !== 'processing') {
+      res
+        .status(400)
+        .json({ success: false, message: 'Không thể chấp thuận đơn hàng đang có trạng thái:' + orderNest.status })
+    }
+
+    orderNest.status = 'breeding'
+
+    await orderNest.save()
+
+    return res.status(200).json({ success: true, message: 'Đơn hàng đã được chấp thuận' })
+  } catch (error) {
     res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
   }
 }

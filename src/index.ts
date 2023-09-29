@@ -49,7 +49,7 @@ app.use('/api/birds', birdRoute)
 app.use('/api/stripe', stripeRoute)
 app.use('/api/nests', nestRoute)
 app.use('/api/orders', orderRoute)
-app.use('/api/order-nest', orderNestRoute)
+app.use('/api/order-nests', orderNestRoute)
 
 const PORT = process.env.PORT || 5000
 

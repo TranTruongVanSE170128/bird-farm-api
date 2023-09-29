@@ -8,7 +8,7 @@ export const getPaginationOrdersSchema = z.object({
     status: z.enum(['processing', 'delivering', 'success', 'canceled']).optional()
   })
 })
-export const getPaginationOrdersAdminSchema = z.object({
+export const getPaginationOrdersManageSchema = z.object({
   query: z.object({
     pageSize: z.coerce.number().optional(),
     pageNumber: z.coerce.number().optional(),

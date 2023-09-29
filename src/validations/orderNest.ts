@@ -16,3 +16,27 @@ export const createOrderNestSchema = z.object({
     phone: z.string().optional()
   })
 })
+
+export const getPaginationOrderNestsManageSchema = z.object({
+  query: z.object({
+    pageSize: z.coerce.number().optional(),
+    pageNumber: z.coerce.number().optional(),
+    status: z.enum(['processing', 'breeding', 'delivering', 'success', 'canceled']).optional()
+  })
+})
+
+export const getOrderNestDetailSchema = z.object({
+  params: z.object({
+    id: z.string().refine((val) => {
+      return mongoose.Types.ObjectId.isValid(val)
+    })
+  })
+})
+
+export const approveOrderNestSchema = z.object({
+  params: z.object({
+    id: z.string().refine((val) => {
+      return isValidObjectId(val)
+    })
+  })
+})

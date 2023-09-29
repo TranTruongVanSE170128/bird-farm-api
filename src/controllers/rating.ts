@@ -56,16 +56,20 @@ export const getPaginationRatings = async (req: Request, res: Response) => {
 }
 
 export const getAverageRatings = async (req: Request, res: Response) => {
-  const result = await Rating.aggregate([
-    {
-      $group: {
-        _id: null,
-        averageValue: { $avg: '$value' }
+  try {
+    const result = await Rating.aggregate([
+      {
+        $group: {
+          _id: null,
+          averageValue: { $avg: '$value' }
+        }
       }
-    }
-  ])
+    ])
 
-  const average = result[0].averageValue
+    const average = result?.[0]?.averageValue
 
-  res.status(200).json({ success: true, average })
+    res.status(200).json({ success: true, average })
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
 }

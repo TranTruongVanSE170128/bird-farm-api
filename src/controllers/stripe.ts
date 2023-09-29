@@ -4,8 +4,10 @@ import Stripe from 'stripe'
 import Bird from '../models/bird'
 import Nest from '../models/nest'
 import { zParse } from '../helpers/z-parse'
-import { createCheckoutSessionSchema } from '../validations/checkout'
+import { createCheckoutSessionSchema, createDepositSessionSchema } from '../validations/checkout'
 import Order from '../models/order'
+import OrderNest from '../models/orderNest'
+import user from '../models/user'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {} as Stripe.StripeConfig)
 
@@ -58,7 +60,8 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
           receiver,
           address,
           phone,
-          notice
+          notice,
+          type: 'order'
         })
       }
     })
@@ -70,6 +73,66 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       mode: 'payment',
       success_url: `${process.env.BASE_URL}/orders/payment-success`,
       cancel_url: `${process.env.BASE_URL}/orders/payment-cancel`
+    })
+
+    res.status(200).json({ id: session.id })
+  } catch (error) {
+    console.log(error)
+
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống' })
+  }
+}
+
+export const createDepositSession = async (req: Request, res: Response) => {
+  const {
+    body: { maleBird: maleBirdId, femaleBird: femaleBirdId }
+  } = await zParse(createDepositSessionSchema, req)
+
+  try {
+    const maleBird = await Bird.findById(maleBirdId)
+    const femaleBird = await Bird.findById(femaleBirdId)
+
+    const customer = await stripe.customers.create({
+      metadata: {
+        userId: res.locals.user.id,
+        data: JSON.stringify({
+          femaleBird: femaleBirdId,
+          maleBird: maleBirdId,
+          type: 'orderNest'
+        })
+      }
+    })
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'VND',
+            product_data: {
+              name: maleBird?.name || '',
+              description: 'Chim bố'
+            },
+            unit_amount: maleBird?.breedPrice
+          },
+          quantity: 1
+        },
+        {
+          price_data: {
+            currency: 'VND',
+            product_data: {
+              name: femaleBird?.name || '',
+              description: 'Chim mẹ'
+            },
+            unit_amount: femaleBird?.breedPrice
+          },
+          quantity: 1
+        }
+      ],
+      customer: customer.id,
+      mode: 'payment',
+      success_url: `${process.env.BASE_URL}/breed/deposit-success`,
+      cancel_url: `${process.env.BASE_URL}/breed/deposit-cancel`
     })
 
     res.status(200).json({ id: session.id })
@@ -110,28 +173,56 @@ export const stripeWebhook = (req: Request, res: Response) => {
       .retrieve(data.customer)
       .then(async (customer: any) => {
         const data = JSON.parse(customer.metadata.data)
-        const birdIds = data.birds
-        const nestIds = data.nests
+        const type = data.type
 
-        let totalMoney = 0
-        const birds = await Bird.find({ _id: { $in: birdIds } })
-        const nests = await Nest.find({ _id: { $in: nestIds } })
+        if (type === 'order') {
+          const birdIds = data.birds
+          const nestIds = data.nests
 
-        birds.forEach((bird) => {
-          totalMoney += bird?.sellPrice || 0
-        })
+          let totalMoney = 0
+          const birds = await Bird.find({ _id: { $in: birdIds } })
+          const nests = await Nest.find({ _id: { $in: nestIds } })
 
-        nests.forEach((nest) => {
-          totalMoney += nest?.price || 0
-        })
+          birds.forEach((bird) => {
+            totalMoney += bird?.sellPrice || 0
+          })
 
-        const newOrder = new Order({
-          ...data,
-          totalMoney,
-          user: new mongoose.Types.ObjectId(customer.metadata.userId),
-          methodPayment: 'online'
-        })
-        await newOrder.save()
+          nests.forEach((nest) => {
+            totalMoney += nest?.price || 0
+          })
+
+          const newOrder = new Order({
+            ...data,
+            totalMoney,
+            user: new mongoose.Types.ObjectId(customer.metadata.userId),
+            methodPayment: 'online'
+          })
+          await newOrder.save()
+        } else if (type === 'orderNest') {
+          const femaleBirdId = data.femaleBird
+          const maleBirdId = data.maleBird
+
+          const maleBird = await Bird.findById(maleBirdId)
+          const femaleBird = await Bird.findById(femaleBirdId)
+
+          if (!maleBird || !femaleBird) {
+            throw new Error('Không tìm thấy chim bố hoặc chim mẹ')
+          }
+
+          if (maleBird.type !== 'breed' || femaleBird.type !== 'breed') {
+            throw new Error('Chim bố hoặc chim mẹ không phải là chim phối giống')
+          }
+
+          const orderNest = new OrderNest({
+            user: new mongoose.Types.ObjectId(customer.metadata.userId),
+            dad: maleBirdId,
+            mom: femaleBirdId,
+            childPriceMale: ((maleBird?.breedPrice || 0) + (femaleBird?.breedPrice || 0)) * 2,
+            childPriceFemale: (maleBird?.breedPrice || 0) + (femaleBird?.breedPrice || 0)
+          })
+
+          await orderNest.save()
+        }
       })
       .catch((err) => {
         console.log(err)
