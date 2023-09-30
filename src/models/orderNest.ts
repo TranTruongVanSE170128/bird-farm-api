@@ -28,7 +28,8 @@ const OrderNestSchema = new mongoose.Schema(
     address: String,
     phone: String,
     dad: { type: mongoose.Types.ObjectId, ref: 'Bird', require: true },
-    mom: { type: mongoose.Types.ObjectId, ref: 'Bird', require: true }
+    mom: { type: mongoose.Types.ObjectId, ref: 'Bird', require: true },
+    specie: { type: mongoose.Types.ObjectId, ref: 'Specie', require: true }
     // methodPayment: { type: String, enum: ['cod', 'online'], require: true }
   },
   { timestamps: true }

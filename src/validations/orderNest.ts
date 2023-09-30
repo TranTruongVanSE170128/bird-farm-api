@@ -40,3 +40,24 @@ export const approveOrderNestSchema = z.object({
     })
   })
 })
+
+export const addStageSchema = z.object({
+  params: z.object({
+    id: z.string().refine((val) => {
+      return isValidObjectId(val)
+    })
+  }),
+  body: z.object({
+    name: z.string(),
+    imageUrl: z.string(),
+    description: z.string()
+  })
+})
+
+export const getPaginationOrderNestsSchema = z.object({
+  query: z.object({
+    pageSize: z.coerce.number().optional(),
+    pageNumber: z.coerce.number().optional(),
+    status: z.enum(['processing', 'breeding', 'delivering', 'success', 'canceled']).optional()
+  })
+})

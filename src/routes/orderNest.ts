@@ -4,16 +4,20 @@ import verifyToken from '../middleware/auth'
 import checkRole from '../middleware/checkRole'
 import { Role } from '../typings/types'
 import {
+  addStage,
   approveOrderNest,
-  createOrderNest,
+  // createOrderNest,
   getOrderNestDetail,
+  getPaginationOrderNests,
   getPaginationOrderNestsManage
 } from '../controllers/orderNest'
 import {
+  addStageSchema,
   approveOrderNestSchema,
   createOrderNestSchema,
   getOrderNestDetailSchema,
-  getPaginationOrderNestsManageSchema
+  getPaginationOrderNestsManageSchema,
+  getPaginationOrderNestsSchema
 } from '../validations/orderNest'
 
 const router = express.Router()
@@ -34,6 +38,10 @@ router.put(
   approveOrderNest
 )
 
+router.post('/:id/add-stage', verifyToken, validateRequestData(addStageSchema), checkRole([Role.Staff]), addStage)
+
+router.get('/pagination', verifyToken, validateRequestData(getPaginationOrderNestsSchema), getPaginationOrderNests)
+
 router.get(
   '/:id',
   verifyToken,
@@ -42,6 +50,6 @@ router.get(
   getOrderNestDetail
 )
 
-router.post('/', validateRequestData(createOrderNestSchema), verifyToken, createOrderNest)
+// router.post('/', validateRequestData(createOrderNestSchema), verifyToken, createOrderNest)
 
 export default router

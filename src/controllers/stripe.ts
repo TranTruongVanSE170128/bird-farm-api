@@ -217,6 +217,7 @@ export const stripeWebhook = (req: Request, res: Response) => {
             user: new mongoose.Types.ObjectId(customer.metadata.userId),
             dad: maleBirdId,
             mom: femaleBirdId,
+            specie: maleBird.specie,
             childPriceMale: ((maleBird?.breedPrice || 0) + (femaleBird?.breedPrice || 0)) * 2,
             childPriceFemale: (maleBird?.breedPrice || 0) + (femaleBird?.breedPrice || 0)
           })
