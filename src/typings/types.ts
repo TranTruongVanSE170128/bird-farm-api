@@ -80,5 +80,6 @@ export type OrderStatus = 'processing' | 'delivering' | 'success' | 'canceled'
 export enum Role {
   Customer = 'customer',
   Staff = 'staff',
-  Admin = 'admin'
+  Admin = 'admin',
+  Manager = 'manager'
 }

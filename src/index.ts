@@ -11,6 +11,7 @@ import nestRoute from './routes/nest'
 import orderRoute from './routes/order'
 import ratingRoute from './routes/rating'
 import orderNestRoute from './routes/orderNest'
+import voucherRoute from './routes/voucher'
 
 import { config } from 'dotenv'
 import Stripe from 'stripe'
@@ -49,6 +50,7 @@ app.use('/api/birds', birdRoute)
 app.use('/api/stripe', stripeRoute)
 app.use('/api/nests', nestRoute)
 app.use('/api/orders', orderRoute)
+app.use('/api/vouchers', voucherRoute)
 app.use('/api/order-nests', orderNestRoute)
 
 const PORT = process.env.PORT || 5000

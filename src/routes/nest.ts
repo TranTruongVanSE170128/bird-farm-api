@@ -21,8 +21,8 @@ router.post('/get-by-ids', validateRequestData(getNestsByIdsSchema), getNestsByI
 
 router.get('/:id', validateRequestData(getNestByIdSchema), getNestById)
 
-router.put('/:id', verifyToken, checkRole([Role.Admin]), validateRequestData(updateNestSchema), updateNest)
+router.put('/:id', verifyToken, checkRole([Role.Manager]), validateRequestData(updateNestSchema), updateNest)
 
-router.post('/', verifyToken, checkRole([Role.Admin]), validateRequestData(createNestSchema), createNest)
+router.post('/', verifyToken, checkRole([Role.Manager]), validateRequestData(createNestSchema), createNest)
 
 export default router

@@ -40,8 +40,8 @@ router.post('/get-by-ids', validateRequestData(getBirdsByIdsSchema), getBirdsByI
 
 router.get('/:id', validateRequestData(getBirdDetailSchema), getBirdDetail)
 
-router.put('/:id', validateRequestData(updateBirdSchema), updateBird)
+router.put('/:id', verifyToken, checkRole([Role.Manager]), validateRequestData(updateBirdSchema), updateBird)
 
-router.post('/', verifyToken, checkRole([Role.Admin]), validateRequestData(createBirdSchema), createBird)
+router.post('/', verifyToken, checkRole([Role.Manager]), validateRequestData(createBirdSchema), createBird)
 
 export default router

@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 const OrderNestSchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Types.ObjectId, require: true, ref: 'User' },
+    user: { type: mongoose.Schema.Types.ObjectId, require: true, ref: 'User' },
     voucher: { type: mongoose.Schema.Types.ObjectId, ref: 'Voucher' },
     childPriceMale: { type: Number, require: true },
     childPriceFemale: { type: Number, require: true },

@@ -15,6 +15,10 @@ export const createRating = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Không tìm thấy đơn hàng' })
     }
 
+    if (order.user && !order.user.equals(res.locals.user._id)) {
+      return res.status(400).json({ success: false, message: 'Bạn không có quyền đnah giá đơn hàng này' })
+    }
+
     const newRating = new Rating({ ...body, user: res.locals.user.id })
     order.rated = true
     await order.save()

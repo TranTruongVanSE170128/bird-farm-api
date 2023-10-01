@@ -14,6 +14,7 @@ import {
 } from '../validations/order'
 import Bird from '../models/bird'
 import Nest from '../models/nest'
+import { Role } from '../typings/types'
 
 export const getPaginationOrders = async (req: Request, res: Response) => {
   const { query } = await zParse(getPaginationOrdersSchema, req)
@@ -250,6 +251,11 @@ export const cancelOrder = async (req: Request, res: Response) => {
     if (!order) {
       return res.status(400).json({ success: false, message: 'Không tìm thấy đơn hàng.' })
     }
+
+    if (res.locals.user.role === Role.Customer && !order.user?.equals(res.locals.user._id)) {
+      return res.status(403).json({ success: false, message: 'Bạn không có quyền hủy đơn hàng này' })
+    }
+
     if (order.status !== 'processing') {
       return res.status(400).json({ success: false, message: 'Không thể hủy đơn hàng có trạng thái: ' + order.status })
     }

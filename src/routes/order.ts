@@ -35,7 +35,13 @@ router.get(
 
 router.put('/:id/receive', verifyToken, validateRequestData(receiveOrderSchema), receiveOrder)
 
-router.put('/:id/cancel', verifyToken, validateRequestData(cancelOrderSchema), cancelOrder)
+router.put(
+  '/:id/cancel',
+  verifyToken,
+  checkRole([Role.Staff, Role.Customer]),
+  validateRequestData(cancelOrderSchema),
+  cancelOrder
+)
 
 router.put('/:id/approve', verifyToken, checkRole([Role.Staff]), approveOrder)
 
@@ -45,8 +51,6 @@ router.get('/:id', verifyToken, validateRequestData(getOrderDetailSchema), check
 
 router.put('/:id', verifyToken, validateRequestData(updateOrderSchema), checkRole([Role.Staff]), updateOrder)
 
-router.post('/', validateRequestData(createOrderSchema), verifyToken, createOrder)
-
-router.post('/', verifyToken, createOrder)
+router.post('/', verifyToken, validateRequestData(createOrderSchema), createOrder)
 
 export default router

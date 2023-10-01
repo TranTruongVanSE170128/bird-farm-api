@@ -17,10 +17,10 @@ router.get('/pagination', validateRequestData(getPaginationSpeciesSchema), getPa
 
 router.get('/:id', validateRequestData(getSpecieDetailSchema), getSpecieDetail)
 
-router.put('/:id', verifyToken, checkRole([Role.Admin]), validateRequestData(updateSpecieSchema), updateSpecie)
+router.put('/:id', verifyToken, checkRole([Role.Manager]), validateRequestData(updateSpecieSchema), updateSpecie)
 
 router.get('/', getAllSpecies)
 
-router.post('/', verifyToken, checkRole([Role.Admin]), validateRequestData(addSpecieSchema), addSpecie)
+router.post('/', verifyToken, checkRole([Role.Manager]), validateRequestData(addSpecieSchema), addSpecie)
 
 export default router
