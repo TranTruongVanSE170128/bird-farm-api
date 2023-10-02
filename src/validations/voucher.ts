@@ -16,3 +16,9 @@ export const getPaginationVouchersSchema = z.object({
     pageNumber: z.coerce.number().optional()
   })
 })
+
+export const getVoucherDetailSchema = z.object({
+  params: z.object({
+    id: z.string()
+  })
+})
