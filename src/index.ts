@@ -12,13 +12,8 @@ import orderRoute from './routes/order'
 import ratingRoute from './routes/rating'
 import orderNestRoute from './routes/orderNest'
 import voucherRoute from './routes/voucher'
-
-import { config } from 'dotenv'
-import Stripe from 'stripe'
+import helmet from 'helmet'
 import { stripeWebhook } from './controllers/stripe'
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {} as Stripe.StripeConfig)
-
-config()
 
 const connectDB = async () => {
   try {
@@ -34,14 +29,12 @@ connectDB()
 
 const app = express()
 
-app.use(express.static('public'))
+app.use(helmet())
 app.use(morgan('dev'))
-app.use(cors({ credentials: true }))
+app.use(express.static('src/public'))
+app.use(cors({ origin: 'http://localhost:5173' }))
 app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhook)
 app.use(express.json())
-app.get('/', (req, res) => {
-  res.json({ hello: 'hello world!' })
-})
 app.use('/api/auth', authRoute)
 app.use('/api/users', userRoute)
 app.use('/api/ratings', ratingRoute)
@@ -52,6 +45,10 @@ app.use('/api/nests', nestRoute)
 app.use('/api/orders', orderRoute)
 app.use('/api/vouchers', voucherRoute)
 app.use('/api/order-nests', orderNestRoute)
+
+app.get('/', (req, res) => {
+  res.json({ hello: 'hello world!' })
+})
 
 const PORT = process.env.PORT || 5000
 

@@ -10,7 +10,7 @@ const OrderNestSchema = new mongoose.Schema(
     numberChildPriceFemale: { type: Number, require: true, default: 0 },
     status: {
       type: String,
-      enum: ['processing', 'breeding', 'delivering', 'success', 'canceled'],
+      enum: ['processing', 'breeding', 'delivering', 'success', 'canceled', 'wait-for-payment'],
       default: 'processing'
     },
     stages: {
@@ -29,8 +29,10 @@ const OrderNestSchema = new mongoose.Schema(
     phone: String,
     dad: { type: mongoose.Types.ObjectId, ref: 'Bird', require: true },
     mom: { type: mongoose.Types.ObjectId, ref: 'Bird', require: true },
-    specie: { type: mongoose.Types.ObjectId, ref: 'Specie', require: true }
-    // methodPayment: { type: String, enum: ['cod', 'online'], require: true }
+    specie: { type: mongoose.Types.ObjectId, ref: 'Specie', require: true },
+    totalMoney: Number,
+    notice: String,
+    methodPayment: { type: String, enum: ['cod', 'online'] }
   },
   { timestamps: true }
 )

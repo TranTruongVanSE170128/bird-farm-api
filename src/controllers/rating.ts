@@ -26,6 +26,8 @@ export const createRating = async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, message: 'Đánh giá thành công.', rating: newRating })
   } catch (err) {
+    console.log(err)
+
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
@@ -41,6 +43,7 @@ export const getPaginationRatings = async (req: Request, res: Response) => {
   try {
     const ratings = await Rating.find(queryMongo)
       .populate('user')
+      .sort({ createdAt: -1 })
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
       .exec()

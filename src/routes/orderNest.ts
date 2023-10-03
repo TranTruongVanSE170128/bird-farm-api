@@ -9,7 +9,10 @@ import {
   // createOrderNest,
   getOrderNestDetail,
   getPaginationOrderNests,
-  getPaginationOrderNestsManage
+  getPaginationOrderNestsManage,
+  paymentTheRest,
+  receiveOrderNest,
+  requestCustomerToPayment
 } from '../controllers/orderNest'
 import {
   addStageSchema,
@@ -17,7 +20,10 @@ import {
   // createOrderNestSchema,
   getOrderNestDetailSchema,
   getPaginationOrderNestsManageSchema,
-  getPaginationOrderNestsSchema
+  getPaginationOrderNestsSchema,
+  paymentTheRestSchema,
+  receiveOrderNestSchema,
+  requestCustomerToPaymentSchema
 } from '../validations/orderNest'
 
 const router = express.Router()
@@ -38,7 +44,19 @@ router.put(
   approveOrderNest
 )
 
+router.put('/:id/receive', verifyToken, validateRequestData(receiveOrderNestSchema), receiveOrderNest)
+
 router.post('/:id/add-stage', verifyToken, validateRequestData(addStageSchema), checkRole([Role.Staff]), addStage)
+
+router.post('/:id/payment-rest', verifyToken, validateRequestData(paymentTheRestSchema), paymentTheRest)
+
+router.put(
+  '/:id/request-payment',
+  verifyToken,
+  validateRequestData(requestCustomerToPaymentSchema),
+  checkRole([Role.Staff]),
+  requestCustomerToPayment
+)
 
 router.get('/pagination', verifyToken, validateRequestData(getPaginationOrderNestsSchema), getPaginationOrderNests)
 

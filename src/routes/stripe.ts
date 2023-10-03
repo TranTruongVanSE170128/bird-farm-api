@@ -1,7 +1,16 @@
 import express from 'express'
-import { createCheckoutSession, createDepositSession, stripeWebhook } from '../controllers/stripe'
+import {
+  createCheckoutSession,
+  createDepositSession,
+  stripeWebhook,
+  createPaymentRestSession
+} from '../controllers/stripe'
 import { validateRequestData } from '../middleware/validate-request-data'
-import { createCheckoutSessionSchema, createDepositSessionSchema } from '../validations/checkout'
+import {
+  createCheckoutSessionSchema,
+  createDepositSessionSchema,
+  createPaymentRestSessionSchema
+} from '../validations/checkout'
 import verifyToken from '../middleware/auth'
 
 const router = express.Router()
@@ -18,6 +27,13 @@ router.post(
   verifyToken,
   validateRequestData(createDepositSessionSchema),
   createDepositSession
+)
+
+router.post(
+  '/create-payment-rest-session',
+  verifyToken,
+  validateRequestData(createPaymentRestSessionSchema),
+  createPaymentRestSession
 )
 
 router.post('/webhook', express.raw({ type: 'application/json' }), stripeWebhook)

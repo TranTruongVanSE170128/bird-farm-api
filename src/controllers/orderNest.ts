@@ -9,41 +9,11 @@ import {
   // createOrderNestSchema,
   getOrderNestDetailSchema,
   getPaginationOrderNestsManageSchema,
-  getPaginationOrderNestsSchema
+  getPaginationOrderNestsSchema,
+  paymentTheRestSchema,
+  receiveOrderNestSchema,
+  requestCustomerToPaymentSchema
 } from '../validations/orderNest'
-
-// export const createOrderNest = async (req: Request, res: Response) => {
-//   const {
-//     body: { birdMale, birdFemale }
-//   } = await zParse(createOrderNestSchema, req)
-
-//   try {
-//     const breedMale = await Bird.findById(birdMale).exec()
-//     const breedFemale = await Bird.findById(birdFemale).exec()
-//     if (!breedFemale || !breedMale) {
-//       return res.status(400).json({ success: false, message: 'Không tìm thấy chim.' })
-//     }
-//     if (breedMale?.type !== 'breed' || breedFemale?.type !== 'breed') {
-//       return res.status(400).json({ success: false, message: 'Chim không phù hợp để phối giống.' })
-//     }
-//     const childPriceFemale = (breedFemale?.breedPrice || 0) + (breedMale?.breedPrice || 0)
-//     const childPriceMale = 2 * childPriceFemale
-
-//     const newOrderNest = new OrderNest({
-//       childPriceFemale,
-//       childPriceMale,
-//       specie: breedMale.specie,
-//       dad: new mongoose.Types.ObjectId(birdMale),
-//       mom: new mongoose.Types.ObjectId(birdFemale),
-//       customer: new mongoose.Types.ObjectId(res.locals.id)
-//     })
-
-//     await newOrderNest.save()
-//     res.status(201).json({ success: true, message: 'Tạo đơn hàng thành công.', orderNest: newOrderNest })
-//   } catch (err) {
-//     res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
-//   }
-// }
 
 export const getPaginationOrderNests = async (req: Request, res: Response) => {
   const { query } = await zParse(getPaginationOrderNestsSchema, req)
@@ -142,7 +112,7 @@ export const approveOrderNest = async (req: Request, res: Response) => {
     }
 
     if (orderNest.status !== 'processing') {
-      res
+      return res
         .status(400)
         .json({ success: false, message: 'Không thể chấp thuận đơn hàng đang có trạng thái:' + orderNest.status })
     }
@@ -152,6 +122,38 @@ export const approveOrderNest = async (req: Request, res: Response) => {
     await orderNest.save()
 
     return res.status(200).json({ success: true, message: 'Đơn hàng đã được chấp thuận' })
+  } catch (error) {
+    res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const requestCustomerToPayment = async (req: Request, res: Response) => {
+  const {
+    params: { id }
+  } = await zParse(requestCustomerToPaymentSchema, req)
+
+  try {
+    const orderNest = await OrderNest.findById(id)
+
+    if (!orderNest) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy đơn hàng' })
+    }
+
+    if (orderNest.status !== 'breeding') {
+      return res.status(400).json({
+        success: false,
+        message: 'Không thể yêu cầu thanh toán đơn tổ chim đang có trạng thái:' + orderNest.status
+      })
+    }
+
+    orderNest.status = 'wait-for-payment'
+    orderNest.totalMoney =
+      (orderNest.childPriceFemale || 0) * orderNest.numberChildPriceFemale +
+      (orderNest.childPriceMale || 0) * orderNest.numberChildPriceMale
+
+    await orderNest.save()
+
+    return res.status(200).json({ success: true, message: 'Yêu cầu khách hàng thanh toán thành công' })
   } catch (error) {
     res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
   }
@@ -171,12 +173,10 @@ export const addStage = async (req: Request, res: Response) => {
     }
 
     if (orderNest.status !== 'breeding') {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: 'Không thể thêm giai đoạn cho đơn tổ chim có trạng thái: ' + orderNest.status
-        })
+      return res.status(400).json({
+        success: false,
+        message: 'Không thể thêm giai đoạn cho đơn tổ chim có trạng thái: ' + orderNest.status
+      })
     }
 
     orderNest.stages.push(body)
@@ -185,5 +185,73 @@ export const addStage = async (req: Request, res: Response) => {
     return res.status(200).json({ success: true, message: 'Thêm giao đoạn mới thành công' })
   } catch (error) {
     res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const paymentTheRest = async (req: Request, res: Response) => {
+  const {
+    params: { id },
+    body: { receiver, address, phone, notice }
+  } = await zParse(paymentTheRestSchema, req)
+
+  try {
+    const orderNest = await OrderNest.findById(id)
+
+    if (!orderNest) {
+      return res.status(400).json({ success: false, message: 'Không tìm đơn tổ chim' })
+    }
+
+    if (!orderNest.user?.equals(res.locals.user._id)) {
+      return res.status(400).json({ success: false, message: 'Bạn không có quyền thanh toán đơn hàng này' })
+    }
+
+    if (orderNest.status !== 'wait-for-payment') {
+      return res.status(400).json({
+        success: false,
+        message: 'Không thể thanh toán cho đơn tổ chim có trạng thái: ' + orderNest.status
+      })
+    }
+
+    orderNest.receiver = receiver
+    orderNest.phone = phone
+    orderNest.address = address
+    orderNest.status = 'delivering'
+    orderNest.methodPayment = 'cod'
+    if (notice) {
+      orderNest.notice = notice
+    }
+
+    await orderNest.save()
+
+    res.status(201).json({ success: true, message: 'Thanh toán thành công.', orderNest })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const receiveOrderNest = async (req: Request, res: Response) => {
+  const {
+    params: { id }
+  } = await zParse(receiveOrderNestSchema, req)
+  try {
+    const orderNest = await OrderNest.findById(id)
+    if (!orderNest) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy đơn hàng.' })
+    }
+
+    if (!orderNest.user?.equals(res.locals.user._id)) {
+      return res.status(403).json({ success: false, message: 'Bạn không có quyền nhận đơn hàng này' })
+    }
+
+    if (orderNest.status !== 'delivering') {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Không thể nhận thành công đơn hàng có trạng thái: ' + orderNest.status })
+    }
+    orderNest.status = 'success'
+    await orderNest.save()
+    res.status(200).json({ success: true, message: 'Đã xác nhận nhận hàng thành công.' })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }

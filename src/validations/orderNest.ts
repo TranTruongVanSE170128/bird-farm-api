@@ -41,6 +41,14 @@ export const approveOrderNestSchema = z.object({
   })
 })
 
+export const requestCustomerToPaymentSchema = z.object({
+  params: z.object({
+    id: z.string().refine((val) => {
+      return isValidObjectId(val)
+    })
+  })
+})
+
 export const addStageSchema = z.object({
   params: z.object({
     id: z.string().refine((val) => {
@@ -59,5 +67,23 @@ export const getPaginationOrderNestsSchema = z.object({
     pageSize: z.coerce.number().optional(),
     pageNumber: z.coerce.number().optional(),
     status: z.enum(['processing', 'breeding', 'delivering', 'success', 'canceled']).optional()
+  })
+})
+export const receiveOrderNestSchema = z.object({
+  params: z.object({
+    id: z.string().refine((value) => isValidObjectId(value))
+  })
+})
+export const paymentTheRestSchema = z.object({
+  params: z.object({
+    id: z.string().refine((val) => {
+      return isValidObjectId(val)
+    })
+  }),
+  body: z.object({
+    receiver: z.string().trim(),
+    phone: z.string().trim(),
+    address: z.string().trim(),
+    notice: z.string().trim().optional()
   })
 })
