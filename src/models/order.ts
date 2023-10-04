@@ -12,7 +12,7 @@ const OrderSchema = new mongoose.Schema(
     status: { type: String, enum: ['processing', 'delivering', 'success', 'canceled'], default: 'processing' },
     statusMessage: String,
     totalMoney: { type: Number, require: true },
-    voucher: { type: mongoose.Schema.Types.ObjectId, ref: 'Voucher' },
+    discount: Number,
     methodPayment: { type: String, enum: ['cod', 'online'], require: true },
     notice: String
   },

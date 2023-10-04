@@ -15,6 +15,7 @@ import {
 import Bird from '../models/bird'
 import Nest from '../models/nest'
 import { Role } from '../typings/types'
+import Voucher from '../models/voucher'
 
 export const getPaginationOrders = async (req: Request, res: Response) => {
   const { query } = await zParse(getPaginationOrdersSchema, req)
@@ -118,8 +119,9 @@ export const createOrder = async (req: Request, res: Response) => {
 
   const birdIds = body.birds
   const nestIds = body.nests
-
+  const voucherId = body.voucher
   try {
+    let voucher
     let totalMoney = 0
     const birds = await Bird.find({ _id: { $in: birdIds } })
     const nests = await Nest.find({ _id: { $in: nestIds } })
@@ -132,11 +134,34 @@ export const createOrder = async (req: Request, res: Response) => {
       totalMoney += nest?.price || 0
     })
 
+    let discount
+
+    if (voucherId) {
+      const voucher = await Voucher.findById(voucherId)
+      if (!voucher) {
+        return res.status(400).json({ success: false, message: 'Không tìm thấy voucher' })
+      }
+      if (!voucher.enable) {
+        return res.status(400).json({ success: false, message: 'Voucher này đang không được kích hoạt' })
+      }
+      if (voucher.quantity <= 0) {
+        return res.status(400).json({ success: false, message: 'Voucher này đã hết số lượng' })
+      }
+      if (voucher.expiredAt <= new Date()) {
+        return res.status(400).json({ success: false, message: 'Voucher này đã hết số lượng' })
+      }
+      if (totalMoney < voucher.conditionPrice) {
+        return res.status(400).json({ success: false, message: 'Không đủ điều kiện để sử dụng voucher' })
+      }
+      discount = Math.min((totalMoney * voucher.discountPercent) / 100, voucher.maxDiscountValue)
+    }
+
     const newOrder = new Order({
       ...body,
       totalMoney,
       user: new mongoose.Types.ObjectId(res.locals.user.id),
-      methodPayment: 'cod' //this function always create order COD, the order with online payment will be created after stripe webhook verification
+      methodPayment: 'cod',
+      discount
     })
     await newOrder.save()
 
