@@ -4,7 +4,8 @@ import {
   createVoucherSchema,
   getVoucherDetailSchema,
   disableVoucherSchema,
-  enableVoucherSchema
+  enableVoucherSchema,
+  updateVoucherSchema
 } from '../validations/voucher'
 import Voucher from '../models/voucher'
 import { getPaginationVouchersSchema } from '../validations/voucher'
@@ -108,5 +109,21 @@ export const enableVoucher = async (req: Request, res: Response) => {
     res.status(204).json({ success: true, message: 'Kích hoạt sử dụng voucher thành công.' })
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống.' })
+  }
+}
+
+export const updateVoucher = async (req: Request, res: Response) => {
+  const {
+    params: { id },
+    body
+  } = await zParse(updateVoucherSchema, req)
+
+  try {
+    const voucher = await Voucher.findByIdAndUpdate(id, body, { new: true })
+
+    res.status(200).json({ success: true, message: 'Voucher đã được cập nhật thành công.', voucher })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống.' })
+    console.log(err)
   }
 }

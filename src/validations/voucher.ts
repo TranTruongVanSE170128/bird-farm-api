@@ -37,3 +37,25 @@ export const enableVoucherSchema = z.object({
     })
   })
 })
+
+export const updateVoucherSchema = z.object({
+  params: z.object({
+    id: z.string().refine((val) => {
+      return isValidObjectId(val)
+    })
+  }),
+  body: z.object({
+    discountPercent: z.number().optional(),
+    user: z
+      .array(
+        z.string().refine((value) => {
+          return isValidObjectId(value)
+        })
+      )
+      .optional(),
+    maxDiscountValue: z.number().optional(),
+    conditionPrice: z.number().optional(),
+    expiredAt: z.date().optional(),
+    quantity: z.number().optional()
+  })
+})
