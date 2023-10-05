@@ -31,7 +31,7 @@ const app = express()
 
 app.use(helmet())
 app.use(morgan('dev'))
-app.use(express.static('src/public'))
+app.use(express.static('public'))
 app.use(cors({ origin: 'http://localhost:5173' }))
 app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhook)
 app.use(express.json())
