@@ -1,6 +1,11 @@
 import { Request, Response } from 'express'
 import { zParse } from '../helpers/z-parse'
-import { createVoucherSchema, getVoucherDetailSchema } from '../validations/voucher'
+import {
+  createVoucherSchema,
+  getVoucherDetailSchema,
+  disableVoucherSchema,
+  enableVoucherSchema
+} from '../validations/voucher'
 import Voucher from '../models/voucher'
 import { getPaginationVouchersSchema } from '../validations/voucher'
 
@@ -68,5 +73,40 @@ export const getVoucherDetail = async (req: Request, res: Response) => {
     console.log(err)
 
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const disableVoucher = async (req: Request, res: Response) => {
+  const {
+    params: { id }
+  } = await zParse(disableVoucherSchema, req)
+
+  try {
+    const voucher = await Voucher.findById(id)
+    if (!voucher) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy voucher.' })
+    }
+    voucher.enable = false
+    await voucher.save()
+    res.status(204).json({ success: true, message: 'Tắt sử dụng voucher thành công.' })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống.' })
+  }
+}
+
+export const enableVoucher = async (req: Request, res: Response) => {
+  const {
+    params: { id }
+  } = await zParse(enableVoucherSchema, req)
+  try {
+    const voucher = await Voucher.findById(id)
+    if (!voucher) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy voucher.' })
+    }
+    voucher.enable = true
+    await voucher.save()
+    res.status(204).json({ success: true, message: 'Kích hoạt sử dụng voucher thành công.' })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống.' })
   }
 }

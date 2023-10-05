@@ -271,7 +271,7 @@ export const updateBirdAmount = async (req: Request, res: Response) => {
     }
     if (numberChildPriceFemale) orderNest.numberChildPriceFemale = numberChildPriceFemale
     if (numberChildPriceMale) orderNest.numberChildPriceMale = numberChildPriceMale
-    orderNest.save()
+    await orderNest.save()
     res.status(200).json({ success: true, message: 'Cập nhập số lượng chim thành công.', orderNest: orderNest })
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống.' })

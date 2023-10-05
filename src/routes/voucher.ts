@@ -4,15 +4,23 @@ import checkRole from '../middleware/checkRole'
 import { Role } from '../typings/types'
 import { createVoucherSchema, getPaginationVouchersSchema, getVoucherDetailSchema } from '../validations/voucher'
 import { validateRequestData } from '../middleware/validate-request-data'
-import { createVoucher, getAllVoucher, getPaginationVouchers, getVoucherDetail } from '../controllers/voucher'
+import {
+  createVoucher,
+  getAllVoucher,
+  getPaginationVouchers,
+  getVoucherDetail,
+  disableVoucher,
+  enableVoucher
+} from '../controllers/voucher'
 
 const router = express.Router()
-
+router.put('/:id/disable', disableVoucher)
+router.put('/:id/enable', enableVoucher)
 router.get('/pagination', validateRequestData(getPaginationVouchersSchema), getPaginationVouchers)
 
 router.get('/:id', validateRequestData(getVoucherDetailSchema), getVoucherDetail)
 
-router.post('/', verifyToken, checkRole([Role.Manager]), validateRequestData(createVoucherSchema), createVoucher)
+router.post('/', validateRequestData(createVoucherSchema), createVoucher)
 
 router.get('/', getAllVoucher)
 

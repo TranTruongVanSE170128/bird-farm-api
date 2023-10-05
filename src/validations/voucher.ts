@@ -1,3 +1,4 @@
+import { isValidObjectId } from 'mongoose'
 import z from 'zod'
 
 export const createVoucherSchema = z.object({
@@ -20,5 +21,19 @@ export const getPaginationVouchersSchema = z.object({
 export const getVoucherDetailSchema = z.object({
   params: z.object({
     id: z.string()
+  })
+})
+export const disableVoucherSchema = z.object({
+  params: z.object({
+    id: z.string().refine((val) => {
+      return isValidObjectId(val)
+    })
+  })
+})
+export const enableVoucherSchema = z.object({
+  params: z.object({
+    id: z.string().refine((val) => {
+      return isValidObjectId(val)
+    })
   })
 })
