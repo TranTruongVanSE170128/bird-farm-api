@@ -12,7 +12,8 @@ import {
   getPaginationOrderNestsSchema,
   paymentTheRestSchema,
   receiveOrderNestSchema,
-  requestCustomerToPaymentSchema
+  requestCustomerToPaymentSchema,
+  updateBirdAmountSchema
 } from '../validations/orderNest'
 
 export const getPaginationOrderNests = async (req: Request, res: Response) => {
@@ -253,5 +254,26 @@ export const receiveOrderNest = async (req: Request, res: Response) => {
     res.status(200).json({ success: true, message: 'Đã xác nhận nhận hàng thành công.' })
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+export const updateBirdAmount = async (req: Request, res: Response) => {
+  const {
+    params: { id },
+    body: { numberChildPriceFemale, numberChildPriceMale }
+  } = await zParse(updateBirdAmountSchema, req)
+  try {
+    const orderNest = await OrderNest.findById(id)
+    if (!orderNest) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy tổ phối giống.' })
+    }
+    if (orderNest.status !== 'breeding') {
+      return res.status(400).json({ success: false, message: 'Tổ không có quyền cập nhập số lượng chim.' })
+    }
+    if (numberChildPriceFemale) orderNest.numberChildPriceFemale = numberChildPriceFemale
+    if (numberChildPriceMale) orderNest.numberChildPriceMale = numberChildPriceMale
+    orderNest.save()
+    res.status(200).json({ success: true, message: 'Cập nhập số lượng chim thành công.', orderNest: orderNest })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống.' })
   }
 }

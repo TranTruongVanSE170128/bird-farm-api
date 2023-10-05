@@ -12,7 +12,8 @@ import {
   getPaginationOrderNestsManage,
   paymentTheRest,
   receiveOrderNest,
-  requestCustomerToPayment
+  requestCustomerToPayment,
+  updateBirdAmount
 } from '../controllers/orderNest'
 import {
   addStageSchema,
@@ -23,7 +24,8 @@ import {
   getPaginationOrderNestsSchema,
   paymentTheRestSchema,
   receiveOrderNestSchema,
-  requestCustomerToPaymentSchema
+  requestCustomerToPaymentSchema,
+  updateBirdAmountSchema
 } from '../validations/orderNest'
 
 const router = express.Router()
@@ -35,7 +37,13 @@ router.get(
   checkRole([Role.Staff]),
   getPaginationOrderNestsManage
 )
-
+router.put(
+  '/:id/update-bird-amount',
+  verifyToken,
+  checkRole([Role.Staff]),
+  validateRequestData(updateBirdAmountSchema),
+  updateBirdAmount
+)
 router.put(
   '/:id/approve',
   verifyToken,
