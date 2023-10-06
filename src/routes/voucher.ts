@@ -12,7 +12,7 @@ router.get('/pagination', validateRequestData(getPaginationVouchersSchema), getP
 
 router.get('/:id', validateRequestData(getVoucherDetailSchema), getVoucherDetail)
 
-router.post('/', verifyToken, checkRole([Role.Manager]), validateRequestData(createVoucherSchema), createVoucher)
+router.post('/', verifyToken, checkRole([Role.Staff]), validateRequestData(createVoucherSchema), createVoucher)
 
 router.get('/', getAllVoucher)
 

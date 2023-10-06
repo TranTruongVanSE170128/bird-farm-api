@@ -33,7 +33,9 @@ app.use(helmet())
 app.use(morgan('dev'))
 app.use(express.static('public'))
 app.use(cors())
+
 app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhook)
+
 app.use(express.json())
 app.use('/api/auth', authRoute)
 app.use('/api/users', userRoute)

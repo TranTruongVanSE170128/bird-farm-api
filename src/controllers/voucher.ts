@@ -27,6 +27,7 @@ export const getPaginationVouchers = async (req: Request, res: Response) => {
     const vouchers = await Voucher.find()
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
+      .sort({ createdAt: -1 })
       .exec()
 
     const totalVouchers = await Voucher.countDocuments()

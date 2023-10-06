@@ -11,7 +11,6 @@ import {
 } from '../validations/checkout'
 import Order from '../models/order'
 import OrderNest from '../models/orderNest'
-import user from '../models/user'
 import console, { log } from 'console'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {} as Stripe.StripeConfig)
@@ -76,8 +75,8 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       line_items: [...lineBirdItems, ...lineNestItems],
       customer: customer.id,
       mode: 'payment',
-      success_url: `${process.env.BASE_URL}/orders/payment-success`,
-      cancel_url: `${process.env.BASE_URL}/orders/payment-cancel`
+      success_url: `${process.env.BASE_URL}/deposit-success?type=payment`,
+      cancel_url: `${process.env.BASE_URL}/deposit-cancel?type=payment`
     })
 
     res.status(200).json({ id: session.id })
@@ -124,8 +123,8 @@ export const createDepositSession = async (req: Request, res: Response) => {
       ],
       customer: customer.id,
       mode: 'payment',
-      success_url: `${process.env.BASE_URL}/breed/deposit-success`,
-      cancel_url: `${process.env.BASE_URL}/breed/deposit-cancel`
+      success_url: `${process.env.BASE_URL}/deposit-success?type=deposit`,
+      cancel_url: `${process.env.BASE_URL}/deposit-cancel?type=deposit`
     })
 
     res.status(200).json({ id: session.id })
@@ -185,8 +184,8 @@ export const createPaymentRestSession = async (req: Request, res: Response) => {
       ],
       customer: customer.id,
       mode: 'payment',
-      success_url: `${process.env.BASE_URL}/order-nests/deposit-success`,
-      cancel_url: `${process.env.BASE_URL}/order-nests/deposit-cancel`
+      success_url: `${process.env.BASE_URL}/deposit-success?type=payment`,
+      cancel_url: `${process.env.BASE_URL}/deposit-cancel?type=payment`
     })
 
     res.status(200).json({ id: session.id })

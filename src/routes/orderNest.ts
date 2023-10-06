@@ -44,11 +44,23 @@ router.put(
   approveOrderNest
 )
 
-router.put('/:id/receive', verifyToken, validateRequestData(receiveOrderNestSchema), receiveOrderNest)
+router.put(
+  '/:id/receive',
+  verifyToken,
+  checkRole([Role.Customer]),
+  validateRequestData(receiveOrderNestSchema),
+  receiveOrderNest
+)
 
 router.post('/:id/add-stage', verifyToken, validateRequestData(addStageSchema), checkRole([Role.Staff]), addStage)
 
-router.post('/:id/payment-rest', verifyToken, validateRequestData(paymentTheRestSchema), paymentTheRest)
+router.post(
+  '/:id/payment-rest',
+  verifyToken,
+  checkRole([Role.Customer]),
+  validateRequestData(paymentTheRestSchema),
+  paymentTheRest
+)
 
 router.put(
   '/:id/request-payment',
@@ -67,7 +79,5 @@ router.get(
   checkRole([Role.Staff]),
   getOrderNestDetail
 )
-
-// router.post('/', validateRequestData(createOrderNestSchema), verifyToken, createOrderNest)
 
 export default router

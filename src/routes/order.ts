@@ -33,7 +33,13 @@ router.get(
   getPaginationOrdersManage
 )
 
-router.put('/:id/receive', verifyToken, validateRequestData(receiveOrderSchema), receiveOrder)
+router.put(
+  '/:id/receive',
+  verifyToken,
+  checkRole([Role.Customer]),
+  validateRequestData(receiveOrderSchema),
+  receiveOrder
+)
 
 router.put(
   '/:id/cancel',
@@ -51,6 +57,6 @@ router.get('/:id', verifyToken, validateRequestData(getOrderDetailSchema), check
 
 router.put('/:id', verifyToken, validateRequestData(updateOrderSchema), checkRole([Role.Staff]), updateOrder)
 
-router.post('/', verifyToken, validateRequestData(createOrderSchema), createOrder)
+router.post('/', verifyToken, checkRole([Role.Customer]), validateRequestData(createOrderSchema), createOrder)
 
 export default router
