@@ -198,7 +198,7 @@ export const createPaymentRestSession = async (req: Request, res: Response) => {
 }
 
 export const stripeWebhook = (req: Request, res: Response) => {
-  const endpointSecret = 'whsec_fb52b06822f597f1658fd0330e2036b3c867eadabb1733a70ed27b3e5321d6bb'
+  const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET
   const sig = req.headers['stripe-signature']
 
   let data: any
