@@ -121,7 +121,6 @@ export const createOrder = async (req: Request, res: Response) => {
   const nestIds = body.nests
   const voucherId = body.voucher
   try {
-    let voucher
     let totalMoney = 0
     const birds = await Bird.find({ _id: { $in: birdIds } })
     const nests = await Nest.find({ _id: { $in: nestIds } })

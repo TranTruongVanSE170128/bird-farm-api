@@ -12,13 +12,16 @@ import {
 import Order from '../models/order'
 import OrderNest from '../models/orderNest'
 import * as dotenv from 'dotenv'
+import Voucher from '../models/voucher'
 dotenv.config()
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {} as Stripe.StripeConfig)
 
 export const createCheckoutSession = async (req: Request, res: Response) => {
+  const { body } = await zParse(createCheckoutSessionSchema, req)
+
   const {
-    body: { products, receiver, address, phone, notice }
+    body: { products, receiver, address, phone, notice, voucher: voucherId }
   } = await zParse(createCheckoutSessionSchema, req)
 
   try {
@@ -29,6 +32,47 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
     const { nests: nestIds } = products
     const validNestIds = nestIds.filter((id: string) => isValidObjectId(id))
     const nests = await Nest.find({ _id: { $in: validNestIds } })
+
+    let totalMoney = 0
+
+    birds.forEach(async (bird) => {
+      totalMoney += bird?.sellPrice || 0
+    })
+
+    nests.forEach(async (nest) => {
+      totalMoney += nest?.price || 0
+    })
+
+    let discount
+
+    if (voucherId) {
+      const voucher = await Voucher.findById(voucherId)
+      if (!voucher) {
+        return res.status(400).json({ success: false, message: 'Không tìm thấy voucher' })
+      }
+      if (!voucher.enable) {
+        return res.status(400).json({ success: false, message: 'Voucher này đang không được kích hoạt' })
+      }
+      if (voucher.quantity <= 0) {
+        return res.status(400).json({ success: false, message: 'Voucher này đã hết số lượng' })
+      }
+      if (voucher.expiredAt <= new Date()) {
+        return res.status(400).json({ success: false, message: 'Voucher này đã hết số lượng' })
+      }
+      if (totalMoney < voucher.conditionPrice) {
+        return res.status(400).json({ success: false, message: 'Không đủ điều kiện để sử dụng voucher' })
+      }
+      discount = Math.min((totalMoney * voucher.discountPercent) / 100, voucher.maxDiscountValue)
+    }
+
+    const coupon =
+      discount &&
+      (await stripe.coupons.create({
+        name: 'Voucher Bird Farm Shop',
+        amount_off: discount,
+        currency: 'VND',
+        duration: 'once'
+      }))
 
     const lineBirdItems = birds.map((bird) => {
       return {
@@ -77,7 +121,8 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       customer: customer.id,
       mode: 'payment',
       success_url: `${process.env.BASE_URL}/deposit-success?type=payment`,
-      cancel_url: `${process.env.BASE_URL}/deposit-cancel?type=payment`
+      cancel_url: `${process.env.BASE_URL}/deposit-cancel?type=payment`,
+      discounts: coupon ? [{ coupon: coupon.id }] : []
     })
 
     res.status(200).json({ id: session.id })

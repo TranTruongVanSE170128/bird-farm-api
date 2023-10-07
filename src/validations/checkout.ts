@@ -10,7 +10,8 @@ export const createCheckoutSessionSchema = z.object({
     receiver: z.string(),
     phone: z.string(),
     address: z.string(),
-    notice: z.string().optional()
+    notice: z.string().optional(),
+    voucher: z.string().optional()
   })
 })
 
