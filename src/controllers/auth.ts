@@ -1,13 +1,10 @@
 import { Request, Response } from 'express'
 import User from '../models/user'
 import { convertUserIdToJwt } from '../helpers/convert-user-id-to-jwt'
-import dotenv from 'dotenv'
 import argon2 from 'argon2'
 import axios from 'axios'
 import crypto from 'crypto'
 import { sendEmail } from '../helpers/mailer'
-
-dotenv.config()
 
 type UserGoogle = {
   picture: string

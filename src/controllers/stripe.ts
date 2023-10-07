@@ -11,7 +11,8 @@ import {
 } from '../validations/checkout'
 import Order from '../models/order'
 import OrderNest from '../models/orderNest'
-import console, { log } from 'console'
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {} as Stripe.StripeConfig)
 

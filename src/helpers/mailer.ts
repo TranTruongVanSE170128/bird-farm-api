@@ -1,9 +1,8 @@
 import nodemailer from 'nodemailer'
 import { Content } from 'mailgen'
 import MailGen from 'mailgen'
-import { config } from 'dotenv'
-
-config()
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 const mailGenerator = new MailGen({
   theme: 'default',

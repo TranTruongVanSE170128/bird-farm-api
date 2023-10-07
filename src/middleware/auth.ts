@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import jwt, { JwtPayload } from 'jsonwebtoken'
-import dotenv from 'dotenv'
 import User from '../models/user'
+import * as dotenv from 'dotenv'
 dotenv.config()
 
 const verifyToken = async (req: Request, res: Response, next: NextFunction) => {

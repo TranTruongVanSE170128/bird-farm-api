@@ -14,6 +14,8 @@ import orderNestRoute from './routes/orderNest'
 import voucherRoute from './routes/voucher'
 import helmet from 'helmet'
 import { stripeWebhook } from './controllers/stripe'
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 const connectDB = async () => {
   try {
