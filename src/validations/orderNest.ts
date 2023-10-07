@@ -87,3 +87,14 @@ export const paymentTheRestSchema = z.object({
     notice: z.string().trim().optional()
   })
 })
+export const updateBirdAmountSchema = z.object({
+  params: z.object({
+    id: z.string().refine((val) => {
+      return isValidObjectId(val)
+    })
+  }),
+  body: z.object({
+    numberChildPriceFemale: z.number().optional(),
+    numberChildPriceMale: z.number().optional()
+  })
+})
