@@ -14,7 +14,8 @@ const OrderSchema = new mongoose.Schema(
     totalMoney: { type: Number, require: true },
     discount: Number,
     methodPayment: { type: String, enum: ['cod', 'online'], require: true },
-    notice: String
+    notice: String,
+    voucher: { type: mongoose.Schema.Types.ObjectId, ref: 'Voucher' }
   },
   { timestamps: true }
 )

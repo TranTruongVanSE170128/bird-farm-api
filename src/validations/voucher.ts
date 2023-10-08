@@ -48,7 +48,6 @@ export const updateVoucherSchema = z.object({
     discountPercent: z.coerce.number().optional(),
     maxDiscountValue: z.coerce.number().optional(),
     conditionPrice: z.coerce.number().optional(),
-    expiredAt: z.coerce.date().optional(),
-    quantity: z.coerce.number().optional()
+    expiredAt: z.coerce.date().optional()
   })
 })

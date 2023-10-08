@@ -137,22 +137,25 @@ export const createOrder = async (req: Request, res: Response) => {
 
     if (voucherId) {
       const voucher = await Voucher.findById(voucherId)
+
       if (!voucher) {
         return res.status(400).json({ success: false, message: 'Không tìm thấy voucher' })
+      }
+      if (res.locals.user.id in voucher?.users) {
+        return res.status(400).json({ succes: false, message: 'Người dùng đã sử dụng voucher này.' })
       }
       if (!voucher.enable) {
         return res.status(400).json({ success: false, message: 'Voucher này đang không được kích hoạt' })
       }
-      if (voucher.quantity <= 0) {
-        return res.status(400).json({ success: false, message: 'Voucher này đã hết số lượng' })
-      }
       if (voucher.expiredAt <= new Date()) {
-        return res.status(400).json({ success: false, message: 'Voucher này đã hết số lượng' })
+        return res.status(400).json({ success: false, message: 'Voucher này đã hết hạn sử dụng.' })
       }
       if (totalMoney < voucher.conditionPrice) {
         return res.status(400).json({ success: false, message: 'Không đủ điều kiện để sử dụng voucher' })
       }
       discount = Math.min((totalMoney * voucher.discountPercent) / 100, voucher.maxDiscountValue)
+      voucher.users.push(new mongoose.Types.ObjectId(res.locals.user.id))
+      await voucher.save()
     }
 
     const newOrder = new Order({
@@ -282,6 +285,15 @@ export const cancelOrder = async (req: Request, res: Response) => {
 
     if (order.status !== 'processing') {
       return res.status(400).json({ success: false, message: 'Không thể hủy đơn hàng có trạng thái: ' + order.status })
+    }
+    const idVoucher = order.voucher
+    if (idVoucher) {
+      const voucher = await Voucher.findById(idVoucher)
+      if (voucher) {
+        voucher.users.filter((ObjectId) => ObjectId === res.locals.user.id)
+        voucher.enable = true
+        await voucher.save()
+      }
     }
     if (statusMessage) order.statusMessage = statusMessage
     order.status = 'canceled'
