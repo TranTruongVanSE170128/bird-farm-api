@@ -53,6 +53,9 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       if (!voucher.enable) {
         return res.status(400).json({ success: false, message: 'Voucher này đang không được kích hoạt' })
       }
+      if (voucher.quantity === 0) {
+        return res.status(400).json({ success: false, message: 'Voucher này đã hết số lượng.' })
+      }
       if (voucher.expiredAt <= new Date()) {
         return res.status(400).json({ success: false, message: 'Voucher này đã hết số lượng' })
       }

@@ -147,6 +147,9 @@ export const createOrder = async (req: Request, res: Response) => {
       if (!voucher.enable) {
         return res.status(400).json({ success: false, message: 'Voucher này đang không được kích hoạt' })
       }
+      if (voucher.quantity === 0) {
+        return res.status(400).json({ success: false, message: 'Voucher này đã hết số lượng.' })
+      }
       if (voucher.expiredAt <= new Date()) {
         return res.status(400).json({ success: false, message: 'Voucher này đã hết hạn sử dụng.' })
       }
@@ -155,6 +158,7 @@ export const createOrder = async (req: Request, res: Response) => {
       }
       discount = Math.min((totalMoney * voucher.discountPercent) / 100, voucher.maxDiscountValue)
       voucher.users.push(new mongoose.Types.ObjectId(res.locals.user.id))
+      voucher.quantity -= 1
       await voucher.save()
     }
 
@@ -291,7 +295,7 @@ export const cancelOrder = async (req: Request, res: Response) => {
       const voucher = await Voucher.findById(idVoucher)
       if (voucher) {
         voucher.users = voucher.users.filter((userId) => userId.toString() !== res.locals.user.id.toString())
-        voucher.enable = true
+        voucher.quantity += 1
         await voucher.save()
       }
     }

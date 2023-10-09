@@ -6,7 +6,8 @@ export const createVoucherSchema = z.object({
     discountPercent: z.coerce.number(),
     maxDiscountValue: z.coerce.number(),
     conditionPrice: z.coerce.number(),
-    expiredAt: z.coerce.date()
+    expiredAt: z.coerce.date(),
+    quantity: z.coerce.number()
   })
 })
 
@@ -47,6 +48,7 @@ export const updateVoucherSchema = z.object({
     discountPercent: z.coerce.number().optional(),
     maxDiscountValue: z.coerce.number().optional(),
     conditionPrice: z.coerce.number().optional(),
-    expiredAt: z.coerce.date().optional()
+    expiredAt: z.coerce.date().optional(),
+    quantity: z.coerce.number().optional()
   })
 })
