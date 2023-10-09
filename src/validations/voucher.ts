@@ -7,7 +7,7 @@ export const createVoucherSchema = z.object({
     maxDiscountValue: z.coerce.number(),
     conditionPrice: z.coerce.number(),
     expiredAt: z.coerce.date(),
-    quantity: z.coerce.number()
+    quantity: z.coerce.number().min(0)
   })
 })
 
