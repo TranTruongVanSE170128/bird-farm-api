@@ -276,21 +276,21 @@ export const cancelOrder = async (req: Request, res: Response) => {
   try {
     const order = await Order.findById(id)
     if (!order) {
-      return res.status(400).json({ success: false, message: 'Không tìm thấy đơn hàng.' })
+      return res.status(400).json({ success: false, message: 'Order not found.' })
     }
 
     if (res.locals.user.role === Role.Customer && !order.user?.equals(res.locals.user._id)) {
-      return res.status(403).json({ success: false, message: 'Bạn không có quyền hủy đơn hàng này' })
+      return res.status(403).json({ success: false, message: "You don't have permission to cancel this order." })
     }
 
     if (order.status !== 'processing') {
-      return res.status(400).json({ success: false, message: 'Không thể hủy đơn hàng có trạng thái: ' + order.status })
+      return res.status(400).json({ success: false, message: 'Cannot cancel an order with status: ' + order.status })
     }
     const idVoucher = order.voucher
     if (idVoucher) {
       const voucher = await Voucher.findById(idVoucher)
       if (voucher) {
-        voucher.users.filter((ObjectId) => ObjectId === res.locals.user.id)
+        voucher.users = voucher.users.filter((userId) => userId.toString() !== res.locals.user.id.toString())
         voucher.enable = true
         await voucher.save()
       }
@@ -298,8 +298,8 @@ export const cancelOrder = async (req: Request, res: Response) => {
     if (statusMessage) order.statusMessage = statusMessage
     order.status = 'canceled'
     await order.save()
-    res.status(200).json({ success: true, message: 'Đã hủy đơn hàng thành công.' })
+    res.status(200).json({ success: true, message: 'Order canceled successfully.' })
   } catch (err) {
-    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+    res.status(500).json({ success: false, message: 'System error!' })
   }
 }
