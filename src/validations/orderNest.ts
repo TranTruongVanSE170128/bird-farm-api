@@ -98,3 +98,10 @@ export const updateBirdAmountSchema = z.object({
     numberChildPriceMale: z.number().optional()
   })
 })
+export const cancelOrderNestSchema = z.object({
+  params: z.object({
+    id: z.string().refine((val) => {
+      return isValidObjectId(val)
+    })
+  })
+})

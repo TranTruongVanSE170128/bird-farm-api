@@ -3,9 +3,11 @@ import mongoose from 'mongoose'
 import OrderNest from '../models/orderNest'
 import { zParse } from '../helpers/z-parse'
 import Bird from '../models/bird'
+import Voucher from '../models/voucher'
 import {
   addStageSchema,
   approveOrderNestSchema,
+  cancelOrderNestSchema,
   // createOrderNestSchema,
   getOrderNestDetailSchema,
   getPaginationOrderNestsManageSchema,
@@ -15,6 +17,8 @@ import {
   requestCustomerToPaymentSchema,
   updateBirdAmountSchema
 } from '../validations/orderNest'
+import { Role } from '../typings/types'
+import order from '../models/order'
 
 export const getPaginationOrderNests = async (req: Request, res: Response) => {
   const { query } = await zParse(getPaginationOrderNestsSchema, req)
@@ -283,6 +287,44 @@ export const updateBirdAmount = async (req: Request, res: Response) => {
     await orderNest.save()
 
     res.status(200).json({ success: true, message: 'Cập nhập số lượng chim thành công.', orderNest: orderNest })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống.' })
+  }
+}
+
+export const cancelOrderNest = async (req: Request, res: Response) => {
+  const {
+    params: { id }
+  } = await zParse(cancelOrderNestSchema, req)
+  try {
+    const orderNest = await OrderNest.findById(id)
+    if (!orderNest) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy hóa đơn đặt tổ.' })
+    }
+    if (res.locals.user.role === Role.Customer && !orderNest.user?.equals(res.locals.user._id)) {
+      return res.status(400).json({ success: false, message: 'Khách hàng không có quyền hủy đơn hàng này.' })
+    }
+    if (res.locals.Role === Role.Customer && orderNest.status !== 'processing') {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Khách hàng không có quyền hủy đơn hàng có trạng thái:' + orderNest.status })
+    }
+    if (!['processing', 'breeding', 'delivering'].includes(orderNest.status)) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Không thể hủy đơn hàng có trạng thái:' + orderNest.status })
+    }
+    orderNest.status = 'canceled'
+    const voucherID = orderNest?.voucher
+    if (voucherID) {
+      const voucher = await Voucher.findById(voucherID)
+      if (voucher) {
+        voucher.users = voucher.users.filter((userId) => userId.toString() !== res.locals.user.id.toString())
+        voucher.quantity += 1
+        await voucher.save()
+      }
+    }
+    await orderNest.save()
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống.' })
   }

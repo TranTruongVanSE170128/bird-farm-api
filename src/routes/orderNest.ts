@@ -6,6 +6,7 @@ import { Role } from '../typings/types'
 import {
   addStage,
   approveOrderNest,
+  cancelOrderNest,
   // createOrderNest,
   getOrderNestDetail,
   getPaginationOrderNests,
@@ -18,6 +19,7 @@ import {
 import {
   addStageSchema,
   approveOrderNestSchema,
+  cancelOrderNestSchema,
   // createOrderNestSchema,
   getOrderNestDetailSchema,
   getPaginationOrderNestsManageSchema,
@@ -51,7 +53,13 @@ router.put(
   validateRequestData(approveOrderNestSchema),
   approveOrderNest
 )
-
+router.put(
+  '/:id/cancel',
+  verifyToken,
+  checkRole([Role.Staff, Role.Customer]),
+  validateRequestData(cancelOrderNestSchema),
+  cancelOrderNest
+)
 router.put(
   '/:id/receive',
   verifyToken,
