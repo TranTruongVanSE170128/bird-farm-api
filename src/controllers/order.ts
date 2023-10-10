@@ -137,22 +137,29 @@ export const createOrder = async (req: Request, res: Response) => {
 
     if (voucherId) {
       const voucher = await Voucher.findById(voucherId)
+
       if (!voucher) {
         return res.status(400).json({ success: false, message: 'Không tìm thấy voucher' })
+      }
+      if (voucher?.users.includes(res.locals.user.id)) {
+        return res.status(400).json({ success: false, message: 'Người dùng đã sử dụng voucher này.' })
       }
       if (!voucher.enable) {
         return res.status(400).json({ success: false, message: 'Voucher này đang không được kích hoạt' })
       }
       if (voucher.quantity <= 0) {
-        return res.status(400).json({ success: false, message: 'Voucher này đã hết số lượng' })
+        return res.status(400).json({ success: false, message: 'Voucher này đã hết số lượng.' })
       }
-      if (voucher.expiredAt <= new Date()) {
-        return res.status(400).json({ success: false, message: 'Voucher này đã hết số lượng' })
+      if (voucher.expiredAt < new Date()) {
+        return res.status(400).json({ success: false, message: 'Voucher này đã hết hạn sử dụng.' })
       }
       if (totalMoney < voucher.conditionPrice) {
         return res.status(400).json({ success: false, message: 'Không đủ điều kiện để sử dụng voucher' })
       }
       discount = Math.min((totalMoney * voucher.discountPercent) / 100, voucher.maxDiscountValue)
+      voucher.users.push(new mongoose.Types.ObjectId(res.locals.user.id))
+      voucher.quantity -= 1
+      await voucher.save()
     }
 
     const newOrder = new Order({
@@ -273,20 +280,42 @@ export const cancelOrder = async (req: Request, res: Response) => {
   try {
     const order = await Order.findById(id)
     if (!order) {
-      return res.status(400).json({ success: false, message: 'Không tìm thấy đơn hàng.' })
+      return res.status(400).json({ success: false, message: 'Không tìm thấy đơn hàng' })
     }
 
     if (res.locals.user.role === Role.Customer && !order.user?.equals(res.locals.user._id)) {
-      return res.status(403).json({ success: false, message: 'Bạn không có quyền hủy đơn hàng này' })
+      return res.status(403).json({ success: false, message: 'Bạn không có quyền hủy đơn hàng này.' })
     }
 
-    if (order.status !== 'processing') {
+    if (res.locals.user.role === Role.Customer && order.status !== 'processing') {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Bạn không có quyền hủy đơn hàng có trạng thái: ' + order.status })
+    }
+
+    if (!['delivering', 'processing'].includes(order.status)) {
       return res.status(400).json({ success: false, message: 'Không thể hủy đơn hàng có trạng thái: ' + order.status })
     }
+
+    const voucherId = order.voucher
+    if (voucherId) {
+      const voucher = await Voucher.findById(voucherId)
+      if (voucher) {
+        voucher.users = voucher.users.filter((userId) => userId.toString() !== res.locals.user.id.toString())
+        voucher.quantity += 1
+        await voucher.save()
+      }
+    }
     if (statusMessage) order.statusMessage = statusMessage
+
+    if (order.status === 'delivering') {
+      await Bird.updateMany({ _id: { $in: order.birds }, sold: false })
+      await Nest.updateMany({ _id: { $in: order.nests }, sold: false })
+    }
+
     order.status = 'canceled'
     await order.save()
-    res.status(200).json({ success: true, message: 'Đã hủy đơn hàng thành công.' })
+    res.status(200).json({ success: true, message: 'Đơn hàng đã hủy thành công!' })
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
