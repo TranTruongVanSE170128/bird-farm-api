@@ -50,6 +50,9 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       if (!voucher) {
         return res.status(400).json({ success: false, message: 'Không tìm thấy voucher' })
       }
+      if (voucher?.users.includes(res.locals.user.id)) {
+        return res.status(400).json({ success: false, message: 'Bạn đã sử dụng voucher này.' })
+      }
       if (!voucher.enable) {
         return res.status(400).json({ success: false, message: 'Voucher này đang không được kích hoạt' })
       }
@@ -110,6 +113,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
           address,
           phone,
           notice,
+          voucher: voucherId,
           type: 'order'
         })
       }
@@ -276,6 +280,7 @@ export const stripeWebhook = (req: Request, res: Response) => {
         if (type === 'order') {
           const birdIds = data.birds
           const nestIds = data.nests
+          const voucherId = data.voucher
 
           let totalMoney = 0
           const birds = await Bird.find({ _id: { $in: birdIds } })
@@ -289,9 +294,37 @@ export const stripeWebhook = (req: Request, res: Response) => {
             totalMoney += nest?.price || 0
           })
 
+          let discount
+          if (voucherId) {
+            const voucher = await Voucher.findById(voucherId)
+            if (!voucher) {
+              throw new Error('Không tìm thấy voucher')
+            }
+            if (voucher?.users.includes(customer.metadata.userId)) {
+              throw new Error('Bạn đã sử dụng voucher này.')
+            }
+            if (!voucher.enable) {
+              throw new Error('Voucher này đang không được kích hoạt')
+            }
+            if (voucher.quantity === 0) {
+              throw new Error('Voucher này đã hết số lượng.')
+            }
+            if (voucher.expiredAt <= new Date()) {
+              throw new Error('Voucher này đã hết số lượng')
+            }
+            if (totalMoney < voucher.conditionPrice) {
+              throw new Error('Không đủ điều kiện để sử dụng voucher')
+            }
+            discount = Math.min((totalMoney * voucher.discountPercent) / 100, voucher.maxDiscountValue)
+            voucher.users.push(new mongoose.Types.ObjectId(customer.metadata.userId))
+            voucher.quantity -= 1
+            await voucher.save()
+          }
+
           const newOrder = new Order({
             ...data,
             totalMoney,
+            discount,
             user: new mongoose.Types.ObjectId(customer.metadata.userId),
             methodPayment: 'online'
           })
