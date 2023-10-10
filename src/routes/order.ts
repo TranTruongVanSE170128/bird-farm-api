@@ -11,7 +11,8 @@ import {
   getOrderDetail,
   approveOrder,
   receiveOrder,
-  cancelOrder
+  cancelOrder,
+  sendOrderToMail
 } from '../controllers/order'
 import {
   cancelOrderSchema,
@@ -20,6 +21,7 @@ import {
   getPaginationOrdersManageSchema,
   getPaginationOrdersSchema,
   receiveOrderSchema,
+  sendOrderToMailSchema,
   updateOrderSchema
 } from '../validations/order'
 
@@ -32,7 +34,7 @@ router.get(
   checkRole([Role.Staff]),
   getPaginationOrdersManage
 )
-
+router.get('/:id/send-order-to-mail', verifyToken, validateRequestData(sendOrderToMailSchema), sendOrderToMail)
 router.put(
   '/:id/receive',
   verifyToken,

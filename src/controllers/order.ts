@@ -16,6 +16,8 @@ import Bird from '../models/bird'
 import Nest from '../models/nest'
 import { Role } from '../typings/types'
 import Voucher from '../models/voucher'
+import User from '../models/user'
+import { sendEmail } from '../helpers/mailer'
 
 export const getPaginationOrders = async (req: Request, res: Response) => {
   const { query } = await zParse(getPaginationOrdersSchema, req)
@@ -317,6 +319,111 @@ export const cancelOrder = async (req: Request, res: Response) => {
     await order.save()
     res.status(200).json({ success: true, message: 'Đơn hàng đã hủy thành công!' })
   } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const sendOrderToMail = async (req: Request, res: Response) => {
+  const id = req.params.id
+
+  try {
+    const order = await Order.findById(id)
+
+    if (!order) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy hóa đơn.' })
+    }
+
+    if (order.status === 'processing') {
+      return res.status(400).json({ success: false, message: 'Đơn chưa được duyệt.' })
+    }
+
+    const user = await User.findById(order.user)
+
+    if (!user) {
+      return res.status(400).json({ success: false, message: 'Hóa đơn chưa có khách hàng.' })
+    }
+
+    if (!user.email) {
+      return res.status(400).json({ success: false, message: 'Người dùng chưa sử dụng email' })
+    }
+
+    const moneyToPay = ((1 - (order?.discount || 0) / 100) * (order?.totalMoney || 0)).toFixed(2)
+
+    const mailContent: {
+      body: {
+        name: string
+        intro: string
+        table: {
+          data: { item: string; price?: number }[]
+          columns: {
+            customWidth: { item: string; price: string }
+            customAlignment: { price: string }
+          }
+        }
+        voucher: { discount: string }
+        invoice: { code: string }
+        outro: string
+      }
+    } = {
+      body: {
+        name: user?.name || user?.email || 'Quý khách',
+        intro: 'Chào mừng đến với Bird Farm. Dưới đây là hóa đơn của bạn:',
+        table: {
+          data: [],
+          columns: {
+            customWidth: {
+              item: '20%',
+              price: '15%'
+            },
+            customAlignment: {
+              price: 'right'
+            }
+          }
+        },
+        voucher: {
+          discount: (order?.discount || 0).toString() + '%'
+        },
+        invoice: {
+          code: order.id.toString()
+        },
+        outro: ''
+      }
+    }
+
+    const fetchItem = async (itemId: string, collection: any) => {
+      const item = await collection.findById(itemId)
+      return item ? { item: item?.name, price: item?.sellPrice || item?.price } : null
+    }
+
+    for (const birdId of order.birds) {
+      const item = await fetchItem(birdId.toString(), Bird)
+      if (item) {
+        mailContent.body.table.data.push(item)
+      }
+    }
+
+    for (const nestId of order.nests) {
+      const item = await fetchItem(nestId.toString(), Nest)
+      if (item) {
+        mailContent.body.table.data.push(item)
+      }
+    }
+
+    mailContent.body.outro += 'Tổng tiền         : ' + (order?.totalMoney || 0) + ' vnd\n'
+    mailContent.body.outro += 'Voucher giảm giá  : ' + (order?.discount || 0) + '%\n'
+    mailContent.body.outro += 'Tổng tiền phải trả: ' + moneyToPay + ' vnd\n'
+    mailContent.body.outro += 'Cảm ơn quý khách đã sử dụng dịch vụ của cửa hàng chúng tôi!\n'
+    mailContent.body.outro += 'Cần hỗ trợ hãy liên hệ đến hotline: 0905164896'
+
+    await sendEmail({
+      userEmail: user?.email,
+      mailContent,
+      subject: 'Hóa đơn điện tử đơn hàng của cửa hàng Bird Farm Shop'
+    })
+
+    res.status(200).json({ success: true, message: 'Email hóa đơn đã được gửi thành công.' })
+  } catch (err) {
+    console.error(err)
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
