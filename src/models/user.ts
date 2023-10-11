@@ -12,10 +12,11 @@ const UserSchema = new mongoose.Schema(
     role: { type: String, enum: ['customer', 'admin', 'staff', 'manager'], default: 'customer' },
     deliveryInfos: [
       {
-        receiver: String,
-        phone: String,
-        address: String,
-        default: Boolean
+        receiver: { type: String, require: true },
+        phone: { type: String, require: true },
+        address: { type: String, require: true },
+        default: { type: Boolean, default: false, require: true },
+        _id: { type: mongoose.Schema.Types.ObjectId, require: true }
       }
     ],
     notifications: [
