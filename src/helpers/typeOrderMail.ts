@@ -19,7 +19,6 @@ type mailOrder = {
         }
       }
     }
-
     outro: string[]
   }
 }

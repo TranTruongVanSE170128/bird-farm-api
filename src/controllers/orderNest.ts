@@ -304,12 +304,12 @@ export const cancelOrderNest = async (req: Request, res: Response) => {
     if (res.locals.user.role === Role.Customer && !orderNest.user?.equals(res.locals.user._id)) {
       return res.status(400).json({ success: false, message: 'Khách hàng không có quyền hủy đơn hàng này.' })
     }
-    if (res.locals.Role === Role.Customer && orderNest.status !== 'processing') {
+    if (res.locals.Role === Role.Customer && !['wait-for-payment', 'processing'].includes(orderNest.status)) {
       return res
         .status(400)
         .json({ success: false, message: 'Khách hàng không có quyền hủy đơn hàng có trạng thái:' + orderNest.status })
     }
-    if (!['processing', 'breeding', 'delivering'].includes(orderNest.status)) {
+    if (!['processing', 'breeding', 'delivering', 'wait-for-payment'].includes(orderNest.status)) {
       return res
         .status(400)
         .json({ success: false, message: 'Không thể hủy đơn hàng có trạng thái:' + orderNest.status })
@@ -325,6 +325,7 @@ export const cancelOrderNest = async (req: Request, res: Response) => {
       }
     }
     await orderNest.save()
+    res.status(200).json({ success: true, message: 'Đã hủy đơn hàng thành công.' })
   } catch (err) {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống.' })
   }
