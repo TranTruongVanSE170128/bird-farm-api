@@ -18,6 +18,7 @@ import { Role } from '../typings/types'
 import Voucher from '../models/voucher'
 import User from '../models/user'
 import { sendEmail } from '../helpers/mailer'
+import mailOrder from '../helpers/typeOrderMail'
 
 export const getPaginationOrders = async (req: Request, res: Response) => {
   const { query } = await zParse(getPaginationOrdersSchema, req)
@@ -347,73 +348,62 @@ export const sendOrderToMail = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Người dùng chưa sử dụng email' })
     }
 
-    const moneyToPay = ((1 - (order?.discount || 0) / 100) * (order?.totalMoney || 0)).toFixed(2)
-
-    const mailContent: {
-      body: {
-        name: string
-        intro: string
-        table: {
-          data: { item: string; price?: number }[]
-          columns: {
-            customWidth: { item: string; price: string }
-            customAlignment: { price: string }
-          }
-        }
-        voucher: { discount: string }
-        invoice: { code: string }
-        outro: string
-      }
-    } = {
+    const moneyToPay = ((order?.totalMoney || 0) - (order?.discount || 0)).toFixed(2)
+    const mailContent: mailOrder = {
       body: {
         name: user?.name || user?.email || 'Quý khách',
-        intro: 'Chào mừng đến với Bird Farm. Dưới đây là hóa đơn của bạn:',
+        intro: ['Chào mừng đến với Bird Farm. Dưới đây là hóa đơn của bạn:'],
         table: {
           data: [],
           columns: {
             customWidth: {
-              item: '20%',
-              price: '15%'
+              'Sản phẩm': '20%',
+              Giá: '15%'
             },
             customAlignment: {
-              price: 'right'
+              Giá: 'right'
             }
           }
         },
-        voucher: {
-          discount: (order?.discount || 0).toString() + '%'
-        },
-        invoice: {
-          code: order.id.toString()
-        },
-        outro: ''
+
+        outro: []
       }
     }
 
-    const fetchItem = async (itemId: string, collection: any) => {
-      const item = await collection.findById(itemId)
-      return item ? { item: item?.name, price: item?.sellPrice || item?.price } : null
-    }
-
     for (const birdId of order.birds) {
-      const item = await fetchItem(birdId.toString(), Bird)
-      if (item) {
-        mailContent.body.table.data.push(item)
+      try {
+        const item = await Bird.findById(birdId)
+        if (item) {
+          mailContent.body.table.data.push({ 'Sản phẩm': item?.name, Giá: item?.sellPrice || 0 })
+        }
+      } catch (error) {
+        console.error(`Error fetching bird with ID ${birdId}:`, error)
       }
     }
 
     for (const nestId of order.nests) {
-      const item = await fetchItem(nestId.toString(), Nest)
-      if (item) {
-        mailContent.body.table.data.push(item)
+      try {
+        const item = await Nest.findById(nestId)
+        if (item) {
+          mailContent.body.table.data.push({ 'Sản phẩm': item.name, Giá: item.price })
+        }
+      } catch (error) {
+        console.error(`Error fetching nest with ID ${nestId}:`, error)
       }
     }
 
-    mailContent.body.outro += 'Tổng tiền         : ' + (order?.totalMoney || 0) + ' vnd\n'
-    mailContent.body.outro += 'Voucher giảm giá  : ' + (order?.discount || 0) + '%\n'
-    mailContent.body.outro += 'Tổng tiền phải trả: ' + moneyToPay + ' vnd\n'
-    mailContent.body.outro += 'Cảm ơn quý khách đã sử dụng dịch vụ của cửa hàng chúng tôi!\n'
-    mailContent.body.outro += 'Cần hỗ trợ hãy liên hệ đến hotline: 0905164896'
+    mailContent.body.intro.push(' Mã hóa đơn   : ' + order.id.toString())
+    mailContent.body.intro.push(' Người nhận   : ' + order?.receiver)
+    mailContent.body.intro.push(' Số điện thoại: ' + order?.phone)
+    mailContent.body.intro.push(' Địa chỉ      : ' + order?.address)
+
+    let moneyPayment = (order?.totalMoney || 0) - (order?.discount || 0)
+    if (moneyPayment < 0) moneyPayment = 0
+    mailContent.body.table.data.push({ 'Sản phẩm': 'Tổng số tiền', Giá: order?.totalMoney || 0 })
+    mailContent.body.table.data.push({ 'Sản phẩm': 'Giảm giá', Giá: order?.discount || 0 })
+    mailContent.body.table.data.push({ 'Sản phẩm': 'Số tiền tạm tính', Giá: moneyPayment })
+
+    mailContent.body.outro.push('Cảm ơn quý khách đã sử dụng dịch vụ của cửa hàng chúng tôi! ')
 
     await sendEmail({
       userEmail: user?.email,

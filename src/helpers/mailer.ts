@@ -7,7 +7,7 @@ dotenv.config()
 const mailGenerator = new MailGen({
   theme: 'default',
   product: {
-    name: 'MailGen',
+    name: 'BirdFarmShop',
     link: 'https://mailgen.js/'
   }
 })
@@ -39,4 +39,5 @@ const sendEmail = async ({ userEmail, mailContent, subject }: TSendEmail) => {
   }
   transporter.sendMail(message)
 }
+
 export { sendEmail }
