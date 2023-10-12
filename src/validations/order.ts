@@ -108,3 +108,9 @@ export const cancelOrderSchema = z.object({
     statusMessage: z.string().optional()
   })
 })
+
+export const sendOrderToMailSchema = z.object({
+  params: z.object({
+    id: z.string().refine((value) => isValidObjectId(value))
+  })
+})
