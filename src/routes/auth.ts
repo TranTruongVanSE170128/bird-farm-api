@@ -1,5 +1,13 @@
 import express from 'express'
-import { loginByGoogle, signIn, signUp, forgetPassword, resetPassword, verifyEmail } from '../controllers/auth'
+import {
+  loginByGoogle,
+  signIn,
+  signUp,
+  forgetPassword,
+  resetPassword,
+  verifyEmail,
+  sendCode
+} from '../controllers/auth'
 import { validateRequestData } from '../middleware/validate-request-data'
 import {
   forgetPasswordSchema,
@@ -23,5 +31,7 @@ router.post('/sign-up', validateRequestData(signUpSchema), signUp)
 router.post('/login-google', validateRequestData(loginGoogleSchema), loginByGoogle)
 
 router.post('/sign-in', validateRequestData(signInSchema), signIn)
+
+router.get('/:id/send-code', sendCode)
 
 export default router

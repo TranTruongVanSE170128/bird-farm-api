@@ -93,7 +93,7 @@ export const getOrderNestDetail = async (req: Request, res: Response) => {
     const orderNest = await OrderNest.findById(id).populate('user dad mom specie')
 
     if (!orderNest) {
-      res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' })
+      return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' })
     }
 
     res.status(201).json({ success: true, orderNest })

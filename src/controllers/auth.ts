@@ -153,6 +153,51 @@ const signUp = async (req: Request, res: Response) => {
   }
 }
 
+const sendCode = async (req: Request, res: Response) => {
+  const {
+    params: { id }
+  } = req
+
+  try {
+    const user = await User.findById(id)
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Không tìm thấy người dùng'
+      })
+    }
+
+    const verifyCode = crypto.randomBytes(4).toString('hex')
+    user.verifyCode = verifyCode
+    await user.save()
+
+    const mailContent = {
+      body: {
+        name: user.name,
+        intro: 'Chào mừng đến với Bird Farm. Dưới đây là mã xác thực của bạn:',
+        outro: `Mã xác thực của bạn là: ${user.verifyCode}`
+      }
+    }
+
+    await sendEmail({
+      userEmail: user.email!,
+      mailContent,
+      subject: 'Xác thực tài khoản.'
+    })
+
+    res.status(200).json({
+      success: true,
+      message: 'Đã gửi mã xác thực đến email người dùng.',
+      email: user.email,
+      userId: user.id
+    })
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
 const verifyEmail = async (req: Request, res: Response) => {
   const { id, verifyCode: code } = req.params
 
@@ -260,4 +305,4 @@ const resetPassword = async (req: Request, res: Response) => {
   }
 }
 
-export { loginByGoogle, signIn, signUp, verifyEmail, forgetPassword, resetPassword }
+export { loginByGoogle, signIn, signUp, verifyEmail, forgetPassword, resetPassword, sendCode }

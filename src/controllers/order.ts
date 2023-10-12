@@ -106,7 +106,7 @@ export const getOrderDetail = async (req: Request, res: Response) => {
     const order = await Order.findById(id).populate('user birds nests')
 
     if (!order) {
-      res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' })
+      return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' })
     }
 
     res.status(201).json({ success: true, order })

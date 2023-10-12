@@ -7,7 +7,9 @@ export const getPaginationBirdsSchema = z.object({
     pageNumber: z.coerce.number().optional(),
     searchQuery: z.string().trim().optional(),
     specie: z.coerce.string().optional(),
-    type: z.enum(['sell', 'breed']).optional()
+    type: z.enum(['sell', 'breed']).optional(),
+    gender: z.enum(['male', 'female']).optional(),
+    sort: z.enum(['createdAt_-1', 'price_1', 'price_-1']).optional()
   })
 })
 
@@ -22,37 +24,42 @@ export const getBirdDetailSchema = z.object({
 })
 
 export const createBirdSchema = z.object({
-  body: z.object({
-    specie: z.string().trim(),
-    name: z.string().trim(),
-    price: z.coerce.number(),
-    gender: z.enum(['male', 'female']),
-    birth: z.coerce.date().optional(),
-    description: z.string().trim().optional(),
-    type: z.enum(['sell', 'breed']),
-    imageUrls: z.array(z.string().trim()).optional(),
-    parent: z
-      .object({
-        dad: z.string().trim().optional(),
-        mom: z.string().trim().optional()
-      })
-      .optional(),
-    achievements: z
-      .array(
-        z.object({
-          competition: z.string().trim(),
-          rank: z.coerce.number()
+  body: z
+    .object({
+      specie: z.string().trim(),
+      name: z.string().trim(),
+      sellPrice: z.coerce.number().optional(),
+      breedPrice: z.coerce.number().optional(),
+      gender: z.enum(['male', 'female']),
+      birth: z.coerce.date().optional(),
+      description: z.string().trim().optional(),
+      type: z.enum(['sell', 'breed']),
+      imageUrls: z.array(z.string().trim()).optional(),
+      parent: z
+        .object({
+          dad: z.string().trim().optional(),
+          mom: z.string().trim().optional()
         })
-      )
-      .optional(),
-    discount: z
-      .object({
-        discountPercent: z.coerce.number(),
-        startDate: z.date(),
-        endDate: z.date()
-      })
-      .optional()
-  })
+        .optional(),
+      achievements: z
+        .array(
+          z.object({
+            competition: z.string().trim(),
+            rank: z.coerce.number()
+          })
+        )
+        .optional(),
+      discount: z
+        .object({
+          discountPercent: z.coerce.number(),
+          startDate: z.date(),
+          endDate: z.date()
+        })
+        .optional()
+    })
+    .refine((data) => {
+      return (data.type === 'sell' && data.sellPrice) || (data.type === 'breed' && data.breedPrice)
+    })
 })
 
 export const updateBirdSchema = z.object({
@@ -64,7 +71,8 @@ export const updateBirdSchema = z.object({
   body: z.object({
     specie: z.string().trim().optional(),
     name: z.string().trim().optional(),
-    price: z.coerce.number().optional(),
+    sellPrice: z.coerce.number().optional(),
+    breedPrice: z.coerce.number().optional(),
     gender: z.enum(['male', 'female']).optional(),
     birth: z.coerce.date().optional(),
     description: z.string().trim().optional(),

@@ -18,6 +18,8 @@ export const getPaginationBirds = async (req: Request, res: Response) => {
   const searchQuery = query.searchQuery || ''
   const specieId = query.specie
   const type = query.type
+  const gender = query.gender
+  const sort = query.sort || 'createdAt_-1'
 
   try {
     const query: any = { name: { $regex: searchQuery, $options: 'i' }, sold: false }
@@ -29,12 +31,31 @@ export const getPaginationBirds = async (req: Request, res: Response) => {
     if (type) {
       query.type = type
     }
+    console.log(gender)
+
+    if (gender) {
+      query.gender = gender
+    }
+
+    const sortCondition: any = () => {
+      const [keySort, orderSort] = sort.split('_')
+      if (keySort === 'price') {
+        if (!type) {
+          return { sellPrice: Number(orderSort), breedPrice: Number(orderSort) }
+        } else {
+          return { [type === 'sell' ? 'sellPrice' : 'breedPrice']: Number(orderSort) }
+        }
+      } else {
+        return { createdAt: -1 }
+      }
+    }
 
     const birds = await Bird.find(query)
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
       .select('name imageUrls price gender discount specie type sellPrice breedPrice')
       .populate('specie')
+      .sort(sortCondition())
       .exec()
 
     const totalBirds = await Bird.countDocuments(query)
@@ -98,7 +119,7 @@ export const getBirdDetail = async (req: Request, res: Response) => {
     const bird = await Bird.findById(id).populate('specie', { name: 1 })
 
     if (!bird) {
-      res.status(404).json({ success: false, message: 'Không tìm thấy chim' })
+      return res.status(404).json({ success: false, message: 'Không tìm thấy chim' })
     }
 
     if (bird?.parent && bird.parent.dad) {
