@@ -8,7 +8,8 @@ import {
   getBirdsByIdsSchema,
   // getPaginationBirdsAdminSchema,
   getPaginationBirdsSchema,
-  updateBirdSchema
+  updateBirdSchema,
+  deleteBirdSchema
 } from '../validations/bird'
 
 export const getPaginationBirds = async (req: Request, res: Response) => {
@@ -165,6 +166,28 @@ export const updateBird = async (req: Request, res: Response) => {
     const bird = await Bird.findByIdAndUpdate(id, body, { new: true })
     res.status(200).json({ success: true, message: 'Chim đã được cập nhật thành công.', bird })
   } catch (err) {
-    res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const deleteBird = async (req: Request, res: Response) => {
+  const {
+    params: { id }
+  } = await zParse(deleteBirdSchema, req)
+  try {
+    if (res.locals.user.role !== 'manager') {
+      return res.status(400).json({ success: false, message: 'Người dùng không có quyền xóa.' })
+    }
+    const bird = await Bird.findById(id)
+    if (!bird) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy chim.' })
+    }
+    if (bird.sold === true) {
+      return res.status(400).json({ success: false, message: 'Chim đã được bán. Không thể xóa' })
+    }
+    await Bird.findByIdAndRemove(id)
+    res.status(200).json({ success: true, message: 'Đã xóa chim thành công' })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
