@@ -14,7 +14,9 @@ export const getPaginationNestsSchema = z.object({
     pageSize: z.coerce.number().optional(),
     pageNumber: z.coerce.number().optional(),
     searchQuery: z.string().trim().optional(),
-    specie: z.string().optional()
+    specie: z.string().optional(),
+    sort: z.enum(['createdAt_-1', 'price_1', 'price_-1']).optional(),
+    sold: z.enum(['true', 'false']).optional()
   })
 })
 

@@ -24,6 +24,7 @@ const getPaginationNests = async (req: Request, res: Response) => {
   const pageNumber = query.pageNumber || 1
   const searchQuery = query.searchQuery || ''
   const specie = query.specie
+  const sort = query.sort || 'createdAt_-1'
 
   const queryMongo: any = {
     name: { $regex: searchQuery, $options: 'i' },
@@ -34,11 +35,73 @@ const getPaginationNests = async (req: Request, res: Response) => {
     queryMongo.specie = specie
   }
 
+  const sortCondition: any = () => {
+    const [keySort, orderSort] = sort.split('_')
+    if (keySort === 'price') {
+      return { price: Number(orderSort) }
+    } else {
+      return { createdAt: -1 }
+    }
+  }
+
   try {
     const nests = await Nest.find(queryMongo)
       .populate('specie dad mom')
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
+      .sort(sortCondition())
+      .exec()
+
+    const totalNests = await Nest.countDocuments(queryMongo)
+
+    res.status(200).json({
+      success: true,
+      message: 'Lấy danh sách tổ chim thành công!',
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalNests / pageSize),
+      nests
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
+const getPaginationNestsManage = async (req: Request, res: Response) => {
+  const { query } = await zParse(getPaginationNestsSchema, req)
+  const pageSize = query.pageSize || 5
+  const pageNumber = query.pageNumber || 1
+  const searchQuery = query.searchQuery || ''
+  const specie = query.specie
+  const sort = query.sort || 'createdAt_-1'
+  const sold = query.sold
+
+  const queryMongo: any = {
+    name: { $regex: searchQuery, $options: 'i' }
+  }
+
+  if (specie) {
+    queryMongo.specie = specie
+  }
+
+  if (sold) {
+    queryMongo.sold = sold === 'true'
+  }
+
+  const sortCondition: any = () => {
+    const [keySort, orderSort] = sort.split('_')
+    if (keySort === 'price') {
+      return { price: Number(orderSort) }
+    } else {
+      return { createdAt: -1 }
+    }
+  }
+
+  try {
+    const nests = await Nest.find(queryMongo)
+      .populate('specie dad mom')
+      .limit(pageSize)
+      .skip(pageSize * (pageNumber - 1))
+      .sort(sortCondition())
       .exec()
 
     const totalNests = await Nest.countDocuments(queryMongo)
@@ -114,4 +177,4 @@ const updateNest = async (req: Request, res: Response) => {
   }
 }
 
-export { getAllNests, getNestById, updateNest, createNest, getPaginationNests }
+export { getAllNests, getNestById, updateNest, createNest, getPaginationNests, getPaginationNestsManage }

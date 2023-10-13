@@ -21,7 +21,7 @@ export const getPaginationOrderNestsManageSchema = z.object({
   query: z.object({
     pageSize: z.coerce.number().optional(),
     pageNumber: z.coerce.number().optional(),
-    status: z.enum(['processing', 'breeding', 'delivering', 'success', 'canceled']).optional()
+    status: z.enum(['processing', 'breeding', 'delivering', 'success', 'canceled', 'wait-for-payment']).optional()
   })
 })
 
@@ -66,7 +66,7 @@ export const getPaginationOrderNestsSchema = z.object({
   query: z.object({
     pageSize: z.coerce.number().optional(),
     pageNumber: z.coerce.number().optional(),
-    status: z.enum(['processing', 'breeding', 'delivering', 'success', 'canceled']).optional()
+    status: z.enum(['processing', 'breeding', 'delivering', 'success', 'canceled', 'wait-for-payment']).optional()
   })
 })
 export const receiveOrderNestSchema = z.object({

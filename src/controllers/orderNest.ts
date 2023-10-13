@@ -46,7 +46,7 @@ export const getPaginationOrderNests = async (req: Request, res: Response) => {
       success: false,
       message: 'Lấy danh sách đơn tổ chim thành công.',
       currentPage: pageNumber,
-      totalPage: Math.ceil(totalOrders / pageSize),
+      totalPages: Math.ceil(totalOrders / pageSize),
       orderNests: orders
     })
   } catch (err) {
