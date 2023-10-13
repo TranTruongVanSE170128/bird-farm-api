@@ -73,6 +73,84 @@ export const getPaginationBirds = async (req: Request, res: Response) => {
   }
 }
 
+export const getPaginationBirdsManage = async (req: Request, res: Response) => {
+  const { query } = await zParse(getPaginationBirdsSchema, req)
+  const pageSize = query.pageSize || 5
+  const pageNumber = query.pageNumber || 1
+  const searchQuery = query.searchQuery || ''
+  const specieId = query.specie
+  const type = query.type
+  const gender = query.gender
+  const sort = query.sort || 'createdAt_-1'
+  const status = query.status
+
+  try {
+    const query: any = { name: { $regex: searchQuery, $options: 'i' } }
+
+    if (specieId) {
+      query.specie = new mongoose.Types.ObjectId(specieId)
+    }
+
+    if (type === 'sell') {
+      query.type = type
+      if (status === 'selling') {
+        query.sold = false
+      }
+      if (status === 'sold') {
+        query.sold = true
+      }
+    }
+
+    if (type === 'breed') {
+      query.type = type
+      if (status === 'free') {
+        query.breading = false
+      }
+      if (status === 'breading') {
+        query.breading = true
+      }
+    }
+
+    if (gender) {
+      query.gender = gender
+    }
+
+    const sortCondition: any = () => {
+      const [keySort, orderSort] = sort.split('_')
+      if (keySort === 'price') {
+        if (!type) {
+          return { sellPrice: Number(orderSort), breedPrice: Number(orderSort) }
+        } else {
+          return { [type === 'sell' ? 'sellPrice' : 'breedPrice']: Number(orderSort) }
+        }
+      } else {
+        return { createdAt: -1 }
+      }
+    }
+
+    const birds = await Bird.find(query)
+      .limit(pageSize)
+      .skip(pageSize * (pageNumber - 1))
+      .select('name imageUrls price gender discount specie type sellPrice breedPrice sold')
+      .populate('specie')
+      .sort(sortCondition())
+      .exec()
+
+    const totalBirds = await Bird.countDocuments(query)
+
+    res.status(200).json({
+      success: true,
+      message: 'Lấy danh sách chim thành công!',
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalBirds / pageSize),
+      birds: birds
+    })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
 export const getBirdDetail = async (req: Request, res: Response) => {
   const {
     params: { id }

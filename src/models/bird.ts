@@ -9,6 +9,7 @@ const BirdSchema = new mongoose.Schema(
     sellPrice: { type: Number },
     breedPrice: { type: Number },
     sold: { type: Boolean, default: false },
+    breeding: { type: Boolean, default: false },
     type: { type: String, enum: ['sell', 'breed'], require: true },
     specie: { type: mongoose.Schema.Types.ObjectId, ref: 'Specie', require: true },
     gender: { type: String, enum: ['male', 'female'], require: true },

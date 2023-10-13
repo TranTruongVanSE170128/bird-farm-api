@@ -6,7 +6,8 @@ import {
   getBirdsBreed,
   // getPaginationBirdsAdmin,
   createBird,
-  updateBird
+  updateBird,
+  getPaginationBirdsManage
 } from '../controllers/bird'
 import { validateRequestData } from '../middleware/validate-request-data'
 import {
@@ -24,13 +25,13 @@ import { Role } from '../typings/types'
 
 const router = express.Router()
 
-// router.get(
-//   '/pagination/admin',
-//   verifyToken,
-//   checkRole([Role.Admin]),
-//   validateRequestData(getPaginationBirdsAdminSchema),
-//   getPaginationBirdsAdmin
-// )
+router.get(
+  '/pagination/manage',
+  verifyToken,
+  checkRole([Role.Manager]),
+  validateRequestData(getPaginationBirdsSchema),
+  getPaginationBirdsManage
+)
 
 router.get('/pagination', validateRequestData(getPaginationBirdsSchema), getPaginationBirds)
 

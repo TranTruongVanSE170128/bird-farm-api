@@ -2,15 +2,34 @@ import mongoose, { isValidObjectId } from 'mongoose'
 import { z } from 'zod'
 
 export const getPaginationBirdsSchema = z.object({
-  query: z.object({
-    pageSize: z.coerce.number().optional(),
-    pageNumber: z.coerce.number().optional(),
-    searchQuery: z.string().trim().optional(),
-    specie: z.coerce.string().optional(),
-    type: z.enum(['sell', 'breed']).optional(),
-    gender: z.enum(['male', 'female']).optional(),
-    sort: z.enum(['createdAt_-1', 'price_1', 'price_-1']).optional()
-  })
+  query: z
+    .object({
+      pageSize: z.coerce.number().optional(),
+      pageNumber: z.coerce.number().optional(),
+      searchQuery: z.string().trim().optional(),
+      specie: z.coerce.string().optional(),
+      type: z.enum(['sell', 'breed']).optional(),
+      gender: z.enum(['male', 'female']).optional(),
+      sort: z.enum(['createdAt_-1', 'price_1', 'price_-1']).optional(),
+      status: z.enum(['selling', 'breading', 'sold', 'free']).optional()
+    })
+    .refine((data) => {
+      if (!data.type) {
+        if (data.status === 'selling' || data.status === 'sold') {
+          data.type = 'sell'
+        }
+        if (data.status === 'breading' || data.status === 'free') {
+          data.type = 'breed'
+        }
+        return true
+      }
+      if (data.type === 'sell') {
+        return data.status === 'selling' || data.status === 'sold' || data.status === undefined
+      }
+      if (data.type === 'breed') {
+        return data.status === 'breading' || data.status === 'free' || data.status === undefined
+      }
+    })
 })
 
 // export const getPaginationBirdsAdminSchema = getPaginationBirdsSchema
