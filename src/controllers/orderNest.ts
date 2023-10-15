@@ -121,9 +121,16 @@ export const approveOrderNest = async (req: Request, res: Response) => {
         .status(400)
         .json({ success: false, message: 'Không thể chấp thuận đơn hàng đang có trạng thái:' + orderNest.status })
     }
-
+    const dad = await Bird.findById(orderNest.dad)
+    const mom = await Bird.findById(orderNest.mom)
+    if (!dad || !mom) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy chim đực hoặc cái để phối giống.' })
+    }
+    dad.breeding = true
+    mom.breeding = true
     orderNest.status = 'breeding'
-
+    await dad.save()
+    await mom.save()
     await orderNest.save()
 
     return res.status(200).json({ success: true, message: 'Đơn hàng đã được chấp thuận' })
@@ -150,12 +157,19 @@ export const requestCustomerToPayment = async (req: Request, res: Response) => {
         message: 'Không thể yêu cầu thanh toán đơn tổ chim đang có trạng thái:' + orderNest.status
       })
     }
+    const dad = await Bird.findById(orderNest.dad)
+    const mom = await Bird.findById(orderNest.mom)
+    if (dad && mom) {
+      dad.breeding = false
+      mom.breeding = false
+      await dad.save()
+      await mom.save()
+    }
 
     orderNest.status = 'wait-for-payment'
     orderNest.totalMoney =
       (orderNest.childPriceFemale || 0) * orderNest.numberChildPriceFemale +
       (orderNest.childPriceMale || 0) * orderNest.numberChildPriceMale
-
     await orderNest.save()
 
     return res.status(200).json({ success: true, message: 'Yêu cầu khách hàng thanh toán thành công' })
@@ -314,6 +328,7 @@ export const cancelOrderNest = async (req: Request, res: Response) => {
         .status(400)
         .json({ success: false, message: 'Không thể hủy đơn hàng có trạng thái:' + orderNest.status })
     }
+
     orderNest.status = 'canceled'
     const voucherID = orderNest?.voucher
     if (voucherID) {
@@ -323,6 +338,15 @@ export const cancelOrderNest = async (req: Request, res: Response) => {
         voucher.quantity += 1
         await voucher.save()
       }
+    }
+
+    const dad = await Bird.findById(orderNest.dad)
+    const mom = await Bird.findById(orderNest.mom)
+    if (dad && mom) {
+      dad.breeding = false
+      mom.breeding = false
+      await dad.save()
+      await mom.save()
     }
     await orderNest.save()
     res.status(200).json({ success: true, message: 'Đã hủy đơn hàng thành công.' })
