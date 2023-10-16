@@ -183,15 +183,12 @@ export const deleteNest = async (req: Request, res: Response) => {
     params: { id }
   } = await zParse(deleteNestSchema, req)
   try {
-    if (res.locals.user.role !== 'manager') {
-      return res.status(400).json({ success: false, message: 'Người dùng không có quyền xóa.' })
-    }
     const nest = await Nest.findById(id)
     if (!nest) {
-      return res.status(400).json({ success: false, message: 'Không tìm thấy chim.' })
+      return res.status(400).json({ success: false, message: 'Không tìm thấy tổ chim.' })
     }
-    if (nest.sold === true) {
-      return res.status(400).json({ success: false, message: 'Chim đã được bán. Không thể xóa' })
+    if (nest.sold) {
+      return res.status(400).json({ success: false, message: 'Không thể xóa tổ chim đã được bán.' })
     }
     await Nest.findByIdAndRemove(id)
     res.status(200).json({ success: true, message: 'Đã xóa tổ chim non thành công' })
