@@ -196,4 +196,4 @@ export const deleteNest = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
   }
 }
-export { getAllNests, getNestById, updateNest, createNest, getPaginationNests }
+export { getAllNests, getNestById, updateNest, createNest, getPaginationNests, getPaginationNestsManage }

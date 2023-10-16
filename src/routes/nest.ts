@@ -1,5 +1,13 @@
 import express from 'express'
-import { getNestById, updateNest, createNest, getPaginationNests, getNestsByIds, deleteNest } from '../controllers/nest'
+import {
+  getNestById,
+  updateNest,
+  createNest,
+  getPaginationNests,
+  getNestsByIds,
+  deleteNest,
+  getPaginationNestsManage
+} from '../controllers/nest'
 import verifyToken from '../middleware/auth'
 import checkRole from '../middleware/checkRole'
 import { Role } from '../typings/types'
@@ -12,7 +20,6 @@ import {
   getPaginationNestsSchema,
   updateNestSchema
 } from '../validations/nest'
-import { getPaginationOrderNestsManage } from '../controllers/orderNest'
 const router = express.Router()
 
 router.get(
@@ -20,7 +27,7 @@ router.get(
   verifyToken,
   checkRole([Role.Manager]),
   validateRequestData(getPaginationNestsSchema),
-  getPaginationOrderNestsManage
+  getPaginationNestsManage
 )
 
 router.get('/pagination', validateRequestData(getPaginationNestsSchema), getPaginationNests)
