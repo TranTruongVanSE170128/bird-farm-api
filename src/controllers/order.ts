@@ -347,8 +347,6 @@ export const sendOrderToMail = async (req: Request, res: Response) => {
     if (!user.email) {
       return res.status(400).json({ success: false, message: 'Người dùng chưa sử dụng email' })
     }
-
-    const moneyToPay = ((order?.totalMoney || 0) - (order?.discount || 0)).toFixed(2)
     const mailContent: mailOrder = {
       body: {
         name: user?.name || user?.email || 'Quý khách',

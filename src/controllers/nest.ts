@@ -6,7 +6,8 @@ import {
   getNestByIdSchema,
   getNestsByIdsSchema,
   getPaginationNestsSchema,
-  updateNestSchema
+  updateNestSchema,
+  deleteNestSchema
 } from '../validations/nest'
 
 const getAllNests = async (req: Request, res: Response) => {
@@ -177,4 +178,25 @@ const updateNest = async (req: Request, res: Response) => {
   }
 }
 
-export { getAllNests, getNestById, updateNest, createNest, getPaginationNests, getPaginationNestsManage }
+export const deleteNest = async (req: Request, res: Response) => {
+  const {
+    params: { id }
+  } = await zParse(deleteNestSchema, req)
+  try {
+    if (res.locals.user.role !== 'manager') {
+      return res.status(400).json({ success: false, message: 'Người dùng không có quyền xóa.' })
+    }
+    const nest = await Nest.findById(id)
+    if (!nest) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy chim.' })
+    }
+    if (nest.sold === true) {
+      return res.status(400).json({ success: false, message: 'Chim đã được bán. Không thể xóa' })
+    }
+    await Nest.findByIdAndRemove(id)
+    res.status(200).json({ success: true, message: 'Đã xóa tổ chim non thành công' })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+export { getAllNests, getNestById, updateNest, createNest, getPaginationNests }

@@ -134,3 +134,10 @@ export const getBirdsBreedSchema = z.object({
     })
   })
 })
+export const deleteBirdSchema = z.object({
+  params: z.object({
+    id: z.string().refine((val) => {
+      return mongoose.Types.ObjectId.isValid(val)
+    })
+  })
+})
