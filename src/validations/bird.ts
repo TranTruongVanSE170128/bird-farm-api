@@ -91,6 +91,7 @@ export const updateBirdSchema = z.object({
     specie: z.string().trim().optional(),
     name: z.string().trim().optional(),
     sellPrice: z.coerce.number().optional(),
+    breeding: z.coerce.boolean().optional(),
     breedPrice: z.coerce.number().optional(),
     gender: z.enum(['male', 'female']).optional(),
     birth: z.coerce.date().optional(),
