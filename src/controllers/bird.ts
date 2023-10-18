@@ -120,7 +120,7 @@ export const getPaginationBirdsManage = async (req: Request, res: Response) => {
     if (gender) {
       query.gender = gender
     }
-    
+
     const sortCondition: any = () => {
       const [keySort, orderSort] = sort.split('_')
       if (keySort === 'price') {

@@ -101,16 +101,18 @@ export const deleteSpecie = async (req: Request, res: Response) => {
     if (!specie) {
       return res.status(400).json({ success: false, message: 'Không tìm thấy loài.' })
     }
-    const birds = await Bird.find({ specie: specieId })
-    if (birds.length > 0) {
-      return res.status(400).json({ success: false, message: 'Không thể xóa loài có dữ liệu chim.' })
+    const bird = await Bird.findOne({ specie: specieId })
+    const nest = await Nest.findOne({ specie: specieId })
+
+    if (bird || nest) {
+      return res.status(400).json({
+        success: false,
+        message: 'Không thể xóa loài chim có tồn tại một hoặc nhiều chim hoặc tổ chim thuộc về nó.'
+      })
     }
-    const nests = await Nest.find({ specie: specieId })
-    if (nests.length > 0) {
-      return res.status(400).json({ success: false, message: 'Không thể xóa loài có dữ liệu tổ chim.' })
-    }
-    Specie.findByIdAndRemove(specieId)
-    res.status(400).json({ success: false, message: 'Đã xóa loài thành công.' })
+
+    await Specie.findByIdAndRemove(specieId)
+    res.status(200).json({ success: false, message: 'Đã xóa loài thành công.' })
   } catch (err) {
     res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
   }
