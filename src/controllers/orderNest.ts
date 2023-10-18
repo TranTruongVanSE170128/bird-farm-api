@@ -160,9 +160,7 @@ export const requestCustomerToPayment = async (req: Request, res: Response) => {
     const dad = await Bird.findById(orderNest.dad)
     const mom = await Bird.findById(orderNest.mom)
     if (!dad || !mom) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'Không thể đổi trạng thái tổ chim non không có thông tin cha mẹ.' })
+      return res.status(400).json({ success: false, message: 'Không tìm thấy chim cha mẹ.' })
     }
     dad.breeding = false
     mom.breeding = false
@@ -314,15 +312,15 @@ export const cancelOrderNest = async (req: Request, res: Response) => {
   try {
     const orderNest = await OrderNest.findById(id)
     if (!orderNest) {
-      return res.status(400).json({ success: false, message: 'Không tìm thấy hóa đơn đặt tổ.' })
+      return res.status(400).json({ success: false, message: 'Không tìm thấy đơn đặt tổ.' })
     }
     if (res.locals.user.role === Role.Customer && !orderNest.user?.equals(res.locals.user._id)) {
-      return res.status(400).json({ success: false, message: 'Khách hàng không có quyền hủy đơn hàng này.' })
+      return res.status(400).json({ success: false, message: 'Bạn không có quyền hủy đơn hàng này.' })
     }
-    if (res.locals.Role === Role.Customer && !['wait-for-payment', 'processing'].includes(orderNest.status)) {
+    if (res.locals.Role === Role.Customer && !['processing'].includes(orderNest.status)) {
       return res
         .status(400)
-        .json({ success: false, message: 'Khách hàng không có quyền hủy đơn hàng có trạng thái:' + orderNest.status })
+        .json({ success: false, message: 'Bạn không có quyền hủy đơn hàng có trạng thái:' + orderNest.status })
     }
     if (!['processing', 'breeding', 'delivering', 'wait-for-payment'].includes(orderNest.status)) {
       return res
@@ -330,7 +328,6 @@ export const cancelOrderNest = async (req: Request, res: Response) => {
         .json({ success: false, message: 'Không thể hủy đơn hàng có trạng thái:' + orderNest.status })
     }
 
-    orderNest.status = 'canceled'
     const voucherID = orderNest?.voucher
     if (voucherID) {
       const voucher = await Voucher.findById(voucherID)
@@ -344,12 +341,13 @@ export const cancelOrderNest = async (req: Request, res: Response) => {
     const dad = await Bird.findById(orderNest.dad)
     const mom = await Bird.findById(orderNest.mom)
     if (!dad || !mom) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'Không thể đổi trạng thái tổ chim non không có thông tin cha mẹ.' })
+      return res.status(400).json({ success: false, message: 'Không tìm thấy chim cha mẹ.' })
     }
-    dad.breeding = false
-    mom.breeding = false
+    if (orderNest.status === 'breeding') {
+      dad.breeding = false
+      mom.breeding = false
+    }
+    orderNest.status = 'canceled'
     await dad.save()
     await mom.save()
     await orderNest.save()

@@ -23,7 +23,13 @@ export const getPaginationBirds = async (req: Request, res: Response) => {
   const sort = query.sort || 'createdAt_-1'
 
   try {
-    const query: any = { name: { $regex: searchQuery, $options: 'i' }, sold: false }
+    const query: any = {
+      name: { $regex: searchQuery, $options: 'i' },
+      $or: [
+        { breeding: false, type: 'breed' },
+        { sold: false, type: 'sell' }
+      ]
+    }
 
     if (specieId) {
       query.specie = new mongoose.Types.ObjectId(specieId)
@@ -32,7 +38,6 @@ export const getPaginationBirds = async (req: Request, res: Response) => {
     if (type) {
       query.type = type
     }
-    console.log(gender)
 
     if (gender) {
       query.gender = gender
@@ -105,17 +110,17 @@ export const getPaginationBirdsManage = async (req: Request, res: Response) => {
     if (type === 'breed') {
       query.type = type
       if (status === 'free') {
-        query.breading = false
+        query.breeding = false
       }
-      if (status === 'breading') {
-        query.breading = true
+      if (status === 'breeding') {
+        query.breeding = true
       }
     }
 
     if (gender) {
       query.gender = gender
     }
-
+    
     const sortCondition: any = () => {
       const [keySort, orderSort] = sort.split('_')
       if (keySort === 'price') {
@@ -132,7 +137,7 @@ export const getPaginationBirdsManage = async (req: Request, res: Response) => {
     const birds = await Bird.find(query)
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
-      .select('name imageUrls price gender discount specie type sellPrice breedPrice sold')
+      .select('name imageUrls price gender discount specie type sellPrice breedPrice sold breeding')
       .populate('specie')
       .sort(sortCondition())
       .exec()

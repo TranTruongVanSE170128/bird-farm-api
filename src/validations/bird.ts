@@ -11,14 +11,14 @@ export const getPaginationBirdsSchema = z.object({
       type: z.enum(['sell', 'breed']).optional(),
       gender: z.enum(['male', 'female']).optional(),
       sort: z.enum(['createdAt_-1', 'price_1', 'price_-1']).optional(),
-      status: z.enum(['selling', 'breading', 'sold', 'free']).optional()
+      status: z.enum(['selling', 'breeding', 'sold', 'free']).optional()
     })
     .refine((data) => {
       if (!data.type) {
         if (data.status === 'selling' || data.status === 'sold') {
           data.type = 'sell'
         }
-        if (data.status === 'breading' || data.status === 'free') {
+        if (data.status === 'breeding' || data.status === 'free') {
           data.type = 'breed'
         }
         return true
@@ -27,7 +27,7 @@ export const getPaginationBirdsSchema = z.object({
         return data.status === 'selling' || data.status === 'sold' || data.status === undefined
       }
       if (data.type === 'breed') {
-        return data.status === 'breading' || data.status === 'free' || data.status === undefined
+        return data.status === 'breeding' || data.status === 'free' || data.status === undefined
       }
     })
 })
