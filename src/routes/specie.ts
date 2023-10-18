@@ -1,11 +1,19 @@
 import express from 'express'
-import { getAllSpecies, addSpecie, updateSpecie, getPaginationSpecies, getSpecieDetail } from '../controllers/specie'
+import {
+  getAllSpecies,
+  addSpecie,
+  updateSpecie,
+  getPaginationSpecies,
+  getSpecieDetail,
+  deleteSpecie
+} from '../controllers/specie'
 import { validateRequestData } from '../middleware/validate-request-data'
 import {
   addSpecieSchema,
   updateSpecieSchema,
   getPaginationSpeciesSchema,
-  getSpecieDetailSchema
+  getSpecieDetailSchema,
+  deleteSpecieSchema
 } from '../validations/specie'
 import verifyToken from '../middleware/auth'
 import checkRole from '../middleware/checkRole'
@@ -23,4 +31,5 @@ router.get('/', getAllSpecies)
 
 router.post('/', verifyToken, checkRole([Role.Manager]), validateRequestData(addSpecieSchema), addSpecie)
 
+router.delete('/:id', verifyToken, checkRole([Role.Manager]), validateRequestData(deleteSpecieSchema), deleteSpecie)
 export default router

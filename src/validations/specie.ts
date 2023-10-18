@@ -31,3 +31,8 @@ export const updateSpecieSchema = z.object({
     description: z.string().trim().optional()
   })
 })
+export const deleteSpecieSchema = z.object({
+  params: z.object({
+    id: z.string().refine((value) => mongoose.Types.ObjectId.isValid(value))
+  })
+})
