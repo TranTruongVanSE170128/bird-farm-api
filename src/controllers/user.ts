@@ -4,6 +4,7 @@ import { zParse } from '../helpers/z-parse'
 import {
   addDeliveryInfoSchema,
   deleteDeliveryInfoSchema,
+  getPaginationUsersSchema,
   makeDefaultDeliveryInfoSchema,
   updateUserSchema
 } from '../validations/user'
@@ -11,12 +12,41 @@ import {
 export const whoAmI = async (req: Request, res: Response) => {
   const id = res.locals.user._id
 
-  const user = await User.findById(id)
+  const user = await User.findById(id).select('-password')
   if (!user) {
     return res.status(404).json({ message: 'Không tìm thấy người dùng', success: false })
   }
 
   return res.status(200).json({ success: true, message: 'Lấy người dùng thành công!', user })
+}
+
+export const getPaginationUsers = async (req: Request, res: Response) => {
+  const { query } = await zParse(getPaginationUsersSchema, req)
+  const pageSize = query.pageSize || 5
+  const pageNumber = query.pageNumber || 1
+
+  try {
+    const users = await User.find()
+      .select('-password')
+      .limit(pageSize)
+      .skip(pageSize * (pageNumber - 1))
+      .sort({ createdAt: -1 })
+      .exec()
+
+    const totalUsers = await User.countDocuments()
+
+    res.status(200).json({
+      success: true,
+      message: 'Lấy danh sách người dùng thành công!',
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalUsers / pageSize),
+      users
+    })
+  } catch (err) {
+    console.log(err)
+
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
 }
 
 export const makeDefaultDeliveryInfo = async (req: Request, res: Response) => {

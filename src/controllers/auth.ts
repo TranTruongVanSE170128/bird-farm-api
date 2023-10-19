@@ -35,7 +35,8 @@ const loginByGoogle = async (req: Request, res: Response) => {
     const newUser = new User({
       email,
       imageUrl,
-      name
+      name,
+      verified: true
     })
 
     await newUser.save()

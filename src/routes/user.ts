@@ -1,10 +1,18 @@
 import express from 'express'
-import { addDeliveryInfo, deleteDeliveryInfo, makeDefaultDeliveryInfo, updateUser, whoAmI } from '../controllers/user'
+import {
+  addDeliveryInfo,
+  deleteDeliveryInfo,
+  getPaginationUsers,
+  makeDefaultDeliveryInfo,
+  updateUser,
+  whoAmI
+} from '../controllers/user'
 import verifyToken from '../middleware/auth'
 import { validateRequestData } from '../middleware/validate-request-data'
 import {
   addDeliveryInfoSchema,
   deleteDeliveryInfoSchema,
+  getPaginationUsersSchema,
   makeDefaultDeliveryInfoSchema,
   updateUserSchema
 } from '../validations/user'
@@ -37,6 +45,14 @@ router.delete(
 )
 
 router.get('/who-am-i', verifyToken, whoAmI)
+
+router.get(
+  '/pagination',
+  verifyToken,
+  checkRole([Role.Admin]),
+  validateRequestData(getPaginationUsersSchema),
+  getPaginationUsers
+)
 
 router.post('/:id', verifyToken, validateRequestData(updateUserSchema), updateUser)
 

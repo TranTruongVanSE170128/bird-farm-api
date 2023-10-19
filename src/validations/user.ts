@@ -24,3 +24,10 @@ export const deleteDeliveryInfoSchema = z.object({
 export const makeDefaultDeliveryInfoSchema = z.object({
   params: z.object({ id: z.string().trim() })
 })
+
+export const getPaginationUsersSchema = z.object({
+  query: z.object({
+    pageSize: z.coerce.number().optional(),
+    pageNumber: z.coerce.number().optional()
+  })
+})
