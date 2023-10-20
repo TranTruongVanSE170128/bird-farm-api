@@ -3,6 +3,7 @@ import User from '../models/user'
 import { zParse } from '../helpers/z-parse'
 import {
   addDeliveryInfoSchema,
+  changeRoleSchema,
   deleteDeliveryInfoSchema,
   makeDefaultDeliveryInfoSchema,
   updateUserSchema
@@ -102,6 +103,27 @@ export const updateUser = async (req: Request, res: Response) => {
     }
     const user = await User.findByIdAndUpdate(id, body, { new: true })
     res.status(200).json({ success: true, message: 'Hồ sơ đã được cập nhật thành công.', user })
+  } catch (err) {
+    res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const changeRole = async (req: Request, res: Response) => {
+  const {
+    params: { id },
+    body: { role }
+  } = await zParse(changeRoleSchema, req)
+  try {
+    const user = await User.findById(id)
+    if (!user) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy user.' })
+    }
+    if (user.role === 'admin') {
+      return res.status(400).json({ success: false, message: 'Không được đổi quyền admin.' })
+    }
+    user.role = role
+    user.save()
+    res.status(200).json({ success: true, message: 'Phân quyền thành công.' })
   } catch (err) {
     res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
   }

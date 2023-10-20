@@ -1,9 +1,17 @@
 import express from 'express'
-import { addDeliveryInfo, deleteDeliveryInfo, makeDefaultDeliveryInfo, updateUser, whoAmI } from '../controllers/user'
+import {
+  addDeliveryInfo,
+  changeRole,
+  deleteDeliveryInfo,
+  makeDefaultDeliveryInfo,
+  updateUser,
+  whoAmI
+} from '../controllers/user'
 import verifyToken from '../middleware/auth'
 import { validateRequestData } from '../middleware/validate-request-data'
 import {
   addDeliveryInfoSchema,
+  changeRoleSchema,
   deleteDeliveryInfoSchema,
   makeDefaultDeliveryInfoSchema,
   updateUserSchema
@@ -19,6 +27,8 @@ router.put(
   validateRequestData(makeDefaultDeliveryInfoSchema),
   makeDefaultDeliveryInfo
 )
+
+router.put('/:id/role', verifyToken, checkRole([Role.Admin]), validateRequestData(changeRoleSchema), changeRole)
 
 router.post(
   '/delivery-info',

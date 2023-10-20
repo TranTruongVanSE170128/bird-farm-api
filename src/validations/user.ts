@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import z from 'zod'
 
 export const updateUserSchema = z.object({
@@ -23,4 +24,12 @@ export const deleteDeliveryInfoSchema = z.object({
 
 export const makeDefaultDeliveryInfoSchema = z.object({
   params: z.object({ id: z.string().trim() })
+})
+export const changeRoleSchema = z.object({
+  params: z.object({
+    id: z.coerce.string().refine((value) => mongoose.Types.ObjectId.isValid(value))
+  }),
+  body: z.object({
+    role: z.enum(['customer', 'staff', 'admin'])
+  })
 })
