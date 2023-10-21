@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import z from 'zod'
 
 export const updateUserSchema = z.object({
@@ -29,5 +30,13 @@ export const getPaginationUsersSchema = z.object({
   query: z.object({
     pageSize: z.coerce.number().optional(),
     pageNumber: z.coerce.number().optional()
+  })
+})
+export const changeRoleSchema = z.object({
+  params: z.object({
+    id: z.coerce.string().refine((value) => mongoose.Types.ObjectId.isValid(value))
+  }),
+  body: z.object({
+    role: z.enum(['customer', 'staff', 'admin', 'manager'])
   })
 })

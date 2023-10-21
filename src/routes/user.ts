@@ -3,6 +3,7 @@ import {
   addDeliveryInfo,
   deleteDeliveryInfo,
   getPaginationUsers,
+  changeRole,
   makeDefaultDeliveryInfo,
   updateUser,
   whoAmI
@@ -11,6 +12,7 @@ import verifyToken from '../middleware/auth'
 import { validateRequestData } from '../middleware/validate-request-data'
 import {
   addDeliveryInfoSchema,
+  changeRoleSchema,
   deleteDeliveryInfoSchema,
   getPaginationUsersSchema,
   makeDefaultDeliveryInfoSchema,
@@ -27,6 +29,8 @@ router.put(
   validateRequestData(makeDefaultDeliveryInfoSchema),
   makeDefaultDeliveryInfo
 )
+
+router.put('/:id/role', verifyToken, checkRole([Role.Admin]), validateRequestData(changeRoleSchema), changeRole)
 
 router.post(
   '/delivery-info',
