@@ -12,6 +12,7 @@ import orderRoute from './routes/order'
 import ratingRoute from './routes/rating'
 import orderNestRoute from './routes/orderNest'
 import voucherRoute from './routes/voucher'
+import mediaRoute from './routes/media'
 import helmet from 'helmet'
 import { stripeWebhook } from './controllers/stripe'
 import * as dotenv from 'dotenv'
@@ -49,6 +50,7 @@ app.use('/api/nests', nestRoute)
 app.use('/api/orders', orderRoute)
 app.use('/api/vouchers', voucherRoute)
 app.use('/api/order-nests', orderNestRoute)
+app.use('/api/media', mediaRoute)
 
 app.get('/', (req, res) => {
   res.json({ hello: 'hello world!' })
