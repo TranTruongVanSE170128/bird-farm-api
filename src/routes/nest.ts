@@ -7,8 +7,8 @@ import {
   getNestsByIds,
   deleteNest,
   getPaginationNestsManage,
-  randomParent,
-  randomDescription
+  // randomParent,
+  // randomDescription
 } from '../controllers/nest'
 import verifyToken from '../middleware/auth'
 import checkRole from '../middleware/checkRole'

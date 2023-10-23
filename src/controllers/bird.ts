@@ -11,7 +11,7 @@ import {
   updateBirdSchema,
   deleteBirdSchema
 } from '../validations/bird'
-import birdDescription from '../../random/bird-descriptions.json'
+// import birdDescription from '../../random/bird-descriptions.json'
 
 export const getPaginationBirds = async (req: Request, res: Response) => {
   const { query } = await zParse(getPaginationBirdsSchema, req)
@@ -277,44 +277,44 @@ export const deleteBird = async (req: Request, res: Response) => {
 }
 
 //dangerous
-export const randomParent = async (req: Request, res: Response) => {
-  try {
-    const birds = await Bird.find()
-    for (let i = 0; i < birds.length; i++) {
-      const bird = birds[i]
-      const ableParent = (await Bird.find({ specie: bird.specie })).filter(
-        (b) => b._id.toString() !== bird._id.toString()
-      )
-      const ableDads = ableParent.filter((b) => b.gender === 'male')
-      const ableMoms = ableParent.filter((b) => b.gender === 'female')
-      bird.parent = {
-        dad: ableDads.length > 0 ? ableDads[Math.floor(Math.random() * ableDads.length)].id : undefined,
-        mom: ableMoms.length > 0 ? ableMoms[Math.floor(Math.random() * ableMoms.length)].id : undefined
-      }
-      await bird.save()
-    }
-    res.status(200).json({ success: true, message: 'Ngẫu nhiên chim bố mẹ thành công' })
-  } catch (err) {
-    console.log(err)
-    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
-  }
-}
+// export const randomParent = async (req: Request, res: Response) => {
+//   try {
+//     const birds = await Bird.find()
+//     for (let i = 0; i < birds.length; i++) {
+//       const bird = birds[i]
+//       const ableParent = (await Bird.find({ specie: bird.specie })).filter(
+//         (b) => b._id.toString() !== bird._id.toString()
+//       )
+//       const ableDads = ableParent.filter((b) => b.gender === 'male')
+//       const ableMoms = ableParent.filter((b) => b.gender === 'female')
+//       bird.parent = {
+//         dad: ableDads.length > 0 ? ableDads[Math.floor(Math.random() * ableDads.length)].id : undefined,
+//         mom: ableMoms.length > 0 ? ableMoms[Math.floor(Math.random() * ableMoms.length)].id : undefined
+//       }
+//       await bird.save()
+//     }
+//     res.status(200).json({ success: true, message: 'Ngẫu nhiên chim bố mẹ thành công' })
+//   } catch (err) {
+//     console.log(err)
+//     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+//   }
+// }
 
-export const randomDescription = async (req: Request, res: Response) => {
-  try {
-    const birds = await Bird.find()
-    for (let i = 0; i < birds.length; i++) {
-      const bird = birds[i]
+// export const randomDescription = async (req: Request, res: Response) => {
+//   try {
+//     const birds = await Bird.find()
+//     for (let i = 0; i < birds.length; i++) {
+//       const bird = birds[i]
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const ableDescriptions = birdDescription?.find((item) => item[bird.specie] !== undefined)?.[bird.specie]
-      bird.description = ableDescriptions[Math.floor(Math.random() * ableDescriptions.length)]
-      await bird.save()
-    }
-    res.status(200).json({ success: true, message: 'Ngẫu nhiên mô tả thành công' })
-  } catch (err) {
-    console.log(err)
-    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
-  }
-}
+//       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//       // @ts-ignore
+//       const ableDescriptions = birdDescription?.find((item) => item[bird.specie] !== undefined)?.[bird.specie]
+//       bird.description = ableDescriptions[Math.floor(Math.random() * ableDescriptions.length)]
+//       await bird.save()
+//     }
+//     res.status(200).json({ success: true, message: 'Ngẫu nhiên mô tả thành công' })
+//   } catch (err) {
+//     console.log(err)
+//     res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+//   }
+// }

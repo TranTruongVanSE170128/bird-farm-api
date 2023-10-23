@@ -9,8 +9,8 @@ import {
   updateBird,
   getPaginationBirdsManage,
   deleteBird,
-  randomParent,
-  randomDescription
+  // randomParent,
+  // randomDescription
 } from '../controllers/bird'
 import { validateRequestData } from '../middleware/validate-request-data'
 import {
