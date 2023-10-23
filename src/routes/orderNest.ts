@@ -92,7 +92,7 @@ router.get(
   '/:id',
   verifyToken,
   validateRequestData(getOrderNestDetailSchema),
-  checkRole([Role.Staff]),
+  checkRole([Role.Staff, Role.Customer]),
   getOrderNestDetail
 )
 
