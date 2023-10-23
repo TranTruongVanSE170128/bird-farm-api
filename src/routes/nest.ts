@@ -46,6 +46,6 @@ router.post('/', verifyToken, checkRole([Role.Manager]), validateRequestData(cre
 
 //dangerous
 // router.put('/dangerous/random-parent', randomParent)
-router.put('/dangerous/random-description', randomDescription)
+// router.put('/dangerous/random-description', randomDescription)
 
 export default router
