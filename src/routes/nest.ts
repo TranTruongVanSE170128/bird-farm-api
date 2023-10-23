@@ -6,7 +6,9 @@ import {
   getPaginationNests,
   getNestsByIds,
   deleteNest,
-  getPaginationNestsManage
+  getPaginationNestsManage,
+  randomParent,
+  randomDescription
 } from '../controllers/nest'
 import verifyToken from '../middleware/auth'
 import checkRole from '../middleware/checkRole'
@@ -41,5 +43,9 @@ router.put('/:id', verifyToken, checkRole([Role.Manager]), validateRequestData(u
 router.delete('/:id', verifyToken, checkRole([Role.Manager]), validateRequestData(deleteNestSchema), deleteNest)
 
 router.post('/', verifyToken, checkRole([Role.Manager]), validateRequestData(createNestSchema), createNest)
+
+//dangerous
+// router.put('/dangerous/random-parent', randomParent)
+router.put('/dangerous/random-description', randomDescription)
 
 export default router

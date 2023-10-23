@@ -8,7 +8,9 @@ import {
   createBird,
   updateBird,
   getPaginationBirdsManage,
-  deleteBird
+  deleteBird,
+  randomParent,
+  randomDescription
 } from '../controllers/bird'
 import { validateRequestData } from '../middleware/validate-request-data'
 import {
@@ -48,5 +50,8 @@ router.put('/:id', verifyToken, checkRole([Role.Manager]), validateRequestData(u
 router.delete('/:id', verifyToken, checkRole([Role.Manager]), validateRequestData(deleteBirdSchema), deleteBird)
 
 router.post('/', verifyToken, checkRole([Role.Manager]), validateRequestData(createBirdSchema), createBird)
+
+// router.put('/dangerous/random-parent', randomParent)
+// router.put('/dangerous/random-description', randomDescription)
 
 export default router

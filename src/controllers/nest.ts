@@ -9,6 +9,8 @@ import {
   updateNestSchema,
   deleteNestSchema
 } from '../validations/nest'
+import Bird from '../models/bird'
+import nestDescription from '../../random/nest-descriptions.json'
 
 const getAllNests = async (req: Request, res: Response) => {
   try {
@@ -197,3 +199,42 @@ export const deleteNest = async (req: Request, res: Response) => {
   }
 }
 export { getAllNests, getNestById, updateNest, createNest, getPaginationNests, getPaginationNestsManage }
+
+//dangerous
+export const randomParent = async (req: Request, res: Response) => {
+  try {
+    const nests = await Nest.find()
+    for (let i = 0; i < nests.length; i++) {
+      const nest = nests[i]
+      const ableParent = await Bird.find({ specie: nest.specie })
+      const ableDads = ableParent.filter((b) => b.gender === 'male')
+      const ableMoms = ableParent.filter((b) => b.gender === 'female')
+      nest.dad = ableDads.length > 0 ? ableDads[Math.floor(Math.random() * ableDads.length)].id : undefined
+      nest.mom = ableMoms.length > 0 ? ableMoms[Math.floor(Math.random() * ableMoms.length)].id : undefined
+      await nest.save()
+    }
+    res.status(200).json({ success: true, message: 'Ngẫu nhiên chim bố mẹ thành công' })
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
+
+export const randomDescription = async (req: Request, res: Response) => {
+  try {
+    const nests = await Nest.find()
+    for (let i = 0; i < nests.length; i++) {
+      const nest = nests[i]
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const ableDescriptions = nestDescription?.find((item) => item[nest.specie] !== undefined)?.[nest.specie]
+      nest.description = ableDescriptions[Math.floor(Math.random() * ableDescriptions.length)]
+      await nest.save()
+    }
+    res.status(200).json({ success: true, message: 'Ngẫu nhiên mô tả thành công' })
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ success: false, message: 'Lỗi hệ thống!' })
+  }
+}
