@@ -9,6 +9,8 @@ import {
   makeDefaultDeliveryInfoSchema,
   updateUserSchema
 } from '../validations/user'
+import { objectId } from '../helpers/object-id'
+import { Types } from 'mongoose'
 
 export const whoAmI = async (req: Request, res: Response) => {
   const id = res.locals.user._id
@@ -112,7 +114,7 @@ export const addDeliveryInfo = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Không tìm thấy người dùng' })
     }
 
-    user.deliveryInfos.push({ ...body, default: user.deliveryInfos.length === 0 })
+    user.deliveryInfos.push({ ...body, default: user.deliveryInfos.length === 0, _id: new Types.ObjectId() })
     await user.save()
 
     res.status(200).json({ success: true, message: 'Thêm địa chỉ thành công.', user })

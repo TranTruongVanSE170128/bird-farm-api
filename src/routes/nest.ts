@@ -6,7 +6,7 @@ import {
   getPaginationNests,
   getNestsByIds,
   deleteNest,
-  getPaginationNestsManage,
+  getPaginationNestsManage
   // randomParent,
   // randomDescription
 } from '../controllers/nest'

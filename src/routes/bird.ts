@@ -8,7 +8,7 @@ import {
   createBird,
   updateBird,
   getPaginationBirdsManage,
-  deleteBird,
+  deleteBird
   // randomParent,
   // randomDescription
 } from '../controllers/bird'
