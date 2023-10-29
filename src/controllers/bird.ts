@@ -204,7 +204,13 @@ export const getBirdsByIds = async (req: Request, res: Response) => {
   } = await zParse(getBirdsByIdsSchema, req)
 
   try {
-    const query = { _id: { $in: ids } }
+    const query = {
+      _id: { $in: ids },
+      $or: [
+        { breeding: false, type: 'breed' },
+        { sold: false, type: 'sell' }
+      ]
+    }
 
     const birds = await Bird.find(query).select('-sold -description').populate('specie', { name: 1 })
 
