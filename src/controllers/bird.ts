@@ -241,6 +241,9 @@ export const updateBird = async (req: Request, res: Response) => {
 
   try {
     const bird = await Bird.findByIdAndUpdate(id, body, { new: true })
+    if (bird?.sold) {
+      return res.status(200).json({ success: true, message: 'Chim đã được bán không thể cập nhập.' })
+    }
     res.status(200).json({ success: true, message: 'Chim đã được cập nhật thành công.', bird })
   } catch (err) {
     res.status(500).json({ success: true, message: 'Lỗi hệ thống!' })
