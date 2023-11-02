@@ -126,6 +126,14 @@ export const approveOrderNest = async (req: Request, res: Response) => {
     if (!dad || !mom) {
       return res.status(400).json({ success: false, message: 'Không tìm thấy chim đực hoặc cái để phối giống.' })
     }
+
+    if (dad.breeding || mom.breeding) {
+      return res.status(400).json({
+        success: false,
+        message: 'Không thể chấp nhận đơn phối giống có chim đang phối giống ở đơn phối giống khác'
+      })
+    }
+
     dad.breeding = true
     mom.breeding = true
     orderNest.status = 'breeding'
@@ -326,16 +334,6 @@ export const cancelOrderNest = async (req: Request, res: Response) => {
       return res
         .status(400)
         .json({ success: false, message: 'Không thể hủy đơn hàng có trạng thái:' + orderNest.status })
-    }
-
-    const voucherID = orderNest?.voucher
-    if (voucherID) {
-      const voucher = await Voucher.findById(voucherID)
-      if (voucher) {
-        voucher.users = voucher.users.filter((userId) => userId.toString() !== res.locals.user.id.toString())
-        voucher.quantity += 1
-        await voucher.save()
-      }
     }
 
     const dad = await Bird.findById(orderNest.dad)
