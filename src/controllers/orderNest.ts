@@ -165,6 +165,14 @@ export const requestCustomerToPayment = async (req: Request, res: Response) => {
         message: 'Không thể yêu cầu thanh toán đơn tổ chim đang có trạng thái:' + orderNest.status
       })
     }
+
+    if (orderNest.numberChildPriceFemale === 0 && orderNest.numberChildPriceMale === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Không thể yêu cầu thanh toán đơn tổ chim không có chim non'
+      })
+    }
+
     const dad = await Bird.findById(orderNest.dad)
     const mom = await Bird.findById(orderNest.mom)
     if (!dad || !mom) {
