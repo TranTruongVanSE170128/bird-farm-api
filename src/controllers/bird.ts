@@ -255,10 +255,10 @@ export const updateBird = async (req: Request, res: Response) => {
   try {
     const birdUpdate = await Bird.findById(id)
     if (birdUpdate?.sold) {
-      return res.status(200).json({ success: false, message: 'Không thể cập nhập chim đã bán.' })
+      return res.status(400).json({ success: false, message: 'Không thể cập nhập chim đã bán.' })
     }
     if (birdUpdate?.breeding) {
-      return res.status(200).json({ success: false, message: 'Không thể cập nhập chim đang phối giống.' })
+      return res.status(400).json({ success: false, message: 'Không thể cập nhập chim đang phối giống.' })
     }
     const bird = await Bird.findByIdAndUpdate(id, body, { new: true })
     res.status(200).json({ success: true, message: 'Chim đã được cập nhật thành công.', bird })
