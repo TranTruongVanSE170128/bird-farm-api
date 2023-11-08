@@ -9,19 +9,32 @@ export const createRating = async (req: Request, res: Response) => {
   const { body } = await zParse(createRatingSchema, req)
 
   try {
-    const order = body.order ? await Order.findById(body.order) : await OrderNest.findById(body.orderNest)
+    const order = body.order && (await Order.findById(body.order))
+    const orderNest = body.orderNest && (await OrderNest.findById(body.orderNest))
 
-    if (!order) {
+    if (!order && !orderNest) {
       return res.status(400).json({ success: false, message: 'Không tìm thấy đơn hàng' })
     }
 
-    if (order.user && !order.user.equals(res.locals.user._id)) {
+    if (order && order.user && !order.user.equals(res.locals.user._id)) {
+      return res.status(400).json({ success: false, message: 'Bạn không có quyền đnah giá đơn hàng này' })
+    }
+
+    if (orderNest && orderNest.user && !orderNest.user.equals(res.locals.user._id)) {
       return res.status(400).json({ success: false, message: 'Bạn không có quyền đnah giá đơn hàng này' })
     }
 
     const newRating = new Rating({ ...body, user: res.locals.user.id })
-    order.rated = true
-    await order.save()
+
+    if (order) {
+      order.rated = true
+      await order.save()
+    }
+
+    if (orderNest) {
+      orderNest.rated = true
+      await orderNest.save()
+    }
     await newRating.save()
 
     res.status(201).json({ success: true, message: 'Đánh giá thành công.', rating: newRating })
@@ -43,6 +56,34 @@ export const getPaginationRatings = async (req: Request, res: Response) => {
   try {
     const ratings = await Rating.find(queryMongo)
       .populate('user')
+      .populate({
+        path: 'order',
+        populate: {
+          path: 'nests',
+          model: 'Nest'
+        }
+      })
+      .populate({
+        path: 'order',
+        populate: {
+          path: 'birds',
+          model: 'Bird'
+        }
+      })
+      .populate({
+        path: 'orderNest',
+        populate: {
+          path: 'dad',
+          model: 'Bird'
+        }
+      })
+      .populate({
+        path: 'orderNest',
+        populate: {
+          path: 'mom',
+          model: 'Bird'
+        }
+      })
       .sort({ createdAt: -1 })
       .limit(pageSize)
       .skip(pageSize * (pageNumber - 1))
