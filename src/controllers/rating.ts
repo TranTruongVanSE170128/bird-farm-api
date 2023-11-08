@@ -60,14 +60,22 @@ export const getPaginationRatings = async (req: Request, res: Response) => {
         path: 'order',
         populate: {
           path: 'nests',
-          model: 'Nest'
+          model: 'Nest',
+          populate: {
+            path: 'specie',
+            model: 'Specie'
+          }
         }
       })
       .populate({
         path: 'order',
         populate: {
           path: 'birds',
-          model: 'Bird'
+          model: 'Bird',
+          populate: {
+            path: 'specie',
+            model: 'Specie'
+          }
         }
       })
       .populate({
@@ -82,6 +90,13 @@ export const getPaginationRatings = async (req: Request, res: Response) => {
         populate: {
           path: 'mom',
           model: 'Bird'
+        }
+      })
+      .populate({
+        path: 'orderNest',
+        populate: {
+          path: 'specie',
+          model: 'Specie'
         }
       })
       .sort({ createdAt: -1 })
