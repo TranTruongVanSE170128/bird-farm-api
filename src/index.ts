@@ -16,6 +16,7 @@ import mediaRoute from './routes/media'
 import helmet from 'helmet'
 import { stripeWebhook } from './controllers/stripe'
 import * as dotenv from 'dotenv'
+import { getStatistical } from './controllers/statistical'
 dotenv.config()
 
 const connectDB = async () => {
@@ -51,6 +52,7 @@ app.use('/api/orders', orderRoute)
 app.use('/api/vouchers', voucherRoute)
 app.use('/api/order-nests', orderNestRoute)
 app.use('/api/media', mediaRoute)
+app.get('/api/statistical', getStatistical)
 
 app.get('/', (req, res) => {
   res.json({ hello: 'hello world!' })
