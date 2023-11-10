@@ -156,6 +156,15 @@ export const getNestsByIds = async (req: Request, res: Response) => {
 const createNest = async (req: Request, res: Response) => {
   const { body } = await zParse(createNestSchema, req)
   try {
+    const duplicateNest = await Nest.findOne({ name: body.name })
+    if (duplicateNest) {
+      return res.status(400).json({
+        success: false,
+        message: 'Mã số tổ chim đã bị trùng, hãy tải lại trang để nhận mã khác',
+        duplicateNest
+      })
+    }
+
     const newNest = new Nest(body)
     await newNest.save()
 
@@ -173,6 +182,15 @@ const updateNest = async (req: Request, res: Response) => {
   } = await zParse(updateNestSchema, req)
 
   try {
+    const duplicateNest = await Nest.findOne({ name: body.name })
+    if (duplicateNest) {
+      return res.status(400).json({
+        success: false,
+        message: 'Mã số tổ chim đã bị trùng, hãy tải lại trang để nhận mã khác',
+        duplicateNest
+      })
+    }
+
     const nest = await Nest.findByIdAndUpdate(id, body, { new: true })
     res.status(200).json({ success: true, message: 'Tổ chim đã được cập nhật thành công.', nest })
   } catch (err) {

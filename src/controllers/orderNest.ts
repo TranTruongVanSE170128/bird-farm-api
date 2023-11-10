@@ -232,8 +232,10 @@ export const paymentTheRest = async (req: Request, res: Response) => {
   try {
     const orderNest = await OrderNest.findById(id)
 
+    console.log({ orderNest })
+
     if (!orderNest) {
-      return res.status(400).json({ success: false, message: 'Không tìm đơn tổ chim' })
+      return res.status(400).json({ success: false, message: 'Không tìm thấy đơn tổ chim' })
     }
 
     if (!orderNest.user?.equals(res.locals.user._id)) {

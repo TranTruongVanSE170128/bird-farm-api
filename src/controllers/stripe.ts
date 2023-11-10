@@ -33,6 +33,10 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
     const validNestIds = nestIds.filter((id: string) => isValidObjectId(id))
     const nests = await Nest.find({ _id: { $in: validNestIds } })
 
+    if (birds.length === 0 && nests.length === 0) {
+      return res.status(400).json({ success: false, message: 'Giỏ hàng rỗng' })
+    }
+
     let totalMoney = 0
 
     birds.forEach(async (bird) => {
@@ -285,6 +289,10 @@ export const stripeWebhook = (req: Request, res: Response) => {
           let totalMoney = 0
           const birds = await Bird.find({ _id: { $in: birdIds } })
           const nests = await Nest.find({ _id: { $in: nestIds } })
+
+          if (birds.length === 0 && nests.length === 0) {
+            throw new Error('Giỏ hàng rỗng')
+          }
 
           birds.forEach((bird) => {
             totalMoney += bird?.sellPrice || 0

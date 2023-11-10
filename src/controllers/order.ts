@@ -128,6 +128,10 @@ export const createOrder = async (req: Request, res: Response) => {
     const birds = await Bird.find({ _id: { $in: birdIds } })
     const nests = await Nest.find({ _id: { $in: nestIds } })
 
+    if (birds.length === 0 && nests.length === 0) {
+      return res.status(400).json({ success: false, message: 'Giỏ hàng rỗng' })
+    }
+
     birds.forEach(async (bird) => {
       totalMoney += bird?.sellPrice || 0
     })

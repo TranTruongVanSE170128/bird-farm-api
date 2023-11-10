@@ -9,7 +9,8 @@ import {
   // getPaginationBirdsAdminSchema,
   getPaginationBirdsSchema,
   updateBirdSchema,
-  deleteBirdSchema
+  deleteBirdSchema,
+  createBirdSchema
 } from '../validations/bird'
 // import birdDescription from '../../random/bird-descriptions.json'
 
@@ -187,8 +188,16 @@ export const getBirdDetail = async (req: Request, res: Response) => {
 }
 
 export const createBird = async (req: Request, res: Response) => {
+  const { body } = await zParse(createBirdSchema, req)
   try {
-    const newBird = new Bird(req.body)
+    const duplicateBird = await Bird.findOne({ name: body.name })
+    if (duplicateBird) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Mã số chim đã bị trùng, hãy tải lại trang để nhận mã khác', duplicateBird })
+    }
+
+    const newBird = new Bird(body)
     await newBird.save()
 
     res.status(201).json({ success: true, message: 'Chim mới đã được tạo thành công.', bird: newBird })
@@ -253,6 +262,13 @@ export const updateBird = async (req: Request, res: Response) => {
   } = await zParse(updateBirdSchema, req)
 
   try {
+    const duplicateBird = await Bird.findOne({ name: body.name })
+    if (duplicateBird) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Mã số chim đã bị trùng, hãy tải lại trang để nhận mã khác', duplicateBird })
+    }
+
     const birdUpdate = await Bird.findById(id)
     if (birdUpdate?.sold) {
       return res.status(400).json({ success: false, message: 'Không thể cập nhập chim đã bán.' })
