@@ -29,7 +29,7 @@ const connectDB = async () => {
   }
 }
 
-connectDB() 
+connectDB()
 
 const app = express()
 
