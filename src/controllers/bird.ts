@@ -263,7 +263,7 @@ export const updateBird = async (req: Request, res: Response) => {
 
   try {
     const duplicateBird = await Bird.findOne({ name: body.name })
-    if (duplicateBird) {
+    if (duplicateBird && duplicateBird.id !== id) {
       return res
         .status(400)
         .json({ success: false, message: 'Mã số chim đã bị trùng, hãy tải lại trang để nhận mã khác', duplicateBird })

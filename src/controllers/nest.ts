@@ -183,7 +183,7 @@ const updateNest = async (req: Request, res: Response) => {
 
   try {
     const duplicateNest = await Nest.findOne({ name: body.name })
-    if (duplicateNest) {
+    if (duplicateNest && duplicateNest.id === id) {
       return res.status(400).json({
         success: false,
         message: 'Mã số tổ chim đã bị trùng, hãy tải lại trang để nhận mã khác',
